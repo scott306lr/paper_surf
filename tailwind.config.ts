@@ -1,8 +1,9 @@
 import { type Config } from "tailwindcss";
 import { fontFamily } from "tailwindcss/defaultTheme";
+import flowbite from "flowbite/plugin";
 
 export default {
-  content: ["./src/**/*.tsx"],
+  content: ["./src/**/*.tsx", "./node_modules/flowbite-react/lib/**/*.js"],
   theme: {
     extend: {
       fontFamily: {
@@ -10,5 +11,5 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [flowbite],
 } satisfies Config;
