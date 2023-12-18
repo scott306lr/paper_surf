@@ -19,12 +19,15 @@ export function MySidebar() {
             TestUrl Page
           </Sidebar.Item>
           <Sidebar.Item
-            href="#"
+            href="/lr_test"
             icon={HiViewBoards as IconType}
             label="Pro"
             labelColor="dark"
           >
             LR Test Page
+          </Sidebar.Item>
+          <Sidebar.Item href="/intu_test" icon={HiChartPie as IconType}>
+            Intu Test Page
           </Sidebar.Item>
         </Sidebar.ItemGroup>
       </Sidebar.Items>
