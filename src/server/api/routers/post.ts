@@ -51,12 +51,25 @@ export const postRouter = createTRPCRouter({
   TestData: publicProcedure
   .input(z.object({ key: z.string()}))
   .query(async ({ input }) => {
-    const data = Test(input.key);
-    return data;
+    return getTest(input.key);
   }),
 });
 
-const Test = async (key: string) => {
+const getPaper = async (key: string) => {
+  const response = await fetch(search_url + key + "&limit=1", {
+      method: "GET",
+      headers: {
+          "x-api-key": "ftAySEDKEx5x1V5WQ4XCt1iDvrbDJ0zuaNAkeUeH",
+      }
+  })
+      .then((response) => response.json())
+      .then((data) => data.data)
+      .catch((error) => { console.log(error) });
+  const paperIdList = response.map((paper: any) => paper.paperId);
+  return paperIdList;
+};
+
+const getTest = async (key: string) => {
   const response = await fetch(search_url + key + "&limit=10&fields=paperId,embedding,abstract,tldr", {
       method: "GET",
       headers: {
@@ -64,32 +77,17 @@ const Test = async (key: string) => {
       }
   })
       .then((response) => response.json())
+      .then((data) => data.data)
       .then((data) => 
-        data.map((d : any) => {
-          return {
+        data.map((d : any) => ({
             paperId: d.paperId as string,
             embedding: d.embedding as Array<number>,
             abstract: d.abstract as string,
             tldr: d.tldr == null ? null : d.tldr.text as string,
-          }
-        }))
+          })))
       .catch((error) => { console.log(error) });
   return response
 }
-
-const getPaper = async (key: string) => {
-  const response = await fetch(search_url + key + "&limit=10", {
-      method: "GET",
-      headers: {
-          "x-api-key": "ftAySEDKEx5x1V5WQ4XCt1iDvrbDJ0zuaNAkeUeH",
-      }
-  })
-      .then((response) => response.json())
-      .then((data) => { return data.data })
-      .catch((error) => { console.log(error) });
-  const paperIdList = response.map((paper: any) => paper.paperId);
-  return paperIdList;
-};
 
 const PostPaper = async (data: any, citations: boolean) => {
   var fields = [];

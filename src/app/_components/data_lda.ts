@@ -30,10 +30,10 @@ export const topic_extraction = async( data : any ) => {
 }
 
 export const test_topic = async(key : any) => {
-    const data = await api.post.TestData.query({ key: key});
+    const data = await api.post.TestData.query({key: key});
     for(var i = 0; i < data.length; i++){
-        const topic = lda_f(data[i]['abstract'], data[i]['tldr'])
-        data[i]['topic'] = topic
+        const result = lda_f(data[i]['abstract'], data[i]['tldr'])
+        data[i]['lda'] = result
     }
     return data;
 }
@@ -51,7 +51,9 @@ const lda_f = ( abstraction : string, tldr : string ) => {
 
     var documents = text.match( /[^\.!\?]+[\.!\?]+/g );
 
-    var result = lda(documents, 1, 10).map((r: any) => r.map((t: any) => t.term));
+    var result = lda(documents, 1, 10);
+    // var topic = result.map((r: any) => r.map((t: any) => t.term as string))
+    // var prob = result.map((r: any) => r.map((t: any) => t.probability as number))
 
-    return result[0];
+    return result;
 }
