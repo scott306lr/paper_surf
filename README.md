@@ -2,9 +2,8 @@
 
 ```src/pages/``` 底下為url router的結構，預設為index.tsx。
 若需要創建子component, 可以1.建立在同份文件裡，或是2.在```src/components/```底下創建。
-若想要寫一些utility function，可以在```src/utils/```底下創建。
-
-```src/server/server_```底下為server端的程式碼，```src/server/api/```底下為trpc的程式碼。
+若想要寫一些utility function，可以在```src/utils/```底下創建，
+server端的utility function請寫在```src/server/server_utils```底下。 (ex. fetchHandler.ts)
 
 
 ```src/server/api/root```為trpc api的根目錄，如何使用trpc可以參照`pages/lr_test/index.tsx.`
