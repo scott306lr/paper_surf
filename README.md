@@ -1,3 +1,18 @@
+# 程式架構
+
+```src/pages/``` 底下為url router的結構，預設為index.tsx。
+若需要創建子component, 可以1.建立在同份文件裡，或是2.在```src/components/```底下創建。
+若想要寫一些utility function，可以在```src/utils/```底下創建。
+
+```src/server/server_```底下為server端的程式碼，```src/server/api/```底下為trpc的程式碼。
+
+
+```src/server/api/root```為trpc api的根目錄，如何使用trpc可以參照`pages/lr_test/index.tsx.`
+```src/server/api/root/routers```為implement trpc hooks 的地方。
+
+
+
+
 # Create T3 App
 
 This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.

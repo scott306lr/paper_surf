@@ -21,12 +21,9 @@
     "flowbite-react": "^0.7.2",
     "lda": "^0.2.0",
     "next": "^14.0.3",
-    "node-gyp": "^10.0.1",
-    "node-snowball": "^0.7.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-icons": "^4.12.0",
-    "server-only": "^0.0.1",
     "superjson": "^2.2.1",
     "zod": "^3.22.4"
   },
@@ -47,7 +44,7 @@
     "typescript": "^5.1.6"
   },
   "ct3aMetadata": {
-    "initVersion": "7.24.2"
+    "initVersion": "7.25.0"
   },
   "packageManager": "pnpm@8.7.5"
 }
