@@ -4,12 +4,37 @@ import { Alert } from "flowbite-react";
 import { useState } from "react";
 import { api } from "~/utils/api";
 
-export default function LRTest() {
+import { ForceGraph3D } from "~/components/ForceGraph3DWrapper";
+import SpriteText from "three-spritetext";
+
+export default function GraphTest() {
   const [input, setInput] = useState("play chess");
   const { data, isLoading, error } = api.scholar.searchByInput.useQuery({
     input: input,
   });
   console.log(data);
+
+  // const graphData = {
+  //   nodes: [{ id: "Harry" }, { id: "Sally" }, { id: "Alice" }, { id: "Jerry" }],
+  //   links: [
+  //     { source: "Harry", target: "Sally" },
+  //     { source: "Harry", target: "Alice" },
+  //     { source: "Alice", target: "Jerry" },
+  //   ],
+  // };
+
+  // data have paperId, title.
+  // citations betweeen them will be randomly generated.
+  const nodes = data?.map((item) => {
+    return { id: item.paperId, title: item.title };
+  });
+  const links = data?.map((item) => {
+    return {
+      source: item.paperId,
+      target: data[Math.floor(Math.random() * data.length)]?.paperId,
+    };
+  });
+  const graphData = { nodes: nodes, links: links };
 
   return (
     <>
@@ -50,13 +75,23 @@ export default function LRTest() {
         ) : error ? (
           <Alert color="red">{error.message}</Alert>
         ) : (
-          <ul>
-            {data?.map((item, idx) => (
-              <li key={item.paperId}>
-                {idx + 1}: {item.title}
-              </li>
-            ))}
-          </ul>
+          <ForceGraph3D
+            graphData={graphData}
+            nodeThreeObjectExtend={true}
+            nodeThreeObject={(node) => {
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+              const sprite = new SpriteText(node.title) as any;
+              sprite.color = "#FFFFFF";
+              sprite.backgroundColor = false; //assignColor(node?.id);
+              sprite.textHeight = 16;
+              sprite.borderRadius = 0.9;
+              sprite.padding = [3, 1];
+              sprite.position.x = -2;
+              sprite.position.y = 30;
+              sprite.position.z = 10;
+              return sprite;
+            }}
+          />
         )}
       </main>
     </>
