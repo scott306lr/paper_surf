@@ -6,6 +6,8 @@ import { api } from "~/utils/api";
 
 import { ForceGraph3D } from "~/components/ForceGraph3DWrapper";
 import SpriteText from "three-spritetext";
+import { data_to_graph } from "~/utils/graph_utils";
+
 
 export default function GraphTest() {
   const [input, setInput] = useState("play chess");
@@ -25,16 +27,16 @@ export default function GraphTest() {
 
   // data have paperId, title.
   // citations betweeen them will be randomly generated.
-  const nodes = data?.map((item) => {
-    return { id: item.paperId, title: item.title };
-  });
-  const links = data?.map((item) => {
-    return {
-      source: item.paperId,
-      target: data[Math.floor(Math.random() * data.length)]?.paperId,
-    };
-  });
-  const graphData = { nodes: nodes, links: links };
+  // const nodes = data?.map((item) => {
+  //   return { id: item.paperId, title: item.title };
+  // });
+  // const links = data?.map((item) => {
+  //   return {
+  //     source: item.paperId,
+  //     target: data[Math.floor(Math.random() * data.length)]?.paperId,
+  //   };
+  // });
+  const graphData = data && data_to_graph(data);
 
   return (
     <>

@@ -1,31 +1,37 @@
-import { api } from "~/trpc/server";
-import { topic_extraction, test_topic } from "~/app/_utils/data_lda";
+import { api } from "~/utils/api";
+import { useState } from "react";
+
+import { topic_extraction } from "~/server/server_utils/myLDA";
+
 
 export default function TestUrl() {
-  // const data = await api.post.getData.query({ key: 'music'});
+  // const [input, setInput] = useState("play chess");
+  const { data } = api.scholar.searchByInput.useQuery({
+    input: "play chess",
+  });
+  // const run_lda = api.scholar.lda.useMutation();
 
-  // const data = await api.post.PostData.query({ key : ['521ede5e064c64c55349c53861819b9ac39cc2d6'], citations: true})
+  const tolda = data?.map((item) => {
+    return { paperId: item.paperId, abstract: item.abstract };
+  });
 
-  // console.log(data);
+  const { data: result } = api.scholar.lda.useQuery({
+    input: tolda ?? []
+  });
 
-  // const data_topic = await topic_extraction(data);
 
-  // console.log('aaa', data_topic[0][0].topic);
+  // const { data, isLoading, error } = api.scholar.searchByInput.useQuery({
+  //   input: "play chess",
+  // });
 
-  // var text = 'Cats are small. Dogs are big. Cats like to chase mice. Dogs like to eat bones.';
+  // console.log('aavv', data, isLoading, error)
+  // // const data2 = topic_extraction(data);
+  // // console.log('aaa', data, isLoading, error);
 
-  // // Extract sentences.
-  // var documents = text.match( /[^\.!\?]+[\.!\?]+/g );
 
-  // console.log(documents)
+  console.log('aaa', data);
+  console.log('bbb', result);
 
-  // // Run LDA to get terms for 2 topics (5 terms each).
-  // var result = lda(documents, 5, 5);
-
-  // console.log(result);
-
-  const data = await test_topic("music");
-  // console.log("hi",data);
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
@@ -37,3 +43,4 @@ export default function TestUrl() {
     </main>
   );
 }
+
