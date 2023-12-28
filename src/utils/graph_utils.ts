@@ -1,3 +1,4 @@
+import { any } from "zod";
 import { Paper } from "~/server/server_utils/fetchHandler";
 
 export const data_to_graph = (data: Paper[]) => {
@@ -34,4 +35,20 @@ export const data_to_graph = (data: Paper[]) => {
 
 
     return { nodes, links };
+}
+
+export const to_lda = (data: Paper[]) => {
+    const id_set = new Set()
+
+    data.map((d: any) => {
+        if (!id_set.has(d.paperId))
+            id_set.add(d.paperId)
+        d.citations.map((c: any) => {
+            if (!id_set.has(c.paperId)) {
+                id_set.add(c.paperId)
+            }
+        })
+    })
+
+    return Array.from(id_set);
 }

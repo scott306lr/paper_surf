@@ -11,9 +11,9 @@ export const lda_abstract = (data: { paperId: string, abstract: string }[]) => {
     const options = {
         displayingStopwords: false,
         language: 'en',
-        numberTopics: 20,
-        sweeps: 500,
-        stem: true,
+        numberTopics: 200,
+        sweeps: 1000,
+        stem: false,
     };
 
     const document = data.map(d => {
@@ -24,7 +24,7 @@ export const lda_abstract = (data: { paperId: string, abstract: string }[]) => {
     });
     const lda = new topicModelling(options, document, dictionary);
 
-    return [lda.getTopicWords(2), lda.getDocuments()]
+    return [lda.getTopicWords(1), lda.getDocuments()]
 }
 
 

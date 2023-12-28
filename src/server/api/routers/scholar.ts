@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { fetchPaperbyInput } from "~/server/server_utils/fetchHandler";
+import { fetchPaperbyInput, PostPaper } from "~/server/server_utils/fetchHandler";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { lda_abstract } from "~/server/server_utils/lda-topic-model";
@@ -10,8 +10,13 @@ export const scholarRouter = createTRPCRouter({
     .query(async ({ input }) => fetchPaperbyInput(input.input)),
 
   lda: publicProcedure
-    .input(z.object({ input: z.object({ paperId: z.string(), abstract: z.string() }).array() }))
-    .query(async ({ input }) => lda_abstract(input.input)),
+    .input(z.object({ paperID_array: z.array(z.string()) }))
+    .query(async ({ input }) => {
+      const data = await PostPaper(input.paperID_array);
+      const result = data && lda_abstract(data);
+      return result;
+
+    }),
 
   // getData: publicProcedure
   // .input(z.object({ key: z.string()}))

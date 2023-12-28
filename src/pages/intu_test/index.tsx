@@ -1,7 +1,6 @@
 import { api } from "~/utils/api";
-import { useState } from "react";
 
-import { topic_extraction } from "~/server/server_utils/myLDA";
+import { to_lda } from "~/utils/graph_utils";
 
 
 export default function TestUrl() {
@@ -11,12 +10,18 @@ export default function TestUrl() {
   });
   // const run_lda = api.scholar.lda.useMutation();
 
-  const tolda = data?.map((item) => {
-    return { paperId: item.paperId, abstract: item.abstract };
-  });
+
+  const lda_data = data && to_lda(data) as Array<string>;
+
+
+  // const tolda = data?.map((item) => {
+  //   return { paperId: item.paperId, abstract: item.abstract };
+  // });
+
+  // data?.map((item) => item.citations.map((item) => tolda?.push({ paperId: item.paperId, abstract: item.abstract })));
 
   const { data: result } = api.scholar.lda.useQuery({
-    input: tolda ?? []
+    paperID_array: lda_data ?? []
   });
 
 
