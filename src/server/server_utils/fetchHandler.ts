@@ -1,28 +1,3 @@
-// export interface Paper {
-//   abstract: string;
-//   arxivId: string;
-//   authors: string[];
-//   citationVelocity: number;
-//   citations: string[];
-//   corpusId: number;
-//   doi: string;
-//   influentialCitationCount: number;
-//   paperId: string;
-//   references: string[];
-//   title: string;
-//   topics: string[];
-//   url: string;
-//   venue: string;
-//   year: number;
-// }
-
-import { get } from "http";
-
-// paperId: d.paperId as string,
-// embedding: d.embedding as Array<number>,
-// abstract: d.abstract as string,
-// tldr: d.tldr == null ? null : d.tldr.text as string,
-
 export interface Paper {
   paperId: string;
   title: string;
@@ -60,12 +35,12 @@ export const fetchPaperbyInput = async (input: Array<string>, filter_input: Arra
     },
   })
     .then((response) => response.json())
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
     .then((data: any) => data.data as Paper[])
     .then((data) => data.filter((d) => d.paperId != null && d.abstract != null))
-    //slice the citations to 10
     .then((data) => data.map((d) => {
-      d.citations = d.citations.filter((c) => c.abstract != null).slice(0, 5);
-      d.references = d.references.filter((c) => c.abstract != null).slice(0, 5);
+      d.citations = d.citations.filter((c) => c.paperId != null && c.abstract != null).slice(0, 5);
+      d.references = d.references.filter((c) => c.paperId != null && c.abstract != null).slice(0, 5);
       return d;
     }))
     .catch((error) => {
@@ -89,7 +64,7 @@ export const fetchPaperbyInput = async (input: Array<string>, filter_input: Arra
 // };
 
 export const PostPaper = async (data: any) => {
-  var fields = ["paperId", "title", "abstract"];
+  const fields = ["paperId", "title", "abstract"];
   const fieldsString = fields.join();
   if (data.length == 0) {
     return []
