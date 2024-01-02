@@ -16,6 +16,8 @@
 //   year: number;
 // }
 
+import { get } from "http";
+
 // paperId: d.paperId as string,
 // embedding: d.embedding as Array<number>,
 // abstract: d.abstract as string,
@@ -28,7 +30,7 @@ export interface Paper {
   abstract: string;
   tldr: { text: string } | null;
   citations: { paperId: string; title: string; abstract: string }[];
-  references: { paperId: string; title: string }[];
+  references: { paperId: string; title: string; abstract: string }[];
 }
 
 const search_url =
@@ -37,15 +39,21 @@ const search_url =
 const batch_url =
   "https://api.semanticscholar.org/graph/v1/paper/batch?fields=";
 
+const recommend_url =
+  "https://api.semanticscholar.org/recommendations/v1/papers?limit=15&fields=";
 
-const getURL = (input: string) => {
+
+const getURL = (input: string, filter_input: string) => {
   return (
-    search_url + input + "&limit=10&fields=paperId,title,embedding,abstract,tldr,citations,citations.paperId,citations.title,citations.abstract"
+    search_url + input + "-" + filter_input + "&limit=10&fields=paperId,title,embedding,abstract,tldr,citations,citations.paperId,citations.title,citations.abstract,references,references.paperId,references.title,references.abstract"
   );
 };
 
-export const fetchPaperbyInput = async (input: string) => {
-  const response = await fetch(getURL(input), {
+export const fetchPaperbyInput = async (input: Array<string>, filter_input: Array<string>) => {
+  const input_string = input.join("+");
+  const filter_string = filter_input.join("-");
+  console.log(getURL(input_string, filter_string));
+  const response = await fetch(getURL(input_string, filter_string), {
     method: "GET",
     headers: {
       "x-api-key": "ftAySEDKEx5x1V5WQ4XCt1iDvrbDJ0zuaNAkeUeH",
@@ -56,7 +64,8 @@ export const fetchPaperbyInput = async (input: string) => {
     .then((data) => data.filter((d) => d.paperId != null && d.abstract != null))
     //slice the citations to 10
     .then((data) => data.map((d) => {
-      d.citations = d.citations.filter((c) => c.abstract != null).slice(0, 10)
+      d.citations = d.citations.filter((c) => c.abstract != null).slice(0, 5);
+      d.references = d.references.filter((c) => c.abstract != null).slice(0, 5);
       return d;
     }))
     .catch((error) => {
@@ -80,9 +89,11 @@ export const fetchPaperbyInput = async (input: string) => {
 // };
 
 export const PostPaper = async (data: any) => {
-  var fields = [];
-  fields = ["paperId", "title", "abstract"]
+  var fields = ["paperId", "title", "abstract"];
   const fieldsString = fields.join();
+  if (data.length == 0) {
+    return []
+  }
   const response = await fetch(batch_url + fieldsString, {
     method: "POST",
     headers: {
@@ -92,6 +103,28 @@ export const PostPaper = async (data: any) => {
   })
     .then((response) => response.json())
     .then((data: Paper[]) => data.filter((d) => d.paperId != null))
+    .catch((error) => { console.log(error) });
+  return response;
+}
+
+export const PostRecommendation = async (data: any) => {
+  var fields = ["paperId", "abstract"];
+  const fieldsString = fields.join();
+  if (data.length == 0) {
+    return []
+  }
+  const response = await fetch(recommend_url + fieldsString, {
+    method: "POST",
+    headers: {
+      "x-api-key": "ftAySEDKEx5x1V5WQ4XCt1iDvrbDJ0zuaNAkeUeH",
+    },
+    body: JSON.stringify({ "positivePaperIds": data })
+  })
+    .then((response) => response.json())
+    .then((data: any) => {
+      return data.recommendedPapers as Paper[]
+    })
+    .then((data) => data.filter((d) => d.paperId != null && d.abstract != null))
     .catch((error) => { console.log(error) });
   return response;
 }
