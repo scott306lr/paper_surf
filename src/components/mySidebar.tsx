@@ -30,6 +30,11 @@ const components: { title: string; href: string; description: string }[] = [
     href: "/intu_test",
     description: "intu test",
   },
+  {
+    title: "Deta Test",
+    href: "/deta_test",
+    description: "omega test",
+ }
 ];
 
 export function MySidebar() {
