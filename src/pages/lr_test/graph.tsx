@@ -1,13 +1,12 @@
 "use client";
 
-import { Alert } from "flowbite-react";
+// import { Alert } from "flowbite-react";
 import { useState } from "react";
 import { api } from "~/utils/api";
 
 import { ForceGraph3D } from "~/components/ForceGraph3DWrapper";
 import SpriteText from "three-spritetext";
 import { data_to_graph } from "~/utils/graph_utils";
-
 
 export default function GraphTest() {
   const [input, setInput] = useState("play chess");
@@ -70,12 +69,11 @@ export default function GraphTest() {
           <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
             This is a test URL page
           </h1>
-          <Alert color="info">Alert test!</Alert>c
         </div>
         {isLoading ? (
           <div>Loading...</div>
         ) : error ? (
-          <Alert color="red">{error.message}</Alert>
+          <div>Error {error}</div>
         ) : (
           <ForceGraph3D
             graphData={graphData}
