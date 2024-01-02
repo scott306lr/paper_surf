@@ -24,6 +24,16 @@ export const data_to_graph = (data: Paper[]) => {
         }
     })).flat().filter((d: any) => d != undefined).forEach((d: any) => nodes.push(d))
 
+    data.map((d: any) => d.references.map((c: any) => {
+        if (!id_map.has(c.paperId)) {
+            id_map.set(c.paperId, c.title)
+            return {
+                id: c.paperId,
+                title: c.title
+            }
+        }
+    })).flat().filter((d: any) => d != undefined).forEach((d: any) => nodes.push(d))
+
     const links: any[] = []
 
     data.map((d: any) => d.citations.map((c: any) => {
@@ -33,6 +43,12 @@ export const data_to_graph = (data: Paper[]) => {
         }
     })).flat().filter((d: any) => d != undefined).forEach((d: any) => links.push(d))
 
+    data.map((d: any) => d.references.map((c: any) => {
+        return {
+            source: c.paperId,
+            target: d.paperId
+        }
+    })).flat().filter((d: any) => d != undefined).forEach((d: any) => links.push(d))
 
     return { nodes, links };
 }
@@ -43,11 +59,13 @@ export const to_lda = (data: Paper[]) => {
     data.map((d: any) => {
         if (!id_set.has(d.paperId))
             id_set.add(d.paperId)
-        d.citations.map((c: any) => {
-            if (!id_set.has(c.paperId)) {
-                id_set.add(c.paperId)
-            }
-        })
+        if (d.citations != null) {
+            d.citations.map((c: any) => {
+                if (!id_set.has(c.paperId)) {
+                    id_set.add(c.paperId)
+                }
+            })
+        }
     })
 
     return Array.from(id_set);

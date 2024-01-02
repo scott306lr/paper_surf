@@ -1,41 +1,24 @@
 import { api } from "~/utils/api";
-
+import { useState } from "react";
 import { to_lda } from "~/utils/graph_utils";
 
 
 export default function TestUrl() {
   // const [input, setInput] = useState("play chess");
-  const { data } = api.scholar.searchByInput.useQuery({
-    input: "play chess",
-  });
-  // const run_lda = api.scholar.lda.useMutation();
+  const [input, setInput] = useState(["play chess", "play football", "play basketball"]);
+  const search_mutation = api.scholar.searchByInput.useMutation();
+  const lda_mutation = api.scholar.lda.useMutation();
 
+  const handleSearch = () => {
+    search_mutation.mutate({ input: input, filter_input: ["RL"] });
+  }
 
-  const lda_data = data && to_lda(data) as Array<string>;
+  const handleLDA = (data: any) => {
+    const lda_data = data && to_lda(data) as Array<string>;
+    lda_mutation.mutate({ paperID_array: lda_data ?? [] });
+  }
 
-
-  // const tolda = data?.map((item) => {
-  //   return { paperId: item.paperId, abstract: item.abstract };
-  // });
-
-  // data?.map((item) => item.citations.map((item) => tolda?.push({ paperId: item.paperId, abstract: item.abstract })));
-
-  const { data: result } = api.scholar.lda.useQuery({
-    paperID_array: lda_data ?? []
-  });
-
-
-  // const { data, isLoading, error } = api.scholar.searchByInput.useQuery({
-  //   input: "play chess",
-  // });
-
-  // console.log('aavv', data, isLoading, error)
-  // // const data2 = topic_extraction(data);
-  // // console.log('aaa', data, isLoading, error);
-
-
-  console.log('aaa', data);
-  console.log('bbb', result);
+  console.log('aaa', search_mutation.data, search_mutation.isLoading, search_mutation.error);
 
 
   return (
@@ -44,6 +27,16 @@ export default function TestUrl() {
         <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
           This is a intu test page
         </h1>
+        <button
+          onClick={() => {
+            setInput(["play chess"])
+            handleSearch()
+            while (search_mutation.isLoading) { }
+            handleLDA(search_mutation.data)
+            console.log('bbb', lda_mutation.data, lda_mutation.isLoading, lda_mutation.error);
+          }}
+          className="rounded-full bg-white/10 px-10 py-3 font-semibold transition hover:bg-white/20"
+        ></button>
       </div>
     </main>
   );

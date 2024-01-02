@@ -1,21 +1,27 @@
 import { z } from "zod";
-import { fetchPaperbyInput, PostPaper } from "~/server/server_utils/fetchHandler";
+import { fetchPaperbyInput, Paper, PostPaper, PostRecommendation } from "~/server/server_utils/fetchHandler";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { lda_abstract } from "~/server/server_utils/lda-topic-model";
 
 export const scholarRouter = createTRPCRouter({
   searchByInput: publicProcedure
-    .input(z.object({ input: z.string() }))
-    .query(async ({ input }) => fetchPaperbyInput(input.input)),
+    .input(z.object({ input: z.array(z.string()), filter_input: z.array(z.string()) }))
+    .mutation(async ({ input }) => {
+      const search_data = await fetchPaperbyInput(input.input, input.filter_input);
+      while (search_data == undefined) { }
+      const search_id = search_data.map((d: any) => d.paperId)
+      const Recommend_data = await PostRecommendation(search_id);
+      //return search_data concat with recommendation data
+      return search_data.concat(Recommend_data ?? []);
+    }),
 
   lda: publicProcedure
     .input(z.object({ paperID_array: z.array(z.string()) }))
-    .query(async ({ input }) => {
+    .mutation(async ({ input }) => {
       const data = await PostPaper(input.paperID_array);
       const result = data && lda_abstract(data);
       return result;
-
     }),
 
   // getData: publicProcedure
