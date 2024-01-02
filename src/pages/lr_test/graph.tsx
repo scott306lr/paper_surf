@@ -1,56 +1,50 @@
 "use client";
 
-// import { Alert } from "flowbite-react";
 import { useState } from "react";
 import { api } from "~/utils/api";
 import { data_to_graph } from "~/utils/graph_utils";
 import CitationGraph from "~/components/CGWrapper";
+import { type Paper } from "~/server/server_utils/fetchHandler";
 
-export default function GraphTest() {
-  const [input, setInput] = useState("play chess");
-  const { data, isLoading, error } = api.scholar.searchByInput.useQuery({
-    input: input,
-  });
+const TestDraw: React.FC<{
+  data: Paper[];
+}> = ({ data }) => {
+  const citeGraph = data_to_graph(data);
+
+  const dataDict = data.reduce(
+    (acc, cur) => {
+      acc[cur.paperId] = cur;
+      return acc;
+    },
+    {} as Record<string, Paper>,
+  );
+
   console.log(data);
-  const dataDict = data?.reduce((acc, cur) => {
-    acc[cur.paperId] = cur;
-    return acc;
-  }, {});
-
-  // const graphData = {
-  //   nodes: [{ id: "Harry" }, { id: "Sally" }, { id: "Alice" }, { id: "Jerry" }],
-  //   links: [
-  //     { source: "Harry", target: "Sally" },
-  //     { source: "Harry", target: "Alice" },
-  //     { source: "Alice", target: "Jerry" },
-  //   ],
-  // };
-
-  // data have paperId, title.
-  // citations betweeen them will be randomly generated.
-  // const nodes = data?.map((item) => {
-  //   return { id: item.paperId, title: item.title };
-  // });
-  // const links = data?.map((item) => {
-  //   return {
-  //     source: item.paperId,
-  //     target: data[Math.floor(Math.random() * data.length)]?.paperId,
-  //   };
-  // });
-  const citeGraph = data && data_to_graph(data);
 
   const graphData = {
-    nodes: citeGraph?.nodes.map((node) => ({
-      id: dataDict[node.id]?.id,
-      label: dataDict[node.id]?.title.slice(0, 20),
-      size: 10,
-    })),
-    links: citeGraph?.links.map((link) => ({
-      source: link.source,
-      target: link.target,
-      strength: 0.5,
-    })),
+    nodes:
+      citeGraph.nodes.map((node) => ({
+        id: dataDict[node.paperId].paperId,
+        label: dataDict[node.paperId].title.slice(0, 20),
+        size: 10,
+      })) ?? [],
+    links:
+      citeGraph.links.map((link) => ({
+        source: link.source,
+        target: link.target,
+        strength: 0.5,
+      })) ?? [],
   };
+
+  return <CitationGraph graphData={graphData} />;
+};
+
+export default function GraphTest() {
+  // const [input, setInput] = useState("play chess");
+  const { mutate, data, isLoading, error } =
+    api.scholar.searchByInput.useMutation();
+
+  console.log(mutate, data, isLoading, error);
 
   return (
     <>
@@ -60,19 +54,23 @@ export default function GraphTest() {
           Test api result of different inputs
         </h1>
         <button
-          onClick={() => setInput("play chess")}
+          onClick={() =>
+            mutate({ input: ["play chess"], filter_input: ["RL"] })
+          }
           className="rounded-full bg-white/10 px-10 py-3 font-semibold transition hover:bg-white/20"
         >
           play Chess
         </button>
         <button
-          onClick={() => setInput("transformer")}
+          onClick={() => mutate({ input: ["transformer"], filter_input: [] })}
           className="rounded-full bg-white/10 px-10 py-3 font-semibold transition hover:bg-white/20"
         >
           transformer
         </button>
         <button
-          onClick={() => setInput("data visualization")}
+          onClick={() =>
+            mutate({ input: ["data visualization"], filter_input: [] })
+          }
           className="rounded-full bg-white/10 px-10 py-3 font-semibold transition hover:bg-white/20"
         >
           data visualization
@@ -90,7 +88,7 @@ export default function GraphTest() {
         ) : error ? (
           <div>Error {error.message}</div>
         ) : (
-          <CitationGraph graphData={graphData} />
+          data && <TestDraw data={data} />
         )}
       </main>
     </>

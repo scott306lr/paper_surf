@@ -71,8 +71,8 @@ export const data_to_graph = (data: Paper[]) => {
             }
             return acc;
         }, nodes)
-
-    data.map((d) => d.citations.filter((c) => {
+    
+    data.map((d) => d.citations?.filter((c) => {
         if (!id_map.has(c.paperId)) {
             id_map.add(c.paperId)
             return true;
@@ -80,7 +80,7 @@ export const data_to_graph = (data: Paper[]) => {
         return false;
     })).flat().filter((d) => d != undefined).forEach((d) => nodes.push(d))
 
-    data.map((d) => d.references.filter((c) => {
+    data.map((d) => d.references?.filter((c) => {
         if (!id_map.has(c.paperId)) {
             id_map.add(c.paperId)
             return true;
@@ -89,7 +89,7 @@ export const data_to_graph = (data: Paper[]) => {
     })).flat().filter((d) => d != undefined).forEach((d) => nodes.push(d))
     
 
-    data.map((d) => d.citations.map((c) => {
+    data.map((d) => d.citations?.map((c) => {
         return {
             source: d.paperId,
             target: c.paperId
@@ -98,7 +98,7 @@ export const data_to_graph = (data: Paper[]) => {
     // .filter((d) => d.source != undefined && d.target != undefined)
     .forEach((d) => links.push(d))
 
-    data.map((d) => d.references.map((c) => {
+    data.map((d) => d.references?.map((c) => {
         return {
             source: d.paperId,
             target: c.paperId

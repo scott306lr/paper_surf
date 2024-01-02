@@ -83,7 +83,7 @@ export const PostPaper = async (data: any) => {
 }
 
 export const PostRecommendation = async (data: any) => {
-  var fields = ["paperId", "abstract"];
+  var fields = ["paperId", "title", "abstract"]//, "citations", "citations.paperId", "citations.title", "citations.abstract", "references", "references.paperId", "references.title", "references.abstract"];
   const fieldsString = fields.join();
   if (data.length == 0) {
     return []
