@@ -4,14 +4,14 @@ import { to_lda } from "~/utils/graph_utils";
 import { useState } from "react";
 import { HiChartPie, HiHome, HiInbox, HiViewBoards } from "react-icons/hi";
 import { type IconType } from "react-icons";
-import { ForceGraph3D } from "~/components/ForceGraph3DWrapper";
+import { ForceGraph3D } from "~/components/ForceGraphWrapper";
 import SpriteText from "three-spritetext";
 type documentVocab = {
   count: number;
   specificity: number;
   stopword: any;
   word: string;
-}
+};
 export default function TestUrl() {
   // const [input, setInput] = useState("play chess");
   // const { data } = api.scholar.searchByInput.useQuery({
@@ -31,8 +31,7 @@ export default function TestUrl() {
   // const { data: result } = api.scholar.lda.useQuery({
   //   paperID_array: lda_data ?? []
   // });
- 
-  
+
   // const { data, isLoading, error } = api.scholar.searchByInput.useQuery({
   //   input: "play chess",
   // });
@@ -44,22 +43,22 @@ export default function TestUrl() {
     nodes: [],
     links: [],
   };
-  
-  const [inputValue, setInputValue] = useState('play chass');
+
+  const [inputValue, setInputValue] = useState("play chass");
   const { data } = api.scholar.searchByInput.useQuery({
     input: input,
   });
-  const lda_data = data && to_lda(data) as Array<string>;
+  const lda_data = data && (to_lda(data) as Array<string>);
   const { data: result } = api.scholar.lda.useQuery({
-    paperID_array: lda_data ?? []
+    paperID_array: lda_data ?? [],
   });
-  
+
   const test = () => {
-    console.log('click');
+    console.log("click");
     setInput(inputValue);
-    console.log('aaa', input)
-    console.log('bbb', result);
-  }
+    console.log("aaa", input);
+    console.log("bbb", result);
+  };
 
   const wordCountMap: Record<string, number> = {};
   graphData.nodes = [];
@@ -69,11 +68,14 @@ export default function TestUrl() {
       result[1] = [];
     }
     for (let i = 0; i < result[1]?.length; i++) {
-      graphData.nodes.push({ id: result[1][i]?.topic, title: result[1][i]?.topic });
+      graphData.nodes.push({
+        id: result[1][i]?.topic,
+        title: result[1][i]?.topic,
+      });
       let valA: documentVocab[] = result[1][i]?.documentVocab;
       for (let j = 0; j < valA.length; j++) {
-        let word: string = valA[j]?.word ?? '';
-          // Check if the word is already in the wordCountMap
+        let word: string = valA[j]?.word ?? "";
+        // Check if the word is already in the wordCountMap
         if (wordCountMap[word]) {
           wordCountMap[word]++;
         } else {
@@ -83,7 +85,6 @@ export default function TestUrl() {
     }
 
     for (let i = 0; i < result[1]?.length; i++) {
-
       for (let j = i + 1; j < result[1]?.length; j++) {
         let valA: documentVocab[] = result[1][i]?.documentVocab;
         let valB: documentVocab[] = result[1][j]?.documentVocab;
@@ -96,12 +97,16 @@ export default function TestUrl() {
           }
         }
         if (cnt) {
-          console.log('cnt', cnt);
-          graphData.links.push({ source: result[1][i]?.topic, target: result[1][j]?.topic, value: cnt });
+          console.log("cnt", cnt);
+          graphData.links.push({
+            source: result[1][i]?.topic,
+            target: result[1][j]?.topic,
+            value: cnt,
+          });
         }
       }
     }
-  } 
+  }
   for (const word in wordCountMap) {
     if (wordCountMap.hasOwnProperty(word)) {
       const count = wordCountMap[word];
@@ -110,20 +115,13 @@ export default function TestUrl() {
   }
   return (
     <main>
-    
-        
-        <input value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}>
-          
-        </input>
-        <button onClick={test}>
-          click it submit
-          
-        </button>
-      
-      <div>
-        hello world
-      </div>
+      <input
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+      ></input>
+      <button onClick={test}>click it submit</button>
+
+      <div>hello world</div>
       <ul>
         {data?.map((item, idx) => (
           <li key={item.paperId}>
@@ -149,8 +147,5 @@ export default function TestUrl() {
         }}
       />
     </main>
-
-    
   );
 }
-

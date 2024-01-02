@@ -21,6 +21,11 @@ const components: { title: string; href: string; description: string }[] = [
     description: "default template page",
   },
   {
+    title: "Final Page",
+    href: "/final",
+    description: "Final page",
+  },
+  {
     title: "LR Test",
     href: "/lr_test",
     description: "lr test",
@@ -34,7 +39,7 @@ const components: { title: string; href: string; description: string }[] = [
     title: "Deta Test",
     href: "/deta_test",
     description: "omega test",
- }
+  },
 ];
 
 export function MySidebar() {

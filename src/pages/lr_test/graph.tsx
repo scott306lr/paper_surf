@@ -3,10 +3,8 @@
 // import { Alert } from "flowbite-react";
 import { useState } from "react";
 import { api } from "~/utils/api";
-
-import { ForceGraph3D } from "~/components/ForceGraph3DWrapper";
-import SpriteText from "three-spritetext";
 import { data_to_graph } from "~/utils/graph_utils";
+import CitationGraph from "~/components/CGWrapper";
 
 export default function GraphTest() {
   const [input, setInput] = useState("play chess");
@@ -14,6 +12,10 @@ export default function GraphTest() {
     input: input,
   });
   console.log(data);
+  const dataDict = data?.reduce((acc, cur) => {
+    acc[cur.paperId] = cur;
+    return acc;
+  }, {});
 
   // const graphData = {
   //   nodes: [{ id: "Harry" }, { id: "Sally" }, { id: "Alice" }, { id: "Jerry" }],
@@ -35,7 +37,20 @@ export default function GraphTest() {
   //     target: data[Math.floor(Math.random() * data.length)]?.paperId,
   //   };
   // });
-  const graphData = data && data_to_graph(data);
+  const citeGraph = data && data_to_graph(data);
+
+  const graphData = {
+    nodes: citeGraph?.nodes.map((node) => ({
+      id: dataDict[node.id]?.id,
+      label: dataDict[node.id]?.title.slice(0, 20),
+      size: 10,
+    })),
+    links: citeGraph?.links.map((link) => ({
+      source: link.source,
+      target: link.target,
+      strength: 0.5,
+    })),
+  };
 
   return (
     <>
@@ -73,25 +88,9 @@ export default function GraphTest() {
         {isLoading ? (
           <div>Loading...</div>
         ) : error ? (
-          <div>Error {error}</div>
+          <div>Error {error.message}</div>
         ) : (
-          <ForceGraph3D
-            graphData={graphData}
-            nodeThreeObjectExtend={true}
-            nodeThreeObject={(node) => {
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-              const sprite = new SpriteText(node.title) as any;
-              sprite.color = "#FFFFFF";
-              sprite.backgroundColor = false; //assignColor(node?.id);
-              sprite.textHeight = 16;
-              sprite.borderRadius = 0.9;
-              sprite.padding = [3, 1];
-              sprite.position.x = -2;
-              sprite.position.y = 30;
-              sprite.position.z = 10;
-              return sprite;
-            }}
-          />
+          <CitationGraph graphData={graphData} />
         )}
       </main>
     </>
