@@ -69,12 +69,11 @@ export default function GraphTest() {
           <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
             This is a test URL page
           </h1>
-          <Alert color="info">Alert test!</Alert>c
         </div>
         {isLoading ? (
           <div>Loading...</div>
         ) : error ? (
-          <Alert color="red">{error.message}</Alert>
+          <div>Error {error}</div>
         ) : (
           <ForceGraph3D
             graphData={graphData}
