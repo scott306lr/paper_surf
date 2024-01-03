@@ -1,5 +1,5 @@
+import { LargeNumberLike } from "crypto";
 import { type Paper } from "~/server/server_utils/fetchHandler";
-
 // export const data_to_graph = (data: Paper[]) => {
 //     const nodes: any[] = []
 //     const id_map = new Map()
@@ -57,6 +57,32 @@ interface PaperIdGraph {
     nodes: { paperId: string }[];
     links: { source: string; target: string }[];
 }
+
+interface KeyGraph {
+    nodes: { paperId: string[]; topic: number }[];
+    links: { source: number; target: number; strength: number; }[];
+}
+
+interface document {
+    score: number;
+    id: string;
+    text: string;
+}
+
+interface Vocab {
+    count: number;
+    word: string;
+    stopword: any;
+    specificity: number;
+}
+
+
+interface topicInfo {
+    topicID: number;
+    documents: document[];
+    documentVocab: Vocab[];
+}
+
 
 export const data_to_graph = (data: Paper[]) => {
     const nodes: PaperIdGraph["nodes"] = []
@@ -119,4 +145,31 @@ export const to_lda = (data: Paper[]) => {
         })
     })
     return Array.from(id_set);
+}
+
+export const keyWord_to_graph = (data: topicInfo[]) => {
+    const nodes: KeyGraph["nodes"] = []
+    const links: KeyGraph["links"] = []
+    for (let i = 0; i < data.length; i++) {
+        nodes.push({ paperId: data[i].documents.map((d) => d.id), topic: data[i].topicID });
+    }
+    for (let i = 0; i < data.length; i++) {
+        for (let j = i + 1; j < data[i].documents.length; j++) {
+            let documentVocabA = data[i].documentVocab;
+            let documentVocabB = data[i].documents[j];
+            let sameWord = 0;
+            for (let k = 0; k < documentVocabA.length; k++) {
+                for (let l = 0; l < documentVocabB.length; l++) {
+                    if (documentVocabA[k].word == documentVocabB[l].word) {
+                        sameWord++;
+                        break;
+                    }
+                }
+            }
+            if (sameWord != 0) {
+                links.push({ source: data[i].topicID, target: data[j].topicID, strength: sameWord });
+            }
+        }
+    }
+    return { nodes, links };
 }
