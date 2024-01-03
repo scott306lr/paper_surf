@@ -78,7 +78,7 @@ interface Vocab {
 
 
 interface topicInfo {
-    topicID: number;
+    topic: number;
     documents: document[];
     documentVocab: Vocab[];
 }
@@ -148,26 +148,31 @@ export const to_lda = (data: Paper[]) => {
 }
 
 export const keyWord_to_graph = (data: topicInfo[]) => {
+    console.log('load data', data);
     const nodes: KeyGraph["nodes"] = []
     const links: KeyGraph["links"] = []
     for (let i = 0; i < data.length; i++) {
-        nodes.push({ paperId: data[i].documents.map((d) => d.id), topic: data[i].topicID });
+        console.log(data[i].documents.map((d) => d.id));
+        nodes.push({ paperId: data[i].documents.map((d) => d.id), topic: data[i].topic});
     }
+    console.log(nodes);
     for (let i = 0; i < data.length; i++) {
-        for (let j = i + 1; j < data[i].documents.length; j++) {
+        for (let j = i + 1; j < data.length; j++) {
             let documentVocabA = data[i].documentVocab;
-            let documentVocabB = data[i].documents[j];
+            let documentVocabB = data[j].documentVocab;
             let sameWord = 0;
             for (let k = 0; k < documentVocabA.length; k++) {
                 for (let l = 0; l < documentVocabB.length; l++) {
                     if (documentVocabA[k].word == documentVocabB[l].word) {
                         sameWord++;
+                        console.log(documentVocabA[k].word);
                         break;
                     }
                 }
             }
+            console.log(sameWord);
             if (sameWord != 0) {
-                links.push({ source: data[i].topicID, target: data[j].topicID, strength: sameWord });
+                links.push({ source: data[i].topic, target: data[j].topic, strength: sameWord });
             }
         }
     }
