@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { api } from "~/utils/api";
 import { data_to_graph } from "~/utils/graph_utils";
-import CitationGraph from "~/components/CGWrapper";
+import CitationGraph from "~/components/CGWrapper2D";
 import { type Paper } from "~/server/server_utils/fetchHandler";
 
 const TestDraw: React.FC<{

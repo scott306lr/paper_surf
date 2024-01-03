@@ -2,9 +2,9 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { type CGraphData } from "~/components/CGraph";
+import { type CGraphData } from "~/components/CGraph2D";
 
-const CGraph = dynamic(() => import("~/components/CGraph"), {
+const CGraph = dynamic(() => import("~/components/CGraph2D"), {
   ssr: false,
 });
 

@@ -1,5 +1,5 @@
 import { randFloat } from "three/src/math/MathUtils.js";
-import CitationGraph from "~/components/CGWrapper";
+import CitationGraph from "~/components/CGWrapper2D";
 
 export default function PaperSurf() {
   //create 100 nodes, each with a random size and random links to other nodes

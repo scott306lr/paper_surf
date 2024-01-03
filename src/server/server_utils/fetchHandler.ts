@@ -38,11 +38,11 @@ const getSearchURL = (input: string[], filter_input: string[]) => {
 const processPaper = (papers: RawPaper[]) => {
   // paper.abstract = (!paper.abstract) ? paper.abstract : paper.tldr?.text;
   const filteredPaper = papers
-    .filter((d) => d.paperId != null && (d.abstract != null || d.tldr?.text != null))
     .map((d) => { 
       d.abstract = (!d.abstract) ? d.abstract : d.tldr?.text; 
       d.tldr = undefined;
       return d })
+    .filter((d) => d.paperId != null && d.abstract != null)
     .map((d) => {
       d.citations = d.citations?.filter((c) => c.paperId != null).slice(0, 5) ?? [];
       d.references = d.references?.filter((c) => c.paperId != null).slice(0, 5) ?? [];
@@ -97,7 +97,7 @@ export const PostPaper = async (data: string[]) => {
     body: JSON.stringify({ "ids": data })
   })
     .then((response) => response.json())
-    .then((data: Paper[]) => data.filter((d) => d.paperId != null))
+    .then((data: Paper[]) => processPaper(data))
     .catch((error) => { console.log(error) });
   return response;
 }
