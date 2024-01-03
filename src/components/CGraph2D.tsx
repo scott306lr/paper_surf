@@ -14,6 +14,7 @@ export interface CGraphData {
     id: string;
     label: string;
     size: number;
+    level: number;
     color: string;
     drawType: string;
   }[];

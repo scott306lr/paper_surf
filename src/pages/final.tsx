@@ -1,5 +1,6 @@
 import { randFloat } from "three/src/math/MathUtils.js";
 import CitationGraph from "~/components/CGWrapper2D";
+import { type CGraphData } from "~/components/CGraph2D";
 
 export default function PaperSurf() {
   //create 100 nodes, each with a random size and random links to other nodes
@@ -14,13 +15,14 @@ export default function PaperSurf() {
     })),
   };
 
-  const graphData = {
+  const graphData: CGraphData = {
     nodes: ABCData.nodes.map((node) => ({
-      id: node.id,
-      label: node.id,
+      id: `${node.id}`,
+      label: `${node.id}`,
       size: node.size,
+      level: 0,
+      color: ["red", "green", "blue"][node.id % 3]!,
       drawType: node.id < 20 ? "text" : "circle",
-      color: ["red", "green", "blue"][node.id % 3],
     })),
 
     links: ABCData.links.map((link) => ({
