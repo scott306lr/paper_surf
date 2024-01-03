@@ -6,6 +6,8 @@ import { HiChartPie, HiHome, HiInbox, HiViewBoards } from "react-icons/hi";
 import { type IconType } from "react-icons";
 import { keyWord_to_graph } from "~/utils/graph_utils";
 import SpriteText from "three-spritetext";
+import CitationGraph from "~/components/CGWrapper2D";
+import { type CGraphData } from "~/components/CGraph2D";
 type documentVocab = {
   count: number;
   specificity: number;
@@ -33,10 +35,27 @@ export default function TestUrl() {
   }
   // console.log('aaa', search_mutation.data, search_mutation.isLoading, search_mutation.error);
   console.log('test for data', lda_mutation.data, lda_mutation.isLoading, lda_mutation.error);
-  if (lda_mutation.data != undefined) {
-    console.log('aaa', lda_mutation.data[1]);
-    console.log('aaa', keyWord_to_graph(lda_mutation.data[1]));
-  } 
+  
+  console.log('aaa', lda_mutation.data && lda_mutation.data[1]);
+  
+  const graph = keyWord_to_graph(lda_mutation.data?.[1] ?? []);
+  console.log('aaa', graph.links);
+  const graphData: CGraphData = {
+    nodes: graph.nodes.map((node) => ({
+      id: `${node.topic}`,
+      label: `${node.topic}`,
+      size: 4,
+      level: 0,
+      color: ["red", "green", "blue"][node.topic % 3]!,
+      drawType: "circle",
+    })),
+
+    links: graph.links.map((link) => ({
+      source: `${link.source}`,
+      target: `${link.target}`,
+      strength: 4,
+    })),
+  };
 
 
   
@@ -67,19 +86,7 @@ export default function TestUrl() {
           const lda = handleLDA(["play chess"])
         }
       }> click it</button>
-      {/* <input
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-      ></input>
-      <button onClick={test}>click it submit</button> */}
-
-      {/* <ul>
-        {data?.map((item, idx) => (
-          <li key={item.paperId}>
-            {idx + 1}: {item.title}
-          </li>
-        ))}
-      </ul> */}
+      <CitationGraph graphData={graphData} />
     </main>
   );
 }
