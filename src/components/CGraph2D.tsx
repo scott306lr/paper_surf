@@ -3,7 +3,7 @@
 
 import { useWindowSize } from "@react-hook/window-size";
 import ForceGraph2D, {
-  NodeObject,
+  type NodeObject,
   type ForceGraphMethods,
 } from "react-force-graph-2d";
 import React, { useEffect } from "react";
@@ -45,26 +45,24 @@ const CGraph2D: React.FC<{
     ctx: CanvasRenderingContext2D,
     globalScale: number,
   ) {
+    const x = node.x ?? 0;
+    const y = node.y ?? 0;
+
     ctx.fillStyle = node.color;
-    console.log(node, ctx);
     if (node.drawType == "text") {
       const label = node.label;
       const fontSize = 16 / globalScale;
-      ctx.font = `${fontSize}px Sans-Serif`;
       const textWidth = ctx.measureText(label).width;
-      const bckgDimensions = [textWidth, fontSize].map(
-        (n) => n + fontSize * 0.2,
-      ); // some padding
       const bgDim = {
         textWidth: textWidth + fontSize * 0.2,
         textHeight: fontSize + fontSize * 0.2,
       };
 
+      ctx.font = `${fontSize}px Sans-Serif`;
       ctx.fillStyle = "rgba(255, 155, 155, 0.8)";
-      // ctx.fillStyle = node.color;
       ctx.fillRect(
-        node.x - bgDim.textWidth / 2,
-        node.y - bgDim.textHeight / 2,
+        x - bgDim.textWidth / 2,
+        y - bgDim.textHeight / 2,
         bgDim.textWidth,
         bgDim.textHeight,
       );
@@ -72,12 +70,12 @@ const CGraph2D: React.FC<{
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillStyle = node.color;
-      ctx.fillText(label, node.x, node.y);
+      ctx.fillText(label, x, y);
 
       node.__bgDim = bgDim;
     } else if (node.drawType == "circle") {
       ctx.beginPath();
-      ctx.arc(node.x, node.y, node.size, 0, 2 * Math.PI, false);
+      ctx.arc(x, y, node.size, 0, 2 * Math.PI, false);
       ctx.fill();
     }
   }
@@ -98,20 +96,21 @@ const CGraph2D: React.FC<{
       ref={graphRef as any}
       height={height}
       width={width}
-      nodeVal={(node) => 100 / (node.level + 1)}
       graphData={graphData}
       nodeVal={(node) => node?.size ?? 10}
-      // nodeAutoColorBy={"id"}
       nodeCanvasObject={(node, ctx, globalScale) =>
         nodePaint(node, ctx, globalScale)
       }
       nodePointerAreaPaint={(node, color, ctx) => {
+        const x = node.x ?? 0;
+        const y = node.y ?? 0;
+        const bgDim = node.__bgDim as { textWidth: number; textHeight: number };
+
         ctx.fillStyle = color;
-        const bgDim = node.__bgDim;
         bgDim &&
           ctx.fillRect(
-            node.x - bgDim.textWidth / 2,
-            node.y - bgDim.textHeight / 2,
+            x - bgDim.textWidth / 2,
+            y - bgDim.textHeight / 2,
             bgDim.textWidth,
             bgDim.textHeight,
           );
