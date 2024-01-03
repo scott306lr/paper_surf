@@ -39,7 +39,7 @@ const processPaper = (papers: RawPaper[]) => {
   // paper.abstract = (!paper.abstract) ? paper.abstract : paper.tldr?.text;
   const filteredPaper = papers
     .map((d) => { 
-      d.abstract = (!d.abstract) ? d.abstract : d.tldr?.text; 
+      d.abstract = (d.tldr?.text != null) ? d.tldr.text : d.abstract; 
       d.tldr = undefined;
       return d })
     .filter((d) => d.paperId != null && d.abstract != null)
@@ -88,7 +88,7 @@ export const PostPaper = async (data: string[]) => {
     return []
   }
 
-  const fieldsString = ["paperId", "title", "abstract"].join();
+  const fieldsString = ["paperId", "title", "abstract", "tldr"].join();
   const response = await fetch(batch_url + fieldsString, {
     method: "POST",
     headers: {
@@ -97,6 +97,7 @@ export const PostPaper = async (data: string[]) => {
     body: JSON.stringify({ "ids": data })
   })
     .then((response) => response.json())
+    .then (data => {console.log(data); return data;})
     .then((data: Paper[]) => processPaper(data))
     .catch((error) => { console.log(error) });
   return response;
