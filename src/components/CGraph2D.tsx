@@ -16,7 +16,7 @@ export interface CGraphData {
     size: number;
     level: number;
     color: string;
-    drawType: string;
+    drawType: "circle" | "text";
   }[];
   links: {
     source: string;
