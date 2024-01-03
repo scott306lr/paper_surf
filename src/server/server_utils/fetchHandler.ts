@@ -83,7 +83,7 @@ export const PostPaper = async (data: any) => {
 }
 
 export const PostRecommendation = async (data: any) => {
-  var fields = ["paperId", "title", "abstract"]//, "citations", "citations.paperId", "citations.title", "citations.abstract", "references", "references.paperId", "references.title", "references.abstract"];
+  var fields = ["paperId", "title", "author", "abstract"]//, "citations", "citations.paperId", "citations.title", "citations.abstract", "references", "references.paperId", "references.title", "references.abstract"];
   const fieldsString = fields.join();
   if (data.length == 0) {
     return []
@@ -100,6 +100,11 @@ export const PostRecommendation = async (data: any) => {
       return data.recommendedPapers as Paper[]
     })
     .then((data) => data.filter((d) => d.paperId != null && d.abstract != null))
+    .then((data) => data.map((d) => {
+      d.citations = [];
+      d.references = [];
+      return d;
+    }))
     .catch((error) => { console.log(error) });
   return response;
 }
