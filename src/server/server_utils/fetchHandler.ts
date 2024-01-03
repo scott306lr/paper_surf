@@ -39,7 +39,8 @@ const processPaper = (papers: RawPaper[]) => {
   // paper.abstract = (!paper.abstract) ? paper.abstract : paper.tldr?.text;
   const filteredPaper = papers
     .map((d) => { 
-      d.abstract = (d.tldr?.text != null) ? d.tldr.text : d.abstract; 
+      // d.abstract = (!d.abstract) ? d.abstract : d.tldr?.text; 
+      d.abstract = (d.tldr?.text != null) ? d.tldr?.text : d.abstract; 
       d.tldr = undefined;
       return d })
     .filter((d) => d.paperId != null && d.abstract != null)

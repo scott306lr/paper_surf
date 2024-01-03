@@ -26,8 +26,8 @@ export default function PaperSurf() {
     })),
 
     links: ABCData.links.map((link) => ({
-      source: link.source,
-      target: link.target,
+      source: `${link.source}`,
+      target: `${link.target}`,
       strength: (link.source * link.source + link.target * link.target) / 20000,
     })),
   };

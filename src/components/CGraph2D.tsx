@@ -19,8 +19,8 @@ export interface CGraphData {
     drawType: string;
   }[];
   links: {
-    source: string | number;
-    target: string | number;
+    source: string;
+    target: string;
     strength: number;
   }[];
 }
