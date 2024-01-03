@@ -1,9 +1,20 @@
+interface RawPaper {
+  paperId?: string;
+  title: string;
+  embedding: number[];
+  abstract?: string;
+  tldr?: { text?: string };
+  authors?: { authorId: string; name: string }[];
+  citations: { paperId: string; title: string; abstract: string }[];
+  references: { paperId: string; title: string; abstract: string }[];
+}
+
 export interface Paper {
   paperId: string;
   title: string;
   embedding: number[];
   abstract: string;
-  tldr: { text: string } | null;
+  authors?: { authorId: string; name: string }[];
   citations: { paperId: string; title: string; abstract: string }[];
   references: { paperId: string; title: string; abstract: string }[];
 }
@@ -18,21 +29,31 @@ const recommend_url =
   "https://api.semanticscholar.org/recommendations/v1/papers?limit=15&fields=";
 
 
-const getURL = (input: string, filter_input: string) => {
-  if (filter_input.length == 0)
-    return (
-      search_url + input + "&limit=10&fields=paperId,title,embedding,abstract,tldr,citations,citations.paperId,citations.title,citations.abstract,references,references.paperId,references.title,references.abstract"
-    );
-  else
-    return (
-      search_url + input + "-" + filter_input + "&limit=10&fields=paperId,title,embedding,abstract,tldr,citations,citations.paperId,citations.title,citations.abstract,references,references.paperId,references.title,references.abstract"
-    );
+const getSearchURL = (input: string[], filter_input: string[]) => {
+  const input_str = input.join("+");
+  const prepend = [input_str].concat(filter_input).join("-");
+  return search_url + prepend + "&limit=10&fields=paperId,title,authors,year,embedding,abstract,tldr,citations,citations.paperId,citations.title,citations.authors,citations.year,references,references.paperId,references.authors,references.title,references.year";
 };
 
-export const fetchPaperbyInput = async (input: Array<string>, filter_input: Array<string>) => {
-  const input_string = input.join("+");
-  const filter_string = filter_input.join("-");
-  const response = await fetch(getURL(input_string, filter_string), {
+const processPaper = (papers: RawPaper[]) => {
+  // paper.abstract = (!paper.abstract) ? paper.abstract : paper.tldr?.text;
+  const filteredPaper = papers
+    .filter((d) => d.paperId != null && (d.abstract != null || d.tldr?.text != null))
+    .map((d) => { 
+      d.abstract = (!d.abstract) ? d.abstract : d.tldr?.text; 
+      d.tldr = undefined;
+      return d })
+    .map((d) => {
+      d.citations = d.citations?.filter((c) => c.paperId != null).slice(0, 5) ?? [];
+      d.references = d.references?.filter((c) => c.paperId != null).slice(0, 5) ?? [];
+      return d as Paper;
+    });
+  
+  return filteredPaper;
+}
+
+export const fetchPaperbyInput = async (input_arr: string[], filter_arr: string[]) => {
+  const response = await fetch(getSearchURL(input_arr, filter_arr), {
     method: "GET",
     headers: {
       "x-api-key": "ftAySEDKEx5x1V5WQ4XCt1iDvrbDJ0zuaNAkeUeH",
@@ -40,13 +61,8 @@ export const fetchPaperbyInput = async (input: Array<string>, filter_input: Arra
   })
     .then((response) => response.json())
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-    .then((data: any) => data.data as Paper[])
-    .then((data) => data.filter((d) => d.paperId != null && d.abstract != null))
-    .then((data) => data.map((d) => {
-      d.citations = d.citations.filter((c) => c.paperId != null && c.abstract != null).slice(0, 5);
-      d.references = d.references.filter((c) => c.paperId != null && c.abstract != null).slice(0, 5);
-      return d;
-    }))
+    .then((data: any) => data.data as RawPaper[])
+    .then((data) => processPaper(data))
     .catch((error) => {
       console.log(error);
     });
@@ -67,12 +83,12 @@ export const fetchPaperbyInput = async (input: Array<string>, filter_input: Arra
 //   return response;
 // };
 
-export const PostPaper = async (data: any) => {
-  const fields = ["paperId", "title", "abstract"];
-  const fieldsString = fields.join();
+export const PostPaper = async (data: string[]) => {
   if (data.length == 0) {
     return []
   }
+
+  const fieldsString = ["paperId", "title", "abstract"].join();
   const response = await fetch(batch_url + fieldsString, {
     method: "POST",
     headers: {
@@ -86,12 +102,12 @@ export const PostPaper = async (data: any) => {
   return response;
 }
 
-export const PostRecommendation = async (data: any) => {
-  var fields = ["paperId", "title", "authors", "abstract"]
-  const fieldsString = fields.join();
+export const PostRecommendation = async (data: string[]) => {
   if (data.length == 0) {
     return []
   }
+
+  const fieldsString = ["paperId", "title", "years", "authors", "abstract"].join();
   const response = await fetch(recommend_url + fieldsString, {
     method: "POST",
     headers: {
@@ -100,15 +116,12 @@ export const PostRecommendation = async (data: any) => {
     body: JSON.stringify({ "positivePaperIds": data })
   })
     .then((response) => response.json())
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .then((data: any) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       return data.recommendedPapers as Paper[]
     })
-    .then((data) => data.filter((d) => d.paperId != null && d.abstract != null))
-    .then((data) => data.map((d) => {
-      d.citations = [];
-      d.references = [];
-      return d;
-    }))
+    .then((data) => processPaper(data))
     .catch((error) => { console.log(error) });
   return response;
 }

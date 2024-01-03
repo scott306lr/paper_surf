@@ -50,15 +50,19 @@ const CGraph: React.FC<{
       height={height}
       width={width}
       graphData={graphData}
-      nodeVal={(node) => node?.size ?? 1}
+      nodeVal={(node) => node?.size ?? 10}
       nodeAutoColorBy={"id"}
       nodeThreeObjectExtend={true}
       nodeThreeObject={(node) => {
         const nodeEl = document.createElement("div");
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        nodeEl.textContent = node.label;
+        nodeEl.textContent = `${node.label}`;
         nodeEl.style.color = "white";
-        nodeEl.style.fontSize = "18px";
+        nodeEl.style.fontSize = "12px";
+        nodeEl.style.padding = "1px 4px";
+        nodeEl.style.borderRadius = "4px";
+        nodeEl.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+        nodeEl.style.userSelect = "none";
         return new CSS2DObject(nodeEl);
       }}
     />

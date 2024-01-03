@@ -11,9 +11,32 @@ const TestDraw: React.FC<{
 }> = ({ data }) => {
   const citeGraph = data_to_graph(data);
 
+  // function softmax(arr) {
+  //   return arr.map(function (value, index) {
+  //     return (
+  //       Math.exp(value) /
+  //       arr
+  //         .map(function (y /*value*/) {
+  //           return Math.exp(y);
+  //         })
+  //         .reduce(function (a, b) {
+  //           return a + b;
+  //         })
+  //     );
+  //   });
+  // }
+
+  //TODO: calc size by softmax
+  // const size_arr = data.map((paper) =>
   const dataDict = data.reduce(
     (acc, cur) => {
       acc[cur.paperId] = cur;
+      cur.citations.forEach((c) => {
+        acc[c.paperId] = c;
+      });
+      cur.references.forEach((r) => {
+        acc[r.paperId] = r;
+      });
       return acc;
     },
     {} as Record<string, Paper>,
@@ -21,12 +44,23 @@ const TestDraw: React.FC<{
 
   console.log(data);
 
+  // get min and max citation count for scaling
+  const minCiteCount = Math.min(
+    ...data.map((paper) => paper.citations.length ?? 0),
+  );
+  const maxCiteCount = Math.max(
+    ...data.map((paper) => paper.citations.length ?? 0),
+  );
+
   const graphData = {
     nodes:
       citeGraph.nodes.map((node) => ({
-        id: dataDict[node.paperId].paperId,
-        label: dataDict[node.paperId].title.slice(0, 20),
-        size: 10,
+        id: dataDict[node.paperId]?.paperId,
+        label:
+          dataDict[node.paperId]?.authors[0]?.name +
+          ", " +
+          dataDict[node.paperId]?.year,
+        size: 5 + 30 * ((dataDict[node.paperId]?.length ?? 0) / maxCiteCount),
       })) ?? [],
     links:
       citeGraph.links.map((link) => ({
@@ -83,12 +117,12 @@ export default function GraphTest() {
             This is a test URL page
           </h1>
         </div>
-        {isLoading ? (
+        {!data || isLoading ? (
           <div>Loading...</div>
         ) : error ? (
-          <div>Error {error.message}</div>
+          <div>Error {error}</div>
         ) : (
-          data && <TestDraw data={data} />
+          <TestDraw data={data} />
         )}
       </main>
     </>

@@ -26,6 +26,11 @@ const components: { title: string; href: string; description: string }[] = [
     description: "Final page",
   },
   {
+    title: "LR Graph",
+    href: "/lr_test/graph",
+    description: "LR Graph",
+  },
+  {
     title: "LR Test",
     href: "/lr_test",
     description: "lr test",
