@@ -71,7 +71,7 @@ export const data_to_graph = (data: Paper[]) => {
             }
             return acc;
         }, nodes)
-    
+
     data.map((d) => d.citations?.filter((c) => {
         if (!id_map.has(c.paperId)) {
             id_map.add(c.paperId)
@@ -87,7 +87,7 @@ export const data_to_graph = (data: Paper[]) => {
         }
         return false;
     })).flat().filter((d) => d != undefined).forEach((d) => nodes.push(d))
-    
+
 
     data.map((d) => d.citations?.map((c) => {
         return {
@@ -95,8 +95,8 @@ export const data_to_graph = (data: Paper[]) => {
             target: c.paperId
         }
     })).flat()
-    // .filter((d) => d.source != undefined && d.target != undefined)
-    .forEach((d) => links.push(d))
+        // .filter((d) => d.source != undefined && d.target != undefined)
+        .forEach((d) => links.push(d))
 
     data.map((d) => d.references?.map((c) => {
         return {
@@ -104,14 +104,14 @@ export const data_to_graph = (data: Paper[]) => {
             target: c.paperId
         }
     })).flat()
-    // .filter((d) => d.source != undefined && d.target != undefined)
-    .forEach((d) => links.push(d))
+        // .filter((d) => d.source != undefined && d.target != undefined)
+        .forEach((d) => links.push(d))
 
     return { nodes, links };
 }
 
 export const to_lda = (data: Paper[]) => {
-    const id_set = new Set()
+    const id_set = new Set<string>()
     data.forEach((d) => {
         id_set.add(d.paperId)
         d.citations?.forEach((c) => {

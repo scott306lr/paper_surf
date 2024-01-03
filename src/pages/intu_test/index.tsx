@@ -8,16 +8,15 @@ export default function TestUrl() {
   const search_mutation = api.scholar.searchByInput.useMutation();
   const lda_mutation = api.scholar.lda.useMutation();
 
-  const handleSearch = (input: string[]) => {
-    search_mutation.mutate({ input: input, filter_input: [] });
-  }
 
-  const handleLDA = (data: any) => {
-    const lda_data = data && to_lda(data) as Array<string>;
+  const handleLDA = async (input: string[]) => {
+    const data = await search_mutation.mutateAsync({ input: input, filter_input: [] });
+    const lda_data = to_lda(data);
     lda_mutation.mutate({ paperID_array: lda_data ?? [] });
   }
 
   console.log('aaa', search_mutation.data, search_mutation.isLoading, search_mutation.error);
+  console.log('bbb', lda_mutation.data, lda_mutation.isLoading, lda_mutation.error);
 
 
   return (
@@ -28,10 +27,7 @@ export default function TestUrl() {
         </h1>
         <button
           onClick={() => {
-            handleSearch(["play chess"])
-            while (search_mutation.isLoading) { }
-            handleLDA(search_mutation.data)
-            console.log('bbb', lda_mutation.data, lda_mutation.isLoading, lda_mutation.error);
+            const lda = handleLDA(["play chess"])
           }}
           className="rounded-full bg-white/10 px-10 py-3 font-semibold transition hover:bg-white/20"
         ></button>
