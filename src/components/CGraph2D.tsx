@@ -38,6 +38,7 @@ const CGraph2D: React.FC<{
         size: number;
         color: string;
         drawType: string;
+        level: number;
       }>
     >,
     ctx: CanvasRenderingContext2D,
