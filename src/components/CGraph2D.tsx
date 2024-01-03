@@ -2,13 +2,21 @@
 "use client";
 
 import { useWindowSize } from "@react-hook/window-size";
-import { CSS2DObject } from "three/examples/jsm/renderers/CSS2DRenderer.js";
-import ForceGraph2D, { type ForceGraphMethods } from "react-force-graph-2d";
+import ForceGraph2D, {
+  NodeObject,
+  type ForceGraphMethods,
+} from "react-force-graph-2d";
 import React, { useEffect } from "react";
 import { forceCollide } from "d3-force";
 
 export interface CGraphData {
-  nodes: { id: string | number; label: string | number; size: number }[];
+  nodes: {
+    id: string;
+    label: string;
+    size: number;
+    color: string;
+    drawType: string;
+  }[];
   links: {
     source: string | number;
     target: string | number;
@@ -22,31 +30,65 @@ const CGraph2D: React.FC<{
   const [width, height] = useWindowSize();
   const graphRef = React.useRef<ForceGraphMethods | null>(null);
 
-  // useEffect(() => {
-  //   const graph = graphRef.current;
-  //   if (graph) {
-  //     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  //     graph
-  //       .d3Force("link")
-  //       ?.distance(
-  //         (link: CGraphData["links"][0]) => 5 + (1 - link?.strength ?? 0.5) * 5,
-  //       )
-  //       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  //       ?.strength(
-  //         (link: CGraphData["links"][0]) => (link?.strength ?? 0.5) / 2 + 0.1,
-  //       );
-  //   }
-  // }, [graphRef]);
+  function nodePaint(
+    node: NodeObject<
+      NodeObject<{
+        id: string;
+        label: string;
+        size: number;
+        color: string;
+        drawType: string;
+      }>
+    >,
+    ctx: CanvasRenderingContext2D,
+    globalScale: number,
+  ) {
+    ctx.fillStyle = node.color;
+    console.log(node, ctx);
+    if (node.drawType == "text") {
+      const label = node.label;
+      const fontSize = 16 / globalScale;
+      ctx.font = `${fontSize}px Sans-Serif`;
+      const textWidth = ctx.measureText(label).width;
+      const bckgDimensions = [textWidth, fontSize].map(
+        (n) => n + fontSize * 0.2,
+      ); // some padding
+      const bgDim = {
+        textWidth: textWidth + fontSize * 0.2,
+        textHeight: fontSize + fontSize * 0.2,
+      };
 
-  // useEffect(() => {
-  //   const graph = graphRef.current;
-  //   // add collision force
-  //   if (graph)
-  //     graph.d3Force(
-  //       "collision",
-  //       forceCollide((node) => Math.sqrt(100 / (node.level + 1))),
-  //     );
-  // }, []);
+      ctx.fillStyle = "rgba(255, 155, 155, 0.8)";
+      // ctx.fillStyle = node.color;
+      ctx.fillRect(
+        node.x - bgDim.textWidth / 2,
+        node.y - bgDim.textHeight / 2,
+        bgDim.textWidth,
+        bgDim.textHeight,
+      );
+
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = node.color;
+      ctx.fillText(label, node.x, node.y);
+
+      node.__bgDim = bgDim;
+    } else if (node.drawType == "circle") {
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, node.size, 0, 2 * Math.PI, false);
+      ctx.fill();
+    }
+  }
+
+  useEffect(() => {
+    const graph = graphRef.current;
+    // add collision force
+    if (graph)
+      graph.d3Force(
+        "collision",
+        forceCollide((node) => Math.sqrt(100 / (node.level + 1))),
+      );
+  }, []);
 
   return (
     <ForceGraph2D
@@ -54,13 +96,24 @@ const CGraph2D: React.FC<{
       ref={graphRef as any}
       height={height}
       width={width}
+      nodeVal={(node) => 100 / (node.level + 1)}
       graphData={graphData}
       nodeVal={(node) => node?.size ?? 10}
-      nodeAutoColorBy={(node) => `${Math.round(node?.year)}`}
-      // onNodeDragEnd={(node) => {
-      //   node.fx = node.x;
-      //   node.fy = node.y;
-      // }}
+      // nodeAutoColorBy={"id"}
+      nodeCanvasObject={(node, ctx, globalScale) =>
+        nodePaint(node, ctx, globalScale)
+      }
+      nodePointerAreaPaint={(node, color, ctx) => {
+        ctx.fillStyle = color;
+        const bgDim = node.__bgDim;
+        bgDim &&
+          ctx.fillRect(
+            node.x - bgDim.textWidth / 2,
+            node.y - bgDim.textHeight / 2,
+            bgDim.textWidth,
+            bgDim.textHeight,
+          );
+      }}
     />
   );
 };

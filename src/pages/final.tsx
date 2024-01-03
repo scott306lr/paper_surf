@@ -19,12 +19,13 @@ export default function PaperSurf() {
       id: node.id,
       label: node.id,
       size: node.size,
+      drawType: node.id < 20 ? "text" : "circle",
+      color: ["red", "green", "blue"][node.id % 3],
     })),
 
     links: ABCData.links.map((link) => ({
       source: link.source,
       target: link.target,
-      // random(0.1, 0.5)
       strength: (link.source * link.source + link.target * link.target) / 20000,
     })),
   };
