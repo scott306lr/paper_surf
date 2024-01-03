@@ -12,7 +12,7 @@ export const scholarRouter = createTRPCRouter({
       while (search_data == undefined) { }
       const search_id = search_data.map((d: any) => d.paperId)
       const Recommend_data = await PostRecommendation(search_id);
-      //return search_data concat with recommendation data
+      // //return search_data concat with recommendation data
       return search_data.concat(Recommend_data ?? []);
     }),
 

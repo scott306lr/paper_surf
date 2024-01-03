@@ -4,13 +4,12 @@ import { to_lda } from "~/utils/graph_utils";
 
 
 export default function TestUrl() {
-  // const [input, setInput] = useState("play chess");
-  const [input, setInput] = useState(["play chess", "play football", "play basketball"]);
+  // const [input, setInput] = useState(["play chess"]);
   const search_mutation = api.scholar.searchByInput.useMutation();
   const lda_mutation = api.scholar.lda.useMutation();
 
-  const handleSearch = () => {
-    search_mutation.mutate({ input: input, filter_input: ["RL"] });
+  const handleSearch = (input: string[]) => {
+    search_mutation.mutate({ input: input, filter_input: [] });
   }
 
   const handleLDA = (data: any) => {
@@ -29,8 +28,7 @@ export default function TestUrl() {
         </h1>
         <button
           onClick={() => {
-            setInput(["play chess"])
-            handleSearch()
+            handleSearch(["play chess"])
             while (search_mutation.isLoading) { }
             handleLDA(search_mutation.data)
             console.log('bbb', lda_mutation.data, lda_mutation.isLoading, lda_mutation.error);

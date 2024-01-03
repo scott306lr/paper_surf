@@ -19,15 +19,19 @@ const recommend_url =
 
 
 const getURL = (input: string, filter_input: string) => {
-  return (
-    search_url + input + "-" + filter_input + "&limit=10&fields=paperId,title,embedding,abstract,tldr,citations,citations.paperId,citations.title,citations.abstract,references,references.paperId,references.title,references.abstract"
-  );
+  if (filter_input.length == 0)
+    return (
+      search_url + input + "&limit=10&fields=paperId,title,embedding,abstract,tldr,citations,citations.paperId,citations.title,citations.abstract,references,references.paperId,references.title,references.abstract"
+    );
+  else
+    return (
+      search_url + input + "-" + filter_input + "&limit=10&fields=paperId,title,embedding,abstract,tldr,citations,citations.paperId,citations.title,citations.abstract,references,references.paperId,references.title,references.abstract"
+    );
 };
 
 export const fetchPaperbyInput = async (input: Array<string>, filter_input: Array<string>) => {
   const input_string = input.join("+");
   const filter_string = filter_input.join("-");
-  console.log(getURL(input_string, filter_string));
   const response = await fetch(getURL(input_string, filter_string), {
     method: "GET",
     headers: {
@@ -83,7 +87,7 @@ export const PostPaper = async (data: any) => {
 }
 
 export const PostRecommendation = async (data: any) => {
-  var fields = ["paperId", "title", "author", "abstract"]//, "citations", "citations.paperId", "citations.title", "citations.abstract", "references", "references.paperId", "references.title", "references.abstract"];
+  var fields = ["paperId", "title", "authors", "abstract"]
   const fieldsString = fields.join();
   if (data.length == 0) {
     return []
