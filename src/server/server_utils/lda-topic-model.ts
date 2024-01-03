@@ -11,7 +11,7 @@ export const lda_abstract = (data: { paperId: string, abstract: string }[]) => {
     const options = {
         displayingStopwords: false,
         language: 'en',
-        numberTopics: 200,
+        numberTopics: 40,
         sweeps: 1000,
         stem: false,
     };

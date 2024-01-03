@@ -59,7 +59,7 @@ interface PaperIdGraph {
 }
 
 interface KeyGraph {
-    nodes: { paperId: string[]; topic: number }[];
+    nodes: { paperId: string[]; topic: number, keyWord: string[] }[];
     links: { source: number; target: number; strength: number; }[];
 }
 
@@ -153,7 +153,7 @@ export const keyWord_to_graph = (data: topicInfo[]) => {
     const links: KeyGraph["links"] = []
     for (let i = 0; i < data.length; i++) {
         console.log(data[i].documents.map((d) => d.id));
-        nodes.push({ paperId: data[i].documents.map((d) => d.id), topic: data[i].topic});
+        nodes.push({ paperId: data[i].documents.map((d) => d.id), topic: data[i].topic, keyWord: data[i].documentVocab.map((d) => d.word)});
     }
     for (let i = 0; i < data.length; i++) {
         for (let j = i + 1; j < data.length; j++) {

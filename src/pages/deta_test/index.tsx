@@ -43,11 +43,11 @@ export default function TestUrl() {
   const graphData: CGraphData = {
     nodes: graph.nodes.map((node) => ({
       id: `${node.topic}`,
-      label: `${node.topic}`,
+      label: `${node.keyWord.splice(0, 2).join(' ')}`,
       size: 4,
       level: 0,
       color: ["red", "green", "blue"][node.topic % 3]!,
-      drawType: "circle",
+      drawType: "text",
     })),
 
     links: graph.links.map((link) => ({
@@ -83,7 +83,7 @@ export default function TestUrl() {
     <main>
       <h1>deta test page</h1>
       <button onClick={() => {
-          const lda = handleLDA(["play chess"])
+          const lda = handleLDA(["transformer"])
         }
       }> click it</button>
       <CitationGraph graphData={graphData} />
