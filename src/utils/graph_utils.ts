@@ -155,7 +155,6 @@ export const keyWord_to_graph = (data: topicInfo[]) => {
         console.log(data[i].documents.map((d) => d.id));
         nodes.push({ paperId: data[i].documents.map((d) => d.id), topic: data[i].topic});
     }
-    console.log(nodes);
     for (let i = 0; i < data.length; i++) {
         for (let j = i + 1; j < data.length; j++) {
             let documentVocabA = data[i].documentVocab;
@@ -170,7 +169,6 @@ export const keyWord_to_graph = (data: topicInfo[]) => {
                     }
                 }
             }
-            console.log(sameWord);
             if (sameWord != 0) {
                 links.push({ source: data[i].topic, target: data[j].topic, strength: sameWord });
             }
