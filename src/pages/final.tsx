@@ -30,6 +30,7 @@ const RenderGraph: React.FC<{ topics: topicInfo[] }> = ({ topics }) => {
         drawType: "text", //"circle",
         neighbors: node.neighbors,
         links: node.links,
+        opacity: node.opcaity
       })),
 
       links: graph.links.map((link) => ({
