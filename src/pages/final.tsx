@@ -1,5 +1,5 @@
 import { api } from "~/utils/api";
-import { to_lda, keyWord_to_graph } from "~/utils/graph_utils";
+import { to_lda, keyWord_to_graph, type topicInfo } from "~/utils/graph_utils";
 
 import CitationGraph from "~/components/CGWrapper2D";
 import { type CGraphData } from "~/components/CGraph2D";
@@ -17,57 +17,8 @@ import InputForm, { type inputFormSchema } from "~/components/InputForm";
 import { type z } from "zod";
 import { Panel } from "react-resizable-panels";
 
-export default function PaperSurf() {
-  const [searchInput, setSearchInput] = useState("play chess");
-  const [stopwordInput, setStopwordInput] = useState("");
-  // const search_mutation = api.scholar.searchByInput.useMutation();
-  const {
-    mutateAsync: search_mutateAsync,
-    data: search_data,
-    isLoading: search_isLoading,
-  } = api.scholar.searchByInput.useMutation();
-  const {
-    mutate: lda_mutate,
-    data: lda_data,
-    isLoading: lda_isLoading,
-  } = api.scholar.lda.useMutation();
-
-  // const handleLDA = async (
-  //   positive: string[],
-  //   negative: string[],
-  //   stopwords: string[],
-  // ) => {
-  //   const search_result = await search_mutateAsync({
-  //     input: positive,
-  //     filter_input: negative,
-  //   });
-
-  //   if (search_result != null)
-  //     lda_mutate({
-  //       paperID_array: to_lda(search_result),
-  //       stopwords: stopwords,
-  //     });
-  // };
-
-  const onSubmit = async (values: z.infer<typeof inputFormSchema>) => {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
-
-    const search_result = await search_mutateAsync({
-      input: values.positive.split(", "),
-      filter_input: values.negative.split(", "),
-    });
-
-    if (search_result != null)
-      lda_mutate({
-        paperID_array: to_lda(search_result),
-        sweeps: 5,
-        stopwords: values.stopwords.split(", "),
-      });
-  };
-
-  const graph = keyWord_to_graph(lda_data?.[1] ?? []);
+const RenderGraph: React.FC<{ topics: topicInfo[] }> = ({ topics }) => {
+  const graph = keyWord_to_graph(topics);
   const graphData: CGraphData = {
     nodes: graph.nodes.map((node) => ({
       id: `${node.topic}`,
@@ -83,6 +34,35 @@ export default function PaperSurf() {
       target: `${link.target}`,
       strength: 4,
     })),
+  };
+  return <CitationGraph graphData={graphData} />;
+};
+
+export default function PaperSurf() {
+  const {
+    mutateAsync: search_mutateAsync,
+    // data: search_data,
+    isLoading: search_isLoading,
+  } = api.scholar.searchByInput.useMutation();
+
+  const {
+    mutate: lda_mutate,
+    data: lda_data,
+    isLoading: lda_isLoading,
+  } = api.scholar.lda.useMutation();
+
+  const onSubmit = async (values: z.infer<typeof inputFormSchema>) => {
+    const search_result = await search_mutateAsync({
+      input: values.positive.split(", "),
+      filter_input: values.negative.split(", "),
+    });
+
+    if (search_result != null)
+      lda_mutate({
+        paperID_array: to_lda(search_result),
+        sweeps: 5,
+        stopwords: values.stopwords.split(", "),
+      });
   };
 
   return (
@@ -103,8 +83,12 @@ export default function PaperSurf() {
               <div className="flex items-center justify-center">
                 <div className="h-32 w-32 animate-spin rounded-full border-b-2 border-t-2 border-black"></div>
               </div>
+            ) : !lda_data ? (
+              <div className="flex items-center justify-center">
+                <span>Search for a topic</span>
+              </div>
             ) : (
-              <CitationGraph graphData={graphData} />
+              <RenderGraph topics={lda_data} />
             )}
           </div>
         </ResizablePanel>

@@ -63,13 +63,13 @@ interface KeyGraph {
     links: { source: number; target: number; strength: number; }[];
 }
 
-interface document {
+export interface document {
     score: number;
     id: string;
     text: string;
 }
 
-interface Vocab {
+export interface Vocab {
     count: number;
     word: string;
     stopword: any;
@@ -77,7 +77,7 @@ interface Vocab {
 }
 
 
-interface topicInfo {
+export interface topicInfo {
     topic: number;
     documents: document[];
     documentVocab: Vocab[];
