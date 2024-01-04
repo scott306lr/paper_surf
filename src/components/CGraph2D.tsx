@@ -160,15 +160,15 @@ const CGraph2D: React.FC<{
   //   ctx.fill();
   // }, [hoverNode]);
 
-  useEffect(() => {
-    const graph = graphRef.current;
-    // add collision force
-    if (graph)
-      graph.d3Force(
-        "collision",
-        forceCollide((node) => Math.sqrt(100 / (node.level + 1))),
-      );
-  }, []);
+  // useEffect(() => {
+  //   const graph = graphRef.current;
+  //   // add collision force
+  //   if (graph)
+  //     graph.d3Force(
+  //       "collision",
+  //       forceCollide((node) => Math.sqrt(100 / (node.level + 1))),
+  //     );
+  // }, []);
 
   return (
     <ForceGraph2D
@@ -192,8 +192,8 @@ const CGraph2D: React.FC<{
         highlightLinkIds?.has(link.id) ? 4 : 0
       }
       linkDirectionalParticleSpeed={0.005}
-      // onNodeHover={handleNodeHover}
-      // onLinkHover={handleLinkHover}
+      onNodeHover={handleNodeHover}
+      onLinkHover={handleLinkHover}
     />
   );
 };

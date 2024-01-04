@@ -15,11 +15,13 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import { Slider } from "~/components/ui/slider";
 
 export const inputFormSchema = z.object({
-  positive: z.string(),
+  positive: z.string().min(1),
   negative: z.string(),
   stopwords: z.string(),
+  precision: z.number().min(1).max(100),
 });
 
 const InputForm: React.FC<{
@@ -31,6 +33,7 @@ const InputForm: React.FC<{
       positive: "",
       negative: "",
       stopwords: "",
+      precision: 1,
     },
   });
 
@@ -80,6 +83,31 @@ const InputForm: React.FC<{
               </FormControl>
               <FormDescription>
                 Stopwords are words that are so common that they are not useful
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="precision"
+          render={({ field: { value, onChange } }) => (
+            <FormItem>
+              <FormLabel> Precision </FormLabel>
+              <FormControl>
+                <Slider
+                  min={1}
+                  max={100}
+                  step={1}
+                  defaultValue={[value]}
+                  onValueChange={(values) => {
+                    onChange(values[0]);
+                  }}
+                  value={[form.getValues("precision")]}
+                />
+              </FormControl>
+              <FormDescription>
+                Higher precision gives better results but takes longer
               </FormDescription>
               <FormMessage />
             </FormItem>

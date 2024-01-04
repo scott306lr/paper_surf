@@ -24,7 +24,7 @@ const RenderGraph: React.FC<{ topics: topicInfo[] }> = ({ topics }) => {
   const graphData: CGraphData = {
     nodes: graph.nodes.map((node) => ({
       id: node.id,
-      label: node.keywords.slice(0, 2).join(" "),
+      label: node.keywords.slice(0, 2).join(", "),
       size: 4,
       level: 0,
       color: ["red", "green", "blue"][+node.id % 3]!,
@@ -61,7 +61,7 @@ const RenderGraph: React.FC<{ topics: topicInfo[] }> = ({ topics }) => {
       node.links.forEach((link) => highlightLinks.add(link));
     }
 
-    setHoverNodeId(node?.id || null);
+    setHoverNodeId(node?.id ?? null);
     updateHighlight();
   };
 
@@ -115,6 +115,7 @@ export default function PaperSurf() {
   } = api.scholar.lda.useMutation();
 
   const onSubmit = async (values: z.infer<typeof inputFormSchema>) => {
+    // console.log(values);
     const search_result = await search_mutateAsync({
       input: values.positive.split(", "),
       filter_input: values.negative.split(", "),
@@ -123,8 +124,8 @@ export default function PaperSurf() {
     if (search_result != null)
       lda_mutate({
         paperID_array: to_lda(search_result),
-        sweeps: 10,
         stopwords: values.stopwords.split(", "),
+        sweeps: values.precision,
       });
   };
 
