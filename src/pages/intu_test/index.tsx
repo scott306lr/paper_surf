@@ -1,22 +1,28 @@
 import { api } from "~/utils/api";
 import { useState } from "react";
+import useSWR from "swr";
 import { to_lda } from "~/utils/graph_utils";
-
+import { getPaper } from "~/utils/node_fetcher";
+import { type Paper } from "~/server/server_utils/fetchHandler"
+import { set } from "zod";
 
 export default function TestUrl() {
-  // const [input, setInput] = useState(["play chess"]);
-  const search_mutation = api.scholar.searchByInput.useMutation();
-  const lda_mutation = api.scholar.lda.useMutation();
+  // const search_mutation = api.scholar.searchByInput.useMutation();
+  // const lda_mutation = api.scholar.lda.useMutation();
 
 
-  const handleLDA = async (input: string[]) => {
-    const data = await search_mutation.mutateAsync({ input: input, filter_input: [] });
-    const lda_data = to_lda(data);
-    lda_mutation.mutate({ paperID_array: lda_data ?? [] });
-  }
+  // const handleLDA = async (input: string[]) => {
+  //   const data = await search_mutation.mutateAsync({ input: input, filter_input: [] });
+  //   const lda_data = to_lda(data);
+  //   lda_mutation.mutate({ paperID_array: lda_data ?? [] });
+  // }
 
-  console.log('aaa', search_mutation.data, search_mutation.isLoading, search_mutation.error);
-  console.log('bbb', lda_mutation.data, lda_mutation.isLoading, lda_mutation.error);
+  // console.log('aaa', search_mutation.data, search_mutation.isLoading, search_mutation.error);
+  // console.log('bbb', lda_mutation.data, lda_mutation.isLoading, lda_mutation.error);
+
+  const { data: data, error: error, isLoading: isLoading, } = useSWR(["649def34f8be52c8b66281af98ae884c09aef38b", ['paperId', 'title', 'abstract', 'authors']], getPaper);
+  if (isLoading) return <div>loading</div>
+  console.log('data', data)
 
 
   return (
@@ -25,12 +31,12 @@ export default function TestUrl() {
         <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
           This is a intu test page
         </h1>
-        <button
+        {/* <button
           onClick={() => {
             const lda = handleLDA(["play chess"])
           }}
-          className="rounded-full bg-white/10 px-10 py-3 font-semibold transition hover:bg-white/20"
-        ></button>
+          className="rounded-full bg-white/10 px-10 py-3 font-semibold transition hover:bg-white/20" */}
+        {/* ></button> */}
       </div>
     </main>
   );
