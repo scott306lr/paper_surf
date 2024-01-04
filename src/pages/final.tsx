@@ -1,4 +1,6 @@
-import { randFloat } from "three/src/math/MathUtils.js";
+import { api } from "~/utils/api";
+import { to_lda, keyWord_to_graph } from "~/utils/graph_utils";
+
 import CitationGraph from "~/components/CGWrapper2D";
 import { type CGraphData } from "~/components/CGraph2D";
 
@@ -7,34 +9,41 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "~/components/ui/resizable";
+import { Combobox } from "~/components/Combobox";
+import { Input } from "~/components/ui/input";
+import { Button } from "~/components/ui/button";
+import { useState } from "react";
 
 export default function PaperSurf() {
-  //create 100 nodes, each with a random size and random links to other nodes
-  const ABCData = {
-    nodes: [...Array(100).keys()].map((i) => ({
-      id: i,
-      size: 20, //randFloat(0.1, 1),
-    })),
-    links: [...Array(100).keys()].map((i) => ({
-      source: i,
-      target: Math.round(randFloat(0, 99)),
-    })),
+  const [input, setInput] = useState("play chess");
+  const search_mutation = api.scholar.searchByInput.useMutation();
+  const { mutate: lda_mutate, data, isLoading } = api.scholar.lda.useMutation();
+
+  const handleLDA = async (input: string[]) => {
+    const search_result = await search_mutation.mutateAsync({
+      input: input,
+      filter_input: [],
+    });
+
+    if (search_result != null)
+      lda_mutate({ paperID_array: to_lda(search_result) });
   };
 
+  const graph = keyWord_to_graph(data?.[1] ?? []);
   const graphData: CGraphData = {
-    nodes: ABCData.nodes.map((node) => ({
-      id: `${node.id}`,
-      label: `${node.id}`,
-      size: node.size,
+    nodes: graph.nodes.map((node) => ({
+      id: `${node.topic}`,
+      label: `${node.keyWord.splice(0, 2).join(" ")}`,
+      size: 4,
       level: 0,
-      color: ["red", "green", "blue"][node.id % 3]!,
-      drawType: node.id < 20 ? "text" : "circle",
+      color: ["red", "green", "blue"][node.topic % 3]!,
+      drawType: "text",
     })),
 
-    links: ABCData.links.map((link) => ({
+    links: graph.links.map((link) => ({
       source: `${link.source}`,
       target: `${link.target}`,
-      strength: (link.source * link.source + link.target * link.target) / 20000,
+      strength: 4,
     })),
   };
 
@@ -52,7 +61,14 @@ export default function PaperSurf() {
         <ResizableHandle withHandle />
         <ResizablePanel minSize={20} defaultSize={30}>
           <div className="flex h-full items-center justify-center p-6">
-            <span className="font-semibold">Content</span>
+            {/* <span className="font-semibold">Content</span> */}
+            {/* <Combobox></Combobox> */}
+            <Input
+              type="text"
+              placeholder="Search"
+              onChange={(e) => setInput(e.target.value)}
+            />
+            <Button onClick={() => handleLDA(input.split(" "))}>Search</Button>
           </div>
         </ResizablePanel>
       </ResizablePanelGroup>
