@@ -62,6 +62,7 @@ export default function PaperSurf() {
     if (search_result != null)
       lda_mutate({
         paperID_array: to_lda(search_result),
+        sweeps: 5,
         stopwords: values.stopwords.split(", "),
       });
   };
