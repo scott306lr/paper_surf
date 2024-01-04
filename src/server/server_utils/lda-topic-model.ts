@@ -6,8 +6,8 @@ import XRegExp from 'xregexp';
 import { stemmer } from 'stemmer';
 
 
-export const lda_abstract = (data: { paperId: string, abstract: string }[]) => {
-    const dictionary = [];
+export const lda_abstract = (data: { paperId: string, abstract: string }[], dict?: string[]) => {
+    const dictionary = dict ?? []
     const options = {
         displayingStopwords: false,
         language: 'en',
