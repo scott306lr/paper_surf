@@ -23,6 +23,7 @@ import { Panel } from "react-resizable-panels";
 import { type LinkObject, type NodeObject } from "react-force-graph-2d";
 import { type PaperBrief } from "~/server/server_utils/fetchHandler";
 
+
 const RenderGraph: React.FC<{ topics: topicInfo[]; papers: PaperBrief[] }> = ({
   topics,
   papers,
@@ -92,7 +93,7 @@ const RenderGraph: React.FC<{ topics: topicInfo[]; papers: PaperBrief[] }> = ({
         id: link.id,
         source: link.source,
         target: link.target,
-        opacity: 0.5,
+        opacity: 0,
         strength: 4,
       })),
     };
@@ -180,6 +181,18 @@ export default function PaperSurf() {
     isLoading: lda_isLoading,
   } = api.scholar.lda.useMutation();
 
+  console.log('lda_data', lda_data)
+
+  const lda_map = new Map<string, number>();
+  lda_data?.forEach((d) => {
+    d.documents.forEach((b) => {
+      if (lda_map.has(b.id)) lda_map.set(b.id, lda_map.get(b.id) + 1);
+      else lda_map.set(b.id, 1);
+    })
+  })
+
+  console.log('lda_map', lda_map)
+
   const onSubmit = async (values: z.infer<typeof inputFormSchema>) => {
     // console.log(values);
     const search_result = await search_mutateAsync({
@@ -188,6 +201,25 @@ export default function PaperSurf() {
     });
 
     console.log("search_result", search_result);
+
+    if (search_result != null) {
+      const search_map = new Map<string, number>();
+
+      search_result?.forEach((d) => {
+        if (search_map.has(d.paperId)) search_map.set(d.paperId, search_map.get(d.paperId) + 1);
+        else search_map.set(d.paperId, 1);
+        d.citations.forEach((c) => {
+          if (search_map.has(c.paperId)) search_map.set(c.paperId, search_map.get(c.paperId) + 1);
+          else search_map.set(c.paperId, 1);
+        });
+        d.references.forEach((r) => {
+          if (search_map.has(r.paperId)) search_map.set(r.paperId, search_map.get(r.paperId) + 1);
+          else search_map.set(r.paperId, 1);
+        });
+      });
+      console.log('search_map', search_map)
+      console.log('lda', to_lda(search_result))
+    }
 
     if (search_result != null)
       lda_mutate({

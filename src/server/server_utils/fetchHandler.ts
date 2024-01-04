@@ -1,7 +1,7 @@
 interface RawPaper {
   paperId?: string;
   title: string;
-  embedding: number[];
+  embedding: { model: string; vector: number[] };
   abstract?: string;
   tldr?: { text?: string };
   authors?: { authorId: string; name: string }[];
@@ -12,8 +12,9 @@ interface RawPaper {
 export interface Paper {
   paperId: string;
   title: string;
-  embedding: number[];
+  embedding: { model: string; vector: number[] };
   abstract: string;
+  citationCount: number;
   authors?: { authorId: string; name: string }[];
   citations: { paperId: string; title: string; abstract: string }[];
   references: { paperId: string; title: string; abstract: string }[];
@@ -47,18 +48,19 @@ const getSearchURL = (input: string[], filter_input: string[]) => {
 const processPaper = (papers: RawPaper[]) => {
   // paper.abstract = (!paper.abstract) ? paper.abstract : paper.tldr?.text;
   const filteredPaper = papers
-    .map((d) => { 
+    .map((d) => {
       // d.abstract = (!d.abstract) ? d.abstract : d.tldr?.text; 
-      d.abstract = (d.tldr?.text != null) ? d.tldr?.text : d.abstract; 
+      d.abstract = (d.tldr?.text != null) ? d.tldr?.text : d.abstract;
       d.tldr = undefined;
-      return d })
-    .filter((d) => d.paperId != null && d.abstract != null)
+      return d
+    })
+    .filter((d) => d.paperId != null && d.abstract != null && d.embedding != null)
     .map((d) => {
       d.citations = d.citations?.filter((c) => c.paperId != null).slice(0, 5) ?? [];
       d.references = d.references?.filter((c) => c.paperId != null).slice(0, 5) ?? [];
       return d as Paper;
     });
-  
+
   return filteredPaper;
 }
 
@@ -103,7 +105,7 @@ export const PostPaper = async (data: string[]) => {
     return []
   }
 
-  const fieldsString = ["paperId", "title", "abstract", "tldr"].join();
+  const fieldsString = ["paperId", "title", "abstract", "tldr", "embedding", "citationCount"].join();
   const response = await fetch(batch_url + fieldsString, {
     method: "POST",
     headers: {

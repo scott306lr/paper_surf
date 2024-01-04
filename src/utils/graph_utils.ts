@@ -53,31 +53,31 @@ import { PaperBrief, type Paper } from "~/server/server_utils/fetchHandler";
 
 
 interface PaperBriefGraph {
-    nodes: { 
+    nodes: {
         id: string,
         neighbors: string[],
         links: string[]
     }[];
-    links: { 
+    links: {
         id: string,
-        source: string, 
-        target: string 
+        source: string,
+        target: string
     }[];
 }
 
 interface TopicGraph {
-    nodes: { 
-        id: string, 
-        keywords: string[], 
-        paperIds: string[], 
-        neighbors: string[] ,
+    nodes: {
+        id: string,
+        keywords: string[],
+        paperIds: string[],
+        neighbors: string[],
         links: string[],
         opcaity?: number
     }[];
-    links: { 
+    links: {
         id: string,
-        source: string; 
-        target: string; 
+        source: string;
+        target: string;
         strength: number;
         opacity?: number;
     }[];
@@ -109,14 +109,14 @@ export const data_to_graph = (data: PaperBrief[]) => {
     const links: PaperBriefGraph["links"] = []
 
     const id_map = new Set<string>()
-    
+
     // node
     data.forEach((d) => {
         if (!id_map.has(d.paperId)) {
             id_map.add(d.paperId)
-            nodes.push({ 
-                id: d.paperId, 
-                neighbors: [], 
+            nodes.push({
+                id: d.paperId,
+                neighbors: [],
                 links: []
             })
         }
@@ -124,9 +124,9 @@ export const data_to_graph = (data: PaperBrief[]) => {
         d.citations.forEach((c) => {
             if (!id_map.has(c.paperId)) {
                 id_map.add(c.paperId)
-                nodes.push({ 
-                    id: c.paperId, 
-                    neighbors: [], 
+                nodes.push({
+                    id: c.paperId,
+                    neighbors: [],
                     links: []
                 })
             }
@@ -135,9 +135,9 @@ export const data_to_graph = (data: PaperBrief[]) => {
         d.references.forEach((c) => {
             if (!id_map.has(c.paperId)) {
                 id_map.add(c.paperId)
-                nodes.push({ 
-                    id: c.paperId, 
-                    neighbors: [], 
+                nodes.push({
+                    id: c.paperId,
+                    neighbors: [],
                     links: []
                 })
             }
@@ -190,10 +190,10 @@ export const keyWord_to_graph = (data: topicInfo[]) => {
     const links: TopicGraph["links"] = []
     for (let i = 0; i < data.length; i++) {
         // console.log(data[i].documents.map((d) => d.id));
-        nodes.push({ 
-            id: `${data[i].topic}`, 
-            keywords: data[i].documentVocab.map((d) => d.word), 
-            paperIds: data[i].documents.map((d) => `${d.id}`), 
+        nodes.push({
+            id: `${data[i].topic}`,
+            keywords: data[i].documentVocab.map((d) => d.word),
+            paperIds: data[i].documents.map((d) => `${d.id}`),
             neighbors: [],
             links: [],
             opcaity: 1
@@ -220,12 +220,12 @@ export const keyWord_to_graph = (data: topicInfo[]) => {
                 nodes[j].links.push(`${data[i].topic}-${data[j].topic}`);
                 links.push({
                     id: `${data[i].topic}-${data[j].topic}`,
-                    source: `${data[i].topic}`, 
-                    target: `${data[j].topic}`, 
+                    source: `${data[i].topic}`,
+                    target: `${data[j].topic}`,
                     strength: sameWord,
                     opacity: 1
                 });
-                
+
             }
         }
     }
