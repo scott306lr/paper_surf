@@ -5,7 +5,7 @@ import { useWindowSize } from "@react-hook/window-size";
 import ForceGraph2D, {
   type NodeObject,
   type ForceGraphMethods,
-  LinkObject,
+  type LinkObject,
 } from "react-force-graph-2d";
 import React, { useCallback, useEffect } from "react";
 import { forceCollide } from "d3-force";

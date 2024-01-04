@@ -1238,6 +1238,7 @@ const stopwords = {
     "works": 1,
     "propose": 1,
     "proposes": 1,
+    "proposed": 1,
     "presents": 1,
     "represent": 1,
     "consists": 1,
@@ -1260,4 +1261,8 @@ const stopwords = {
     "leverage": 1,
     "leverageing": 1,
     "leveraged": 1,
+    "study": 1,
+    "studies": 1,
+    "technique": 1,
+    "techniques": 1,
 }
