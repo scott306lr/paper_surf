@@ -180,6 +180,9 @@ export const to_lda = (data: PaperBrief[]) => {
         d.citations?.forEach((c) => {
             id_set.add(c.paperId)
         })
+        d.references?.forEach((c) => {
+            id_set.add(c.paperId)
+        })
     })
     return Array.from(id_set);
 }

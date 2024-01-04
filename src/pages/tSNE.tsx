@@ -181,9 +181,6 @@ export default function PaperSurf() {
         isLoading: lda_isLoading,
     } = api.scholar.lda.useMutation();
 
-    console.log('lda_data', lda_data)
-
-
     const onSubmit = async (values: z.infer<typeof inputFormSchema>) => {
         // console.log(values);
         const search_result = await search_mutateAsync({
@@ -197,7 +194,6 @@ export default function PaperSurf() {
             lda_mutate({
                 input: values.positive.split(", "),
                 filter_input: values.negative.split(", "),
-                paperID_array: to_lda(search_result),
                 stopwords: values.stopwords.split(", "),
                 sweeps: values.precision,
             });

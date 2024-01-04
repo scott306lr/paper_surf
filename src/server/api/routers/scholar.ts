@@ -5,6 +5,7 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { lda_abstract } from "~/server/server_utils/lda-topic-model";
 import { type Paper, type PaperBrief } from "~/server/server_utils/fetchHandler";
 import { type CGraphData } from "~/components/CGraph2D";
+import { to_lda } from "~/utils/graph_utils";
 import TSNE from 'tsne-js';
 
 export const scholarRouter = createTRPCRouter({
@@ -20,11 +21,13 @@ export const scholarRouter = createTRPCRouter({
     }),
 
   lda: publicProcedure
-    .input(z.object({ paperID_array: z.array(z.string()), sweeps: z.number(), stopwords: z.array(z.string()), input: z.array(z.string()), filter_input: z.array(z.string()) }))
+    .input(z.object({ sweeps: z.number(), stopwords: z.array(z.string()), input: z.array(z.string()), filter_input: z.array(z.string()) }))
     .mutation(async ({ input }) => {
       const nodes: CGraphData["nodes"] = []
       const links: CGraphData["links"] = []
       const search_data = await fetchPaperbyInput(input.input, input.filter_input);
+      const paperID_array = to_lda(search_data ?? [])
+
       let model = new TSNE({
         dim: 2,
         perplexity: 30.0,
@@ -33,7 +36,7 @@ export const scholarRouter = createTRPCRouter({
         nIter: 1000,
         metric: 'euclidean'
       });
-      const data = await PostPaper(input.paperID_array);
+      const data = await PostPaper(paperID_array);
       const embeddings = data?.map((d: Paper) => d.embedding?.vector);
       model.init({
         data: embeddings,
@@ -113,7 +116,6 @@ export const scholarRouter = createTRPCRouter({
         }
       })
 
-      console.log(citation_map)
 
       search_data?.map((d: PaperBrief) => {
         d.citations.map((c) => c.paperId).filter((c) => id_map.has(c)).map((c) => {
