@@ -135,7 +135,7 @@ const CGraph2D: React.FC<{
     const graph = graphRef.current;
     // add collision force
     if (graph) {
-      graph.zoomToFit();
+      graph.zoomToFit(0, 200);
       // graph?.d3Force("link").distance(400);
     }
   }, []);
