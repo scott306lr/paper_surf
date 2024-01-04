@@ -8,8 +8,8 @@ const FetchPaper = async (paperId: string) => {
         'isOpenAccess', 'openAccessPdf', 'fieldsOfStudy', 's2FieldsOfStudy', 'publicationTypes', 'publicationDate', 'journal',
         'citationStyles', 'embedding', 'authors.externalIds', 'authors.url', 'authors.name', 'authors.aliases', 'authors.affiliations',
         'authors.homepage', 'authors.paperCount', 'authors.citationCount', 'authors.hIndex',
-        'citations.title', 'citations.publicationVenue', 'citations.year', 'citations.externalIds', 'citations.journal',
-        'references.title', 'references.publicationVenue', 'references.year', 'references.externalIds', 'references.journal'].join();
+        'citations.title', 'citations.publicationVenue', 'citations.year', 'citations.externalIds', 'citations.publicationTypes', 'citations.journal',
+        'references.title', 'references.publicationVenue', 'references.year', 'references.externalIds', 'references.publicationTypes', 'references.journal'].join();
     const response = await fetch(url + paperId + "?fields=" + fieldsString, {
         method: "GET",
         headers: {
