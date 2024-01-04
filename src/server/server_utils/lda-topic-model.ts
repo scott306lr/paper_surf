@@ -24,7 +24,7 @@ export const lda_abstract = (data: { paperId: string, abstract: string }[], dict
     });
     const lda = new topicModelling(options, document, dictionary);
 
-    return [lda.getTopicWords(1), lda.getDocuments()]
+    return lda.getDocuments()
 }
 
 
