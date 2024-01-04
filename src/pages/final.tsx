@@ -15,6 +15,7 @@ import { Button } from "~/components/ui/button";
 import { useState } from "react";
 import InputForm, { type inputFormSchema } from "~/components/InputForm";
 import { type z } from "zod";
+import { Panel } from "react-resizable-panels";
 
 export default function PaperSurf() {
   const [searchInput, setSearchInput] = useState("play chess");
@@ -89,7 +90,13 @@ export default function PaperSurf() {
         direction="horizontal"
         className="min-h-[200px] rounded-lg border"
       >
-        <ResizablePanel defaultSize={70}>
+        <ResizablePanel minSize={20} maxSize={20} defaultSize={20} collapsible>
+          <div className="flex h-full flex-col items-center justify-center gap-6 p-6">
+            <InputForm onSubmit={onSubmit} />
+          </div>
+        </ResizablePanel>
+        <ResizableHandle withHandle />
+        <ResizablePanel defaultSize={50}>
           <div className="flex h-full items-center justify-center p-6">
             {search_isLoading || lda_isLoading ? (
               <div className="flex items-center justify-center">
@@ -100,12 +107,12 @@ export default function PaperSurf() {
             )}
           </div>
         </ResizablePanel>
-        <ResizableHandle withHandle />
-        <ResizablePanel minSize={20} defaultSize={30}>
-          <div className="flex h-full flex-col items-center justify-center gap-6 p-6">
-            <InputForm onSubmit={onSubmit} />
+        <ResizableHandle />
+        <Panel defaultSize={20} minSize={20} maxSize={20}>
+          <div className="flex h-full items-center justify-center p-6">
+            <span>Panel 3</span>
           </div>
-        </ResizablePanel>
+        </Panel>
       </ResizablePanelGroup>
     </main>
   );
