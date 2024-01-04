@@ -21,8 +21,8 @@ export interface CGraphData {
     neighbors: string[];
     links: string[];
     opacity: number;
-    x: number;
-    y: number;
+    myX: number;
+    myY: number;
   }[];
   links: {
     id: string;
@@ -33,7 +33,7 @@ export interface CGraphData {
   }[];
 }
 
-const NODE_R = 8;
+const NODE_R = 1; //8;
 
 const getColorCode = (color: string, opacity: number): string => {
   if (color == "red") {
@@ -73,8 +73,11 @@ const CGraph2D: React.FC<{
       globalScale: number,
     ) => {
       //random
-      node.fx = node.x;
-      node.fy = node.y;
+      console.log(node);
+      node.fx = node.myX * width;
+      node.fy = node.myY * height;
+      node.x = node.myX * width;
+      node.y = node.myY * height;
 
       const x = node.x ?? 0;
       const y = node.y ?? 0;
@@ -128,17 +131,17 @@ const CGraph2D: React.FC<{
   //   ctx.fill();
   // }, [hoverNode]);
 
-  useEffect(() => {
-    const graph = graphRef.current;
-    // add collision force
-    if (graph) {
-      graph.d3Force(
-        "collision",
-        forceCollide().radius((node) => node.__bgDim?.textWidth / 2 ?? 0),
-      );
-      // graph?.d3Force("link").distance(400);
-    }
-  }, []);
+  // useEffect(() => {
+  //   const graph = graphRef.current;
+  //   // add collision force
+  //   if (graph) {
+  //     graph.d3Force(
+  //       "collision",
+  //       forceCollide().radius((node) => node.__bgDim?.textWidth / 2 ?? 0),
+  //     );
+  //     // graph?.d3Force("link").distance(400);
+  //   }
+  // }, []);
 
   return (
     <ForceGraph2D

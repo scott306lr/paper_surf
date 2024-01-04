@@ -141,7 +141,7 @@ export const FetchPaper = async (paperId: string) => {
         }
     })
         .then((response) => response.json())
-        .then((data: unknown) => { return data as PaperInformation[] })
+        .then((data: unknown) => { return data as PaperInformation })
         // .then((data) => data.map((d) => {
         //     d.citations = d.citations.filter((c) => c.authors != null);
         //     d.references = d.references.filter((c) => c.authors != null);

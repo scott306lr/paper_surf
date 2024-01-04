@@ -32,100 +32,97 @@ import {
   AccordionTrigger,
 } from "~/components/ui/accordion";
 
-const RenderGraph: React.FC<{ topics: topicInfo[]; papers: PaperBrief[] }> = ({
-  topics,
-  papers,
-}) => {
-  const graphData = useMemo<CGraphData>(() => {
-    const dataDict = papers.reduce(
-      (acc, cur) => {
-        acc[cur.paperId] = cur;
-        cur.citations.forEach((c) => {
-          acc[c.paperId] = c;
-        });
-        cur.references.forEach((r) => {
-          acc[r.paperId] = {
-            ...r,
-          };
-        });
-        return acc;
-      },
-      {} as Record<
-        string,
-        {
-          paperId: string;
-          year: number;
-          authors: { authorId: string; name: string }[];
-        }
-      >,
-    );
-    const cite_graph = data_to_graph(papers);
+const RenderGraph: React.FC<{ graphData: CGraphData }> = ({ graphData }) => {
+  // const graphData = useMemo<CGraphData>(() => {
+  //   const dataDict = papers.reduce(
+  //     (acc, cur) => {
+  //       acc[cur.paperId] = cur;
+  //       cur.citations.forEach((c) => {
+  //         acc[c.paperId] = c;
+  //       });
+  //       cur.references.forEach((r) => {
+  //         acc[r.paperId] = {
+  //           ...r,
+  //         };
+  //       });
+  //       return acc;
+  //     },
+  //     {} as Record<
+  //       string,
+  //       {
+  //         paperId: string;
+  //         year: number;
+  //         authors: { authorId: string; name: string }[];
+  //       }
+  //     >,
+  //   );
+  //   const cite_graph = data_to_graph(papers);
 
-    const graph1 = {
-      nodes: cite_graph.nodes.map((node) => ({
-        id: node.id,
-        label: dataDict[node.id]?.authors[0]?.name ?? "unknown",
-        size: 4,
-        level: 0,
-        color: "blue",
-        drawType: "circle" as const, //"text" as const,
-        neighbors: node.neighbors,
-        links: node.links,
-        opacity: 0.5, //node.opcaity
-      })),
-      // links: [],
-      links: cite_graph.links.map((link) => ({
-        id: link.id,
-        source: link.source,
-        target: link.target,
-        strength: 4,
-        opacity: 0.5,
-      })),
-    };
+  //   const graph1 = {
+  //     nodes: cite_graph.nodes.map((node) => ({
+  //       id: node.id,
+  //       label: dataDict[node.id]?.authors[0]?.name ?? "unknown",
+  //       size: 4,
+  //       level: 0,
+  //       color: "blue",
+  //       drawType: "circle" as const, //"text" as const,
+  //       neighbors: node.neighbors,
+  //       links: node.links,
+  //       opacity: 0.5, //node.opcaity
+  //     })),
+  //     // links: [],
+  //     links: cite_graph.links.map((link) => ({
+  //       id: link.id,
+  //       source: link.source,
+  //       target: link.target,
+  //       strength: 4,
+  //       opacity: 0.5,
+  //     })),
+  //   };
 
-    const topic_graph = keyWord_to_graph(topics);
-    const graph2 = {
-      nodes: topic_graph.nodes.map((node) => ({
-        id: node.id,
-        label: node.keywords.slice(0, 2).join(", "),
-        size: 4,
-        level: 0,
-        color: ["red", "green", "blue"][+node.id % 3]!,
-        drawType: "text" as const, //"circle",
-        neighbors: node.neighbors,
-        links: node.links,
-        opacity: node.opcaity,
-      })),
+  //   const topic_graph = keyWord_to_graph(topics);
+  //   const graph2 = {
+  //     nodes: topic_graph.nodes.map((node) => ({
+  //       id: node.id,
+  //       label: node.keywords.slice(0, 2).join(", "),
+  //       size: 4,
+  //       level: 0,
+  //       color: ["red", "green", "blue"][+node.id % 3]!,
+  //       drawType: "text" as const, //"circle",
+  //       neighbors: node.neighbors,
+  //       links: node.links,
+  //       opacity: node.opcaity,
+  //     })),
 
-      links: topic_graph.links.map((link) => ({
-        id: link.id,
-        source: link.source,
-        target: link.target,
-        opacity: 0,
-        strength: 4,
-      })),
-    };
+  //     links: topic_graph.links.map((link) => ({
+  //       id: link.id,
+  //       source: link.source,
+  //       target: link.target,
+  //       opacity: 0,
+  //       strength: 4,
+  //     })),
+  //   };
 
-    // connect paper nodes to its topic nodes
-    const graph3 = {
-      nodes: [],
-      links: topic_graph.nodes.flatMap((topic_node) => {
-        return topic_node.paperIds.map((paperId) => ({
-          id: `${topic_node.id}-${paperId}`,
-          source: topic_node.id,
-          target: paperId,
-          opacity: 0.5,
-          strength: 4,
-        }));
-      }),
-    };
+  //   // connect paper nodes to its topic nodes
+  //   const graph3 = {
+  //     nodes: [],
+  //     links: topic_graph.nodes.flatMap((topic_node) => {
+  //       return topic_node.paperIds.map((paperId) => ({
+  //         id: `${topic_node.id}-${paperId}`,
+  //         source: topic_node.id,
+  //         target: paperId,
+  //         opacity: 0.5,
+  //         strength: 4,
+  //       }));
+  //     }),
+  //   };
 
-    // return graph2;
-    return {
-      nodes: [...graph1.nodes, ...graph2.nodes, ...graph3.nodes],
-      links: [...graph1.links, ...graph2.links, ...graph3.links],
-    };
-  }, [topics, papers]);
+  //   // return graph2;
+  //   return {
+  //     nodes: [...graph1.nodes, ...graph2.nodes, ...graph3.nodes],
+  //     links: [...graph1.links, ...graph2.links, ...graph3.links],
+  //   };
+  // }, [topics, papers]);
 
   const [highlightNodeIds, setHighlightNodeIds] = useState(new Set<string>());
   const [highlightLinkIds, setHighlightLinkIds] = useState(new Set<string>());
@@ -177,11 +174,11 @@ const RenderGraph: React.FC<{ topics: topicInfo[]; papers: PaperBrief[] }> = ({
 };
 
 export default function PaperSurf() {
-  const {
-    mutateAsync: search_mutateAsync,
-    data: search_data,
-    isLoading: search_isLoading,
-  } = api.scholar.searchByInput.useMutation();
+  // const {
+  //   mutateAsync: search_mutateAsync,
+  //   data: search_data,
+  //   isLoading: search_isLoading,
+  // } = api.scholar.searchByInput.useMutation();
 
   const {
     mutate: lda_mutate,
@@ -196,13 +193,13 @@ export default function PaperSurf() {
   // console.log("paper_data", paper_data);
   // console.log('lda_data', lda_data)
 
-  const lda_map = new Map<string, number>();
-  lda_data?.forEach((d) => {
-    d.documents.forEach((b) => {
-      if (lda_map.has(b.id)) lda_map.set(b.id, lda_map.get(b.id) + 1);
-      else lda_map.set(b.id, 1);
-    });
-  });
+  // const lda_map = new Map<string, number>();
+  // lda_data?.forEach((d) => {
+  //   d.documents.forEach((b) => {
+  //     if (lda_map.has(b.id)) lda_map.set(b.id, lda_map.get(b.id) + 1);
+  //     else lda_map.set(b.id, 1);
+  //   });
+  // });
 
   // console.log('lda_map', lda_map)
 
@@ -266,16 +263,16 @@ export default function PaperSurf() {
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize={50}>
           <div className="flex h-full items-center justify-center p-6">
-            {search_isLoading || lda_isLoading ? (
+            {lda_isLoading ? (
               <div className="flex items-center justify-center">
                 <div className="h-32 w-32 animate-spin rounded-full border-b-2 border-t-2 border-black"></div>
               </div>
-            ) : !lda_data || !search_data ? (
+            ) : !lda_data ? (
               <div className="flex items-center justify-center">
                 <span>Search for a topic</span>
               </div>
             ) : (
-              <RenderGraph topics={lda_data} papers={search_data} />
+              <RenderGraph graphData={lda_data} />
             )}
           </div>
         </ResizablePanel>
@@ -299,7 +296,7 @@ export default function PaperSurf() {
                   {paper_data.title}
                 </h1>
                 <p className="text-md w-full px-2">
-                  {paper_data.authors.map((author) => (
+                  {paper_data.authors?.map((author) => (
                     <a href={author.url} className="mr-2 text-wrap underline">
                       {author.name}
                     </a>

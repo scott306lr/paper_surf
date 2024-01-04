@@ -43,7 +43,7 @@ export const scholarRouter = createTRPCRouter({
         type: 'dense'
       });
       model.run();
-      const output = model.getOutput();
+      const output = model.getOutputScaled();
 
       const id_map = new Map<string, {
         id: string,
@@ -102,12 +102,12 @@ export const scholarRouter = createTRPCRouter({
             nodes.push({
               id: d.paperId,
               label: id_map.get(d.paperId)?.title ?? "",
-              size: id_map.get(d.paperId)?.size ?? 0,
+              size: 10,//id_map.get(d.paperId)?.size ?? 0,
               level: 0,
               color: "red",
               drawType: "circle",
-              x: id_map.get(d.paperId)?.embedding[0] ?? 0,
-              y: id_map.get(d.paperId)?.embedding[1] ?? 0,
+              myX: id_map.get(d.paperId)?.embedding[0] ?? 0,
+              myY: id_map.get(d.paperId)?.embedding[1] ?? 0,
               neighbors: node_neighbors,
               links: node_link,
               opacity: 1,
@@ -131,8 +131,8 @@ export const scholarRouter = createTRPCRouter({
               level: 0,
               color: "red",
               drawType: "circle",
-              x: id_map.get(c)?.embedding[0] ?? 0,
-              y: id_map.get(c)?.embedding[1] ?? 0,
+              myX: id_map.get(c)?.embedding[0] ?? 0,
+              myY: id_map.get(c)?.embedding[1] ?? 0,
               neighbors: citation_map.get(c) ?? [],
               links: citation_links,
               opacity: 1,
@@ -148,12 +148,12 @@ export const scholarRouter = createTRPCRouter({
             nodes.push({
               id: c,
               label: id_map.get(c)?.title ?? "",
-              size: id_map.get(c)?.size ?? 0,
+              size: 10,//id_map.get(c)?.size ?? 0,
               level: 0,
               color: "red",
               drawType: "circle",
-              x: id_map.get(c)?.embedding[0] ?? 0,
-              y: id_map.get(c)?.embedding[1] ?? 0,
+              myX: id_map.get(c)?.embedding[0] ?? 0,
+              myY: id_map.get(c)?.embedding[1] ?? 0,
               neighbors: reference_map.get(c) ?? [],
               links: reference_links,
               opacity: 1,
@@ -187,12 +187,12 @@ export const scholarRouter = createTRPCRouter({
         nodes.push({
           id: `${d.topic}`,
           label: d.documentVocab[0].word,
-          size: 0,
+          size: 10,//0,
           level: 0,
           color: "red",
           drawType: "text",
-          x: x,
-          y: y,
+          myX: x,
+          myY: y,
           neighbors: node_neighbors,
           links: node_link,
           opacity: 1,
