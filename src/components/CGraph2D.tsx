@@ -93,12 +93,12 @@ const CGraph2D: React.FC<{
         ctx.fill();
       }
 
-      // if (highlightNodeIds?.has(node.id)) {
-      //   ctx.beginPath();
-      //   ctx.arc(x, y, NODE_R * 1.4, 0, 2 * Math.PI, false);
-      //   ctx.fillStyle = node.id === hoverNodeId ? "red" : "orange";
-      //   ctx.fill();
-      // }
+      if (highlightNodeIds?.has(node.id)) {
+        ctx.beginPath();
+        ctx.arc(x, y, NODE_R * 1.4, 0, 2 * Math.PI, false);
+        ctx.fillStyle = node.id === hoverNodeId ? "red" : "orange";
+        ctx.fill();
+      }
     },
     [hoverNodeId],
   );

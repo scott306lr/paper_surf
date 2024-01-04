@@ -19,6 +19,14 @@ export interface Paper {
   references: { paperId: string; title: string; abstract: string }[];
 }
 
+export interface PaperBrief {
+  paperId: string;
+  year: number;
+  authors: { authorId: string; name: string }[];
+  citations: { paperId: string; year: number; authors: { authorId: string; name: string }[] }[];
+  references: { paperId: string; year: number; authors: { authorId: string; name: string }[] }[];
+}
+
 const search_url =
   "https://api.semanticscholar.org/graph/v1/paper/search?query=";
 
@@ -32,7 +40,8 @@ const recommend_url =
 const getSearchURL = (input: string[], filter_input: string[]) => {
   const input_str = input.join("+");
   const prepend = [input_str].concat(filter_input).join("-");
-  return search_url + prepend + "&limit=10&fields=paperId,title,authors,year,embedding,abstract,tldr,citations,citations.paperId,citations.title,citations.authors,citations.year,references,references.paperId,references.authors,references.title,references.year";
+  // return search_url + prepend + "&limit=10&fields=paperId,title,authors,year,embedding,abstract,tldr,citations,citations.paperId,citations.title,citations.authors,citations.year,references,references.paperId,references.authors,references.title,references.year";
+  return search_url + prepend + "&limit=10&fields=paperId,year,authors,citations,citations.paperId,citations.year,citations.authors,references,references.paperId,references.year,references.authors";
 };
 
 const processPaper = (papers: RawPaper[]) => {
@@ -62,8 +71,7 @@ export const fetchPaperbyInput = async (input_arr: string[], filter_arr: string[
   })
     .then((response) => response.json())
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-    .then((data: any) => data.data as RawPaper[])
-    .then((data) => processPaper(data))
+    .then((data: any) => data.data as PaperBrief[])
     .catch((error) => {
       console.log(error);
     });

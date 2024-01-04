@@ -1,4 +1,4 @@
-import { type Paper } from "~/server/server_utils/fetchHandler";
+import { PaperBrief, type Paper } from "~/server/server_utils/fetchHandler";
 // export const data_to_graph = (data: Paper[]) => {
 //     const nodes: any[] = []
 //     const id_map = new Map()
@@ -52,9 +52,17 @@ import { type Paper } from "~/server/server_utils/fetchHandler";
 // }
 
 
-interface PaperIdGraph {
-    nodes: { paperId: string }[];
-    links: { source: string; target: string }[];
+interface PaperBriefGraph {
+    nodes: { 
+        id: string,
+        neighbors: string[],
+        links: string[]
+    }[];
+    links: { 
+        id: string,
+        source: string, 
+        target: string 
+    }[];
 }
 
 interface TopicGraph {
@@ -62,13 +70,13 @@ interface TopicGraph {
         id: string, 
         keywords: string[], 
         paperIds: string[], 
-        neighbors: string[] ,
+        neighbors: string[],
         links: string[]
     }[];
     links: { 
         id: string,
-        source: string; 
-        target: string; 
+        source: string,
+        target: string,
         strength: number; }[];
 }
 
@@ -93,55 +101,73 @@ export interface topicInfo {
 }
 
 
-export const data_to_graph = (data: Paper[]) => {
-    const nodes: PaperIdGraph["nodes"] = []
-    const links: PaperIdGraph["links"] = []
+export const data_to_graph = (data: PaperBrief[]) => {
+    const nodes: PaperBriefGraph["nodes"] = []
+    const links: PaperBriefGraph["links"] = []
 
     const id_map = new Set<string>()
-    data.map((d) => d.paperId)
-        .reduce((acc, cur) => {
-            if (!id_map.has(cur)) {
-                id_map.add(cur)
-                acc.push({ paperId: cur })
+    
+    // node
+    data.forEach((d) => {
+        if (!id_map.has(d.paperId)) {
+            id_map.add(d.paperId)
+            nodes.push({ 
+                id: d.paperId, 
+                neighbors: [], 
+                links: []
+            })
+        }
+
+        d.citations.forEach((c) => {
+            if (!id_map.has(c.paperId)) {
+                id_map.add(c.paperId)
+                nodes.push({ 
+                    id: c.paperId, 
+                    neighbors: [], 
+                    links: []
+                })
             }
-            return acc;
-        }, nodes)
+        })
 
-    data.map((d) => d.citations?.filter((c) => {
-        if (!id_map.has(c.paperId)) {
-            id_map.add(c.paperId)
-            return true;
-        }
-        return false;
-    })).flat().filter((d) => d != undefined).forEach((d) => nodes.push(d))
-
-    data.map((d) => d.references?.filter((c) => {
-        if (!id_map.has(c.paperId)) {
-            id_map.add(c.paperId)
-            return true;
-        }
-        return false;
-    })).flat().filter((d) => d != undefined).forEach((d) => nodes.push(d))
+        d.references.forEach((c) => {
+            if (!id_map.has(c.paperId)) {
+                id_map.add(c.paperId)
+                nodes.push({ 
+                    id: c.paperId, 
+                    neighbors: [], 
+                    links: []
+                })
+            }
+        })
+    })
 
 
-    data.map((d) => d.citations?.map((c) => {
-        return {
-            source: d.paperId,
-            target: c.paperId
-        }
-    })).flat()
-        // .filter((d) => d.source != undefined && d.target != undefined)
-        .forEach((d) => links.push(d))
+    // link
+    data.forEach((d) => {
+        d.citations.forEach((c) => {
+            links.push({
+                id: `${d.paperId}-${c.paperId}`,
+                source: d.paperId,
+                target: c.paperId
+            })
+            nodes.find((n) => n.id == d.paperId)?.neighbors.push(c.paperId)
+            nodes.find((n) => n.id == d.paperId)?.links.push(`${d.paperId}-${c.paperId}`)
+            nodes.find((n) => n.id == c.paperId)?.neighbors.push(d.paperId)
+            nodes.find((n) => n.id == c.paperId)?.links.push(`${d.paperId}-${c.paperId}`)
+        })
 
-    data.map((d) => d.references?.map((c) => {
-        return {
-            source: d.paperId,
-            target: c.paperId
-        }
-    })).flat()
-        // .filter((d) => d.source != undefined && d.target != undefined)
-        .forEach((d) => links.push(d))
-
+        d.references.forEach((c) => {
+            links.push({
+                id: `${d.paperId}-${c.paperId}`,
+                source: d.paperId,
+                target: c.paperId
+            })
+            nodes.find((n) => n.id == d.paperId)?.neighbors.push(c.paperId)
+            nodes.find((n) => n.id == d.paperId)?.links.push(`${d.paperId}-${c.paperId}`)
+            nodes.find((n) => n.id == c.paperId)?.neighbors.push(d.paperId)
+            nodes.find((n) => n.id == c.paperId)?.links.push(`${d.paperId}-${c.paperId}`)
+        })
+    })
     return { nodes, links };
 }
 
