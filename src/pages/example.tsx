@@ -8,7 +8,7 @@ import {
   ResizablePanelGroup,
 } from "~/components/ui/resizable";
 
-export default function PaperSurf() {
+export default function Example() {
   //create 100 nodes, each with a random size and random links to other nodes
   const ABCData = {
     nodes: [...Array(100).keys()].map((i) => ({
