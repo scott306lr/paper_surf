@@ -1,3 +1,5 @@
+"use client";
+
 import { api } from "~/utils/api";
 import { to_lda, keyWord_to_graph, type topicInfo } from "~/utils/graph_utils";
 
@@ -9,34 +11,14 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "~/components/ui/resizable";
-import { useCallback, useState } from "react";
+import { useMemo, useState } from "react";
 import InputForm, { type inputFormSchema } from "~/components/InputForm";
 import { type z } from "zod";
 import { Panel } from "react-resizable-panels";
 import { type LinkObject, type NodeObject } from "react-force-graph-2d";
 
 const RenderGraph: React.FC<{ topics: topicInfo[] }> = ({ topics }) => {
-  // const graph = keyWord_to_graph(topics);
-  // const graphData: CGraphData = {
-  //   nodes: graph.nodes.map((node) => ({
-  //     id: node.id,
-  //     label: node.keywords.slice(0, 2).join(", "),
-  //     size: 4,
-  //     level: 0,
-  //     color: ["red", "green", "blue"][+node.id % 3]!,
-  //     drawType: "circle",
-  //     neighbors: node.neighbors,
-  //     links: node.links,
-  //   })),
-
-  //   links: graph.links.map((link) => ({
-  //     id: link.id,
-  //     source: link.source,
-  //     target: link.target,
-  //     strength: 4,
-  //   })),
-  // };
-  const graphData = useCallback(() => {
+  const graphData = useMemo<CGraphData>(() => {
     const graph = keyWord_to_graph(topics);
     return {
       nodes: graph.nodes.map((node) => ({
@@ -57,7 +39,7 @@ const RenderGraph: React.FC<{ topics: topicInfo[] }> = ({ topics }) => {
         strength: 4,
       })),
     };
-  }, [topics])() as CGraphData;
+  }, [topics]);
 
   const [highlightNodeIds, setHighlightNodeIds] = useState(new Set<string>());
   const [highlightLinkIds, setHighlightLinkIds] = useState(new Set<string>());
