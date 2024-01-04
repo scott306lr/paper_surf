@@ -62,7 +62,7 @@ const RenderGraph: React.FC<{ topics: topicInfo[]; papers: PaperBrief[] }> = ({
         drawType: "circle" as const,
         neighbors: node.neighbors,
         links: node.links,
-        opacity: node.opcaity
+        // opacity: node.opcaity
       })),
       links: cite_graph.links.map((link) => ({
         id: link.id,
@@ -85,6 +85,7 @@ const RenderGraph: React.FC<{ topics: topicInfo[]; papers: PaperBrief[] }> = ({
         drawType: "text" as const, //"circle",
         neighbors: node.neighbors,
         links: node.links,
+        opacity: node.opcaity,
       })),
 
       links: topic_graph.links.map((link) => ({
