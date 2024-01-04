@@ -105,7 +105,7 @@ export const PostPaper = async (data: string[]) => {
     return []
   }
 
-  const fieldsString = ["paperId", "title", "abstract", "tldr", "embedding", "citationCount"].join();
+  const fieldsString = ["paperId", "title", "abstract", "tldr", "embedding", "citationCount", "authors", "year"].join();
   const response = await fetch(batch_url + fieldsString, {
     method: "POST",
     headers: {

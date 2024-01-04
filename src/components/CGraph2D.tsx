@@ -61,126 +61,126 @@ const CGraph2D: React.FC<{
   handleNodeHover,
   handleLinkHover,
 }) => {
-  const [width, height] = useWindowSize();
-  const graphRef = React.useRef<ForceGraphMethods | null>(null);
+    const [width, height] = useWindowSize();
+    const graphRef = React.useRef<ForceGraphMethods | null>(null);
 
-  const nodePaint = useCallback(
-    (
-      node: NodeObject<
-        NodeObject<CGraphData["nodes"][0]> & CGraphData["nodes"][0]
-      >,
-      ctx: CanvasRenderingContext2D,
-      globalScale: number,
-    ) => {
-      //random
-      console.log(node);
-      node.fx = node.myX * width;
-      node.fy = node.myY * height;
-      node.x = node.myX * width;
-      node.y = node.myY * height;
+    const nodePaint = useCallback(
+      (
+        node: NodeObject<
+          NodeObject<CGraphData["nodes"][0]> & CGraphData["nodes"][0]
+        >,
+        ctx: CanvasRenderingContext2D,
+        globalScale: number,
+      ) => {
+        //random
+        node.fx = node.myX * width;
+        node.fy = node.myY * height;
+        node.x = node.myX * width;
+        node.y = node.myY * height;
 
-      const x = node.x ?? 0;
-      const y = node.y ?? 0;
+        const x = node.x ?? 0;
+        const y = node.y ?? 0;
 
-      ctx.fillStyle = getColorCode(node.color, node.opacity);
-      if (node.drawType == "text") {
-        const label = node.label;
-        const fontSize = 16 / globalScale;
-        const textWidth = ctx.measureText(label).width;
-        const bgDim = {
-          textWidth: textWidth + fontSize * 0.2,
-          textHeight: fontSize + fontSize * 0.2,
-        };
-
-        ctx.font = `${fontSize}px Sans-Serif`;
-        ctx.fillStyle = "rgba(255, 155, 155, 0.3)";
-        ctx.fillRect(
-          x - bgDim.textWidth / 2,
-          y - bgDim.textHeight / 2,
-          bgDim.textWidth,
-          bgDim.textHeight,
-        );
-
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
         ctx.fillStyle = getColorCode(node.color, node.opacity);
-        ctx.fillText(label, x, y);
+        if (node.drawType == "text") {
+          const label = node.label;
+          const fontSize = 16 / globalScale;
+          const textWidth = ctx.measureText(label).width;
+          const bgDim = {
+            textWidth: textWidth + fontSize * 0.2,
+            textHeight: fontSize + fontSize * 0.2,
+          };
 
-        node.__bgDim = bgDim;
-      } else if (node.drawType == "circle") {
-        ctx.beginPath();
-        ctx.arc(x, y, node.size, 0, 2 * Math.PI, false);
-        ctx.fill();
-      }
+          ctx.font = `${fontSize}px Sans-Serif`;
+          ctx.fillStyle = "rgba(255, 155, 155, 0.3)";
+          ctx.fillRect(
+            x - bgDim.textWidth / 2,
+            y - bgDim.textHeight / 2,
+            bgDim.textWidth,
+            bgDim.textHeight,
+          );
 
-      if (highlightNodeIds?.has(node.id)) {
-        ctx.beginPath();
-        ctx.arc(x, y, NODE_R * 1.4, 0, 2 * Math.PI, false);
-        ctx.fillStyle = node.id === hoverNodeId ? "red" : "orange";
-        ctx.fill();
-      }
-    },
-    [hoverNodeId],
-  );
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillStyle = getColorCode(node.color, node.opacity);
+          ctx.fillText(label, x, y);
 
-  // const paintRing = useCallback((node, ctx) => {
-  //   // add ring just for highlighted nodes
-  //   ctx.beginPath();
-  //   ctx.arc(node.x, node.y, NODE_R * 1.4, 0, 2 * Math.PI, false);
-  //   ctx.fillStyle = node === hoverNode ? 'red' : 'orange';
-  //   ctx.fill();
-  // }, [hoverNode]);
+          node.__bgDim = bgDim;
+        } else if (node.drawType == "circle") {
+          ctx.beginPath();
+          ctx.arc(x, y, node.size, 0, 2 * Math.PI, false);
+          ctx.fill();
+        }
 
-  // useEffect(() => {
-  //   const graph = graphRef.current;
-  //   // add collision force
-  //   if (graph) {
-  //     graph.d3Force(
-  //       "collision",
-  //       forceCollide().radius((node) => node.__bgDim?.textWidth / 2 ?? 0),
-  //     );
-  //     // graph?.d3Force("link").distance(400);
-  //   }
-  // }, []);
+        if (highlightNodeIds?.has(node.id)) {
+          ctx.beginPath();
+          ctx.arc(x, y, NODE_R * 1.4, 0, 2 * Math.PI, false);
+          ctx.fillStyle = node.id === hoverNodeId ? "red" : "orange";
+          ctx.fill();
+        }
+      },
+      [hoverNodeId],
+    );
 
-  return (
-    <ForceGraph2D
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
-      ref={graphRef as any}
-      height={height}
-      width={width}
-      graphData={graphData}
-      nodeRelSize={NODE_R}
-      autoPauseRedraw={false}
-      nodeVal={(node) => node?.size ?? 10}
-      nodeCanvasObject={nodePaint}
-      nodeCanvasObjectMode={undefined}
-      // onNodeDragEnd={(node) => {
-      //   node.fx = node.x;
-      //   node.fy = node.y;
-      // }}
-      linkWidth={(link) => (highlightLinkIds?.has(link.id) ? 5 : 1)}
-      linkDirectionalParticles={4}
-      linkDirectionalParticleWidth={(link) =>
-        highlightLinkIds?.has(link.id) ? 4 : 0
-      }
-      linkDirectionalParticleSpeed={0.005}
-      linkCanvasObject={(link, ctx) => {
-        const start = link.source;
-        const end = link.target;
-        // const strength = link.strength;
+    // const paintRing = useCallback((node, ctx) => {
+    //   // add ring just for highlighted nodes
+    //   ctx.beginPath();
+    //   ctx.arc(node.x, node.y, NODE_R * 1.4, 0, 2 * Math.PI, false);
+    //   ctx.fillStyle = node === hoverNode ? 'red' : 'orange';
+    //   ctx.fill();
+    // }, [hoverNode]);
 
-        ctx.beginPath();
-        ctx.strokeStyle = getColorCode(link.color, link.opacity);
-        ctx.lineWidth = 1;
-        ctx.moveTo(start.x, start.y);
-        ctx.lineTo(end.x, end.y);
-        ctx.stroke();
-      }}
-      onNodeHover={handleNodeHover}
-      onLinkHover={handleLinkHover}
-    />
-  );
-};
+    // useEffect(() => {
+    //   const graph = graphRef.current;
+    //   // add collision force
+    //   if (graph) {
+    //     graph.d3Force(
+    //       "collision",
+    //       forceCollide().radius((node) => node.__bgDim?.textWidth / 2 ?? 0),
+    //     );
+    //     // graph?.d3Force("link").distance(400);
+    //   }
+    // }, []);
+
+    return (
+      <ForceGraph2D
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+        ref={graphRef as any}
+        height={height}
+        width={width}
+        graphData={graphData}
+        nodeRelSize={NODE_R}
+        autoPauseRedraw={false}
+        nodeVal={(node) => node?.size ?? 10}
+        enableNodeDrag={false}
+        nodeCanvasObject={nodePaint}
+        nodeCanvasObjectMode={undefined}
+        // onNodeDragEnd={(node) => {
+        //   node.fx = node.x;
+        //   node.fy = node.y;
+        // }}
+        linkWidth={(link) => (highlightLinkIds?.has(link.id) ? 5 : 1)}
+        linkDirectionalParticles={4}
+        linkDirectionalParticleWidth={(link) =>
+          highlightLinkIds?.has(link.id) ? 4 : 0
+        }
+        linkDirectionalParticleSpeed={0.005}
+        linkCanvasObject={(link, ctx) => {
+          const start = link.source;
+          const end = link.target;
+          // const strength = link.strength;
+
+          ctx.beginPath();
+          ctx.strokeStyle = getColorCode(link.color, link.opacity);
+          ctx.lineWidth = 1;
+          ctx.moveTo(start.x, start.y);
+          ctx.lineTo(end.x, end.y);
+          ctx.stroke();
+        }}
+        onNodeHover={handleNodeHover}
+        onLinkHover={handleLinkHover}
+      />
+    );
+  };
 
 export default CGraph2D;

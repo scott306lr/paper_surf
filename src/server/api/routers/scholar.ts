@@ -55,7 +55,7 @@ export const scholarRouter = createTRPCRouter({
       for (let i = 0; i < (data == undefined ? 0 : data?.length); i++)
         id_map.set(data[i].paperId, {
           id: data[i].paperId,
-          title: data[i].title,
+          title: `${data[i].authors[0].name}, ${data[i].year}`,
           embedding: output[i],
           size: data[i].citationCount
         })
@@ -102,7 +102,7 @@ export const scholarRouter = createTRPCRouter({
             nodes.push({
               id: d.paperId,
               label: id_map.get(d.paperId)?.title ?? "",
-              size: 10,//id_map.get(d.paperId)?.size ?? 0,
+              size: Math.sqrt(id_map.get(d.paperId)?.size ?? 0) / 2 + 5,
               level: 0,
               color: "red",
               drawType: "circle",
@@ -121,13 +121,13 @@ export const scholarRouter = createTRPCRouter({
         d.citations.map((c) => c.paperId).filter((c) => id_map.has(c)).map((c) => {
           const citation_links = [] as string[]
           citation_map.get(c)?.forEach((n) => {
-            citation_links.push(`${n}-${c}`)
+            citation_links.push(`${c}-${n}`)
           })
           if (!current_node.has(c)) {
             nodes.push({
               id: c,
               label: id_map.get(c)?.title ?? "",
-              size: id_map.get(c)?.size ?? 0,
+              size: Math.sqrt(id_map.get(c)?.size ?? 0) / 2 + 5,
               level: 0,
               color: "red",
               drawType: "circle",
@@ -142,13 +142,13 @@ export const scholarRouter = createTRPCRouter({
         d.references.map((c) => c.paperId).filter((c) => id_map.has(c)).map((c) => {
           const reference_links = [] as string[]
           reference_map.get(c)?.forEach((n) => {
-            reference_links.push(`${n}-${c}`)
+            reference_links.push(`${c}-${n}`)
           })
           if (!current_node.has(c)) {
             nodes.push({
               id: c,
               label: id_map.get(c)?.title ?? "",
-              size: 10,//id_map.get(c)?.size ?? 0,
+              size: Math.sqrt(id_map.get(c)?.size ?? 0) / 2 + 5,
               level: 0,
               color: "red",
               drawType: "circle",
@@ -165,11 +165,14 @@ export const scholarRouter = createTRPCRouter({
 
       result?.forEach((d) => {
         let x = 0, y = 0;
+        let x_score = 0, y_score = 0;
         const node_link = [] as string[]
         const node_neighbors = [] as string[]
         d.documents.forEach((c) => {
-          x += id_map.get(c.id)?.embedding[0] ?? 0;
-          y += id_map.get(c.id)?.embedding[1] ?? 0;
+          x += id_map.get(c.id)?.embedding[0] * c.score ?? 0;
+          y += id_map.get(c.id)?.embedding[1] * c.score ?? 0;
+          x_score += c.score ?? 0;
+          y_score += c.score ?? 0;
           node_neighbors.push(c.id);
           node_link.push(`${d.topic}-${c.id}`);
           nodes.find((n) => n.id == c.id)?.neighbors.push(`${d.topic}`)
@@ -182,8 +185,8 @@ export const scholarRouter = createTRPCRouter({
             strength: 0
           });
         })
-        x /= d.documents.length;
-        y /= d.documents.length;
+        x /= x_score;
+        y /= y_score;
         nodes.push({
           id: `${d.topic}`,
           label: d.documentVocab[0].word,

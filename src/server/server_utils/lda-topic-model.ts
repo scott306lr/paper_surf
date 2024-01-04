@@ -12,7 +12,7 @@ export const lda_abstract = (data: { paperId: string, abstract: string }[], prec
     const options = {
         displayingStopwords: false,
         language: 'en',
-        numberTopics: 20,
+        numberTopics: 15,
         sweeps: sweeps,
         stem: false,
     };
