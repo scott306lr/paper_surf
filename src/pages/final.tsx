@@ -19,9 +19,18 @@ import {
 import { useMemo, useState } from "react";
 import InputForm, { type inputFormSchema } from "~/components/InputForm";
 import { type z } from "zod";
-import { Panel } from "react-resizable-panels";
 import { type LinkObject, type NodeObject } from "react-force-graph-2d";
 import { type PaperBrief } from "~/server/server_utils/fetchHandler";
+import { getDataByPaperId } from "~/utils/node_fetcher";
+import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
+import { Badge } from "~/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "~/components/ui/accordion";
 
 const RenderGraph: React.FC<{ topics: topicInfo[]; papers: PaperBrief[] }> = ({
   topics,
@@ -180,14 +189,18 @@ export default function PaperSurf() {
     isLoading: lda_isLoading,
   } = api.scholar.lda.useMutation();
 
+  const { data: paper_data, isLoading: paper_isLoading } = getDataByPaperId(
+    "649def34f8be52c8b66281af98ae884c09aef38b",
+  );
+
+  console.log("paper_data", paper_data);
+
   const onSubmit = async (values: z.infer<typeof inputFormSchema>) => {
     // console.log(values);
     const search_result = await search_mutateAsync({
       input: values.positive.split(", "),
       filter_input: values.negative.split(", "),
     });
-
-    console.log("search_result", search_result);
 
     if (search_result != null)
       lda_mutate({
@@ -224,12 +237,148 @@ export default function PaperSurf() {
             )}
           </div>
         </ResizablePanel>
-        <ResizableHandle />
-        <Panel defaultSize={30} minSize={30} maxSize={30}>
-          <div className="flex h-full items-center justify-center p-6">
-            <span>Panel 3</span>
+        <ResizableHandle withHandle />
+        <ResizablePanel defaultSize={30} minSize={30}>
+          <div className="flex h-full flex-col">
+            {paper_isLoading ? (
+              <div className="flex items-center justify-center">
+                <div className="h-32 w-32 animate-spin rounded-full border-b-2 border-t-2 border-black"></div>
+              </div>
+            ) : !paper_data ? (
+              <div className="flex items-center justify-center">
+                <span>Search for a topic</span>
+              </div>
+            ) : (
+              // <div className="flex h-full flex-col gap-6 p-6">
+
+              // </div>
+              <div className="flex h-full w-full flex-col gap-4 p-6">
+                <h1 className="text-3xl font-extrabold tracking-tight">
+                  {paper_data.title}
+                </h1>
+                <p className="text-md w-full px-2">
+                  {paper_data.authors.map((author) => (
+                    <a href={author.url} className="mr-2 text-wrap underline">
+                      {author.name}
+                    </a>
+                  ))}
+                  {/* {paper_data.authors.map((author) => author.name).join(", ")} */}
+                </p>
+                {paper_data.tldr.text && (
+                  <Accordion type="single" defaultValue="item-1" collapsible>
+                    <AccordionItem value="item-1">
+                      <AccordionTrigger>TL;DR</AccordionTrigger>
+                      <AccordionContent>
+                        <p className="text-justify">
+                          <Badge variant="outline" className="text-md mr-2">
+                            TL;DR
+                          </Badge>
+                          {paper_data.tldr.text}
+                        </p>
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                )}
+                {paper_data.abstract && (
+                  <Accordion type="single" collapsible>
+                    <AccordionItem value="item-1">
+                      <AccordionTrigger>Abstract</AccordionTrigger>
+                      <AccordionContent>
+                        <p className="text-justify">
+                          <Badge variant="outline" className="text-md mr-2">
+                            Abstract
+                          </Badge>
+                          {paper_data.abstract}
+                        </p>
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                )}
+
+                <Tabs defaultValue="account" className="w-full">
+                  <TabsList className="flex gap-2">
+                    <TabsTrigger value="reference" className="flex-1">
+                      Reference
+                    </TabsTrigger>
+                    <TabsTrigger value="citation" className="flex-1">
+                      Citation
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="reference">
+                    <ScrollArea className="h-[25rem] rounded-lg border px-4 py-2">
+                      <div className="flex h-full flex-col gap-4">
+                        {paper_data.references.map((ref) => (
+                          <>
+                            <div className="flex flex-col justify-center gap-2 px-2">
+                              <span className="text-lg font-extrabold">
+                                {ref.title}
+                                <span className="ml-4 whitespace-nowrap text-sm font-light">
+                                  {ref.citationCount} citations
+                                </span>
+                              </span>
+                              <span className="text-md w-full space-x-2">
+                                <Badge variant="secondary" className="text-md">
+                                  {ref.authors[0]?.name}
+                                </Badge>
+                                {
+                                  ref.fieldsOfStudy?.map((field) => (
+                                    <span className="text-sm font-light">
+                                      {field}
+                                    </span>
+                                  ))[0]
+                                }
+                                <span className="text-sm font-light">
+                                  {ref.year}
+                                </span>
+                              </span>
+                            </div>
+                            <div className="border-b border-accent border-gray-300"></div>
+                          </>
+                        ))}
+                      </div>
+                      <ScrollBar />
+                    </ScrollArea>
+                  </TabsContent>
+                  <TabsContent value="citation">
+                    <ScrollArea className="h-[25rem] rounded-lg border px-4 py-2">
+                      <div className="flex h-full flex-col gap-4">
+                        {paper_data.citations.map((ref) => (
+                          <>
+                            <div className="flex flex-col justify-center gap-2 px-2">
+                              <span className="text-lg font-extrabold">
+                                {ref.title}
+                                <span className="ml-4 whitespace-nowrap text-sm font-light">
+                                  {ref.citationCount} citations
+                                </span>
+                              </span>
+                              <span className="text-md w-full space-x-2">
+                                <Badge variant="secondary" className="text-md">
+                                  {ref.authors[0]?.name}
+                                </Badge>
+                                {
+                                  ref.fieldsOfStudy?.map((field) => (
+                                    <span className="text-sm font-light">
+                                      {field}
+                                    </span>
+                                  ))[0]
+                                }
+                                <span className="text-sm font-light">
+                                  {ref.year}
+                                </span>
+                              </span>
+                            </div>
+                            <div className="border-b border-accent border-gray-300"></div>
+                          </>
+                        ))}
+                      </div>
+                      <ScrollBar />
+                    </ScrollArea>
+                  </TabsContent>
+                </Tabs>
+              </div>
+            )}
           </div>
-        </Panel>
+        </ResizablePanel>
       </ResizablePanelGroup>
     </main>
   );

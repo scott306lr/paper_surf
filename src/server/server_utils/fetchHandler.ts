@@ -14,7 +14,7 @@ export interface Paper {
   title: string;
   embedding: number[];
   abstract: string;
-  authors?: { authorId: string; name: string }[];
+  authors: { authorId: string; name: string }[];
   citations: { paperId: string; title: string; abstract: string }[];
   references: { paperId: string; title: string; abstract: string }[];
 }
