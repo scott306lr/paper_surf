@@ -21,7 +21,7 @@ import InputForm, { type inputFormSchema } from "~/components/InputForm";
 import { type z } from "zod";
 import { Panel } from "react-resizable-panels";
 import { type LinkObject, type NodeObject } from "react-force-graph-2d";
-import { Paper, PaperBrief } from "~/server/server_utils/fetchHandler";
+import { type PaperBrief } from "~/server/server_utils/fetchHandler";
 
 const RenderGraph: React.FC<{ topics: topicInfo[]; papers: PaperBrief[] }> = ({
   topics,
@@ -55,24 +55,24 @@ const RenderGraph: React.FC<{ topics: topicInfo[]; papers: PaperBrief[] }> = ({
     const graph1 = {
       nodes: cite_graph.nodes.map((node) => ({
         id: node.id,
-        label: node.id, //dataDict[node.id]?.authors[0]?.name ?? "unknown",
+        label: dataDict[node.id]?.authors[0]?.name ?? "unknown",
         size: 4,
         level: 0,
-        color: "green",
-        drawType: "circle" as const,
+        color: "blue",
+        drawType: "circle" as const, //"text" as const,
         neighbors: node.neighbors,
         links: node.links,
-        // opacity: node.opcaity
+        opacity: 0.5, //node.opcaity
       })),
+      // links: [],
       links: cite_graph.links.map((link) => ({
         id: link.id,
         source: link.source,
         target: link.target,
         strength: 4,
+        opacity: 0.5,
       })),
     };
-
-    console.log("graph1", graph1);
 
     const topic_graph = keyWord_to_graph(topics);
     const graph2 = {
@@ -92,11 +92,30 @@ const RenderGraph: React.FC<{ topics: topicInfo[]; papers: PaperBrief[] }> = ({
         id: link.id,
         source: link.source,
         target: link.target,
+        opacity: 0.5,
         strength: 4,
       })),
     };
 
-    return graph2;
+    // connect paper nodes to its topic nodes
+    const graph3 = {
+      nodes: [],
+      links: topic_graph.nodes.flatMap((topic_node) => {
+        return topic_node.paperIds.map((paperId) => ({
+          id: `${topic_node.id}-${paperId}`,
+          source: topic_node.id,
+          target: paperId,
+          opacity: 0.5,
+          strength: 4,
+        }));
+      }),
+    };
+
+    // return graph2;
+    return {
+      nodes: [...graph1.nodes, ...graph2.nodes, ...graph3.nodes],
+      links: [...graph1.links, ...graph2.links, ...graph3.links],
+    };
   }, [topics, papers]);
 
   const [highlightNodeIds, setHighlightNodeIds] = useState(new Set<string>());

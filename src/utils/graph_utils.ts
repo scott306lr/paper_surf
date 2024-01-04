@@ -144,7 +144,6 @@ export const data_to_graph = (data: PaperBrief[]) => {
         })
     })
 
-
     // link
     data.forEach((d) => {
         d.citations.forEach((c) => {

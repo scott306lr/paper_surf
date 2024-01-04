@@ -26,6 +26,7 @@ export interface CGraphData {
     id: string;
     source: string;
     target: string;
+    opacity: number;
     strength: number;
   }[];
 }
@@ -40,7 +41,7 @@ const getColorCode = (color: string, opacity: number): string => {
   } else {
     return `rgba(0, 0, 255, ${opacity})`;
   }
-}
+};
 const CGraph2D: React.FC<{
   graphData: CGraphData;
   hoverNodeId?: string | null;
@@ -93,7 +94,7 @@ const CGraph2D: React.FC<{
 
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillStyle = getColorCode(node.color, node.opacity);;
+        ctx.fillStyle = getColorCode(node.color, node.opacity);
         ctx.fillText(label, x, y);
 
         node.__bgDim = bgDim;
@@ -155,6 +156,18 @@ const CGraph2D: React.FC<{
         highlightLinkIds?.has(link.id) ? 4 : 0
       }
       linkDirectionalParticleSpeed={0.005}
+      linkCanvasObject={(link, ctx) => {
+        const start = link.source;
+        const end = link.target;
+        // const strength = link.strength;
+
+        ctx.beginPath();
+        ctx.strokeStyle = getColorCode(link.color, link.opacity);
+        ctx.lineWidth = 1;
+        ctx.moveTo(start.x, start.y);
+        ctx.lineTo(end.x, end.y);
+        ctx.stroke();
+      }}
       onNodeHover={handleNodeHover}
       onLinkHover={handleLinkHover}
     />
