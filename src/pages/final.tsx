@@ -16,26 +16,89 @@ import { useState } from "react";
 import InputForm, { type inputFormSchema } from "~/components/InputForm";
 import { type z } from "zod";
 import { Panel } from "react-resizable-panels";
+import { link } from "fs";
+import { LinkObject, NodeObject } from "react-force-graph-2d";
 
 const RenderGraph: React.FC<{ topics: topicInfo[] }> = ({ topics }) => {
   const graph = keyWord_to_graph(topics);
   const graphData: CGraphData = {
     nodes: graph.nodes.map((node) => ({
-      id: `${node.topic}`,
-      label: `${node.keyWord.splice(0, 2).join(" ")}`,
+      id: node.id,
+      label: node.keywords.slice(0, 2).join(" "),
       size: 4,
       level: 0,
-      color: ["red", "green", "blue"][node.topic % 3]!,
+      color: ["red", "green", "blue"][+node.id % 3]!,
       drawType: "text",
+      neighbors: node.neighbors,
+      links: node.links,
     })),
 
     links: graph.links.map((link) => ({
-      source: `${link.source}`,
-      target: `${link.target}`,
+      id: link.id,
+      source: link.source,
+      target: link.target,
       strength: 4,
     })),
   };
-  return <CitationGraph graphData={graphData} />;
+
+  const [highlightNodes, setHighlightNodes] = useState(new Set<string>());
+  const [highlightLinks, setHighlightLinks] = useState(new Set<string>());
+  const [hoverNodeId, setHoverNodeId] = useState<string | null>(null);
+
+  const updateHighlight = () => {
+    setHighlightNodes(highlightNodes);
+    setHighlightLinks(highlightLinks);
+  };
+
+  const handleNodeHover = (
+    node: NodeObject<NodeObject<CGraphData["nodes"][0]>> | null,
+  ) => {
+    highlightNodes.clear();
+    highlightLinks.clear();
+    if (node) {
+      highlightNodes.add(node.id);
+      node.neighbors.forEach((neighbor) => highlightNodes.add(neighbor));
+      node.links.forEach((link) => highlightLinks.add(link));
+    }
+
+    setHoverNodeId(node?.id || null);
+    updateHighlight();
+  };
+
+  const handleLinkHover = (link: LinkObject<CGraphData["links"][0]>) => {
+    highlightNodes.clear();
+    highlightLinks.clear();
+
+    if (link) {
+      highlightLinks.add(link.id);
+      highlightNodes.add(link.source);
+      highlightNodes.add(link.target);
+    }
+
+    updateHighlight();
+  };
+
+  // const paintRing = useCallback(
+  //   (node, ctx) => {
+  //     // add ring just for highlighted nodes
+  //     ctx.beginPath();
+  //     ctx.arc(node.x, node.y, NODE_R * 1.4, 0, 2 * Math.PI, false);
+  //     ctx.fillStyle = node === hoverNode ? "red" : "orange";
+  //     ctx.fill();
+  //   },
+  //   [hoverNode],
+  // );
+
+  return (
+    <CitationGraph
+      graphData={graphData}
+      hoverNodeId={hoverNodeId}
+      highlightNodes={highlightNodes}
+      highlightLinks={highlightLinks}
+      handleNodeHover={handleNodeHover}
+      handleLinkHover={handleLinkHover}
+    />
+  );
 };
 
 export default function PaperSurf() {
@@ -92,7 +155,7 @@ export default function PaperSurf() {
           </div>
         </ResizablePanel>
         <ResizableHandle />
-        <Panel defaultSize={20} minSize={20} maxSize={20}>
+        <Panel defaultSize={30} minSize={30} maxSize={30}>
           <div className="flex h-full items-center justify-center p-6">
             <span>Panel 3</span>
           </div>

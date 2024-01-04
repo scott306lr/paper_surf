@@ -1,4 +1,3 @@
-import { LargeNumberLike } from "crypto";
 import { type Paper } from "~/server/server_utils/fetchHandler";
 // export const data_to_graph = (data: Paper[]) => {
 //     const nodes: any[] = []
@@ -58,9 +57,19 @@ interface PaperIdGraph {
     links: { source: string; target: string }[];
 }
 
-interface KeyGraph {
-    nodes: { paperId: string[]; topic: number, keyWord: string[] }[];
-    links: { source: number; target: number; strength: number; }[];
+interface TopicGraph {
+    nodes: { 
+        id: string, 
+        keywords: string[], 
+        paperIds: string[], 
+        neighbors: string[] ,
+        links: string[]
+    }[];
+    links: { 
+        id: string,
+        source: string; 
+        target: string; 
+        strength: number; }[];
 }
 
 export interface document {
@@ -148,12 +157,18 @@ export const to_lda = (data: Paper[]) => {
 }
 
 export const keyWord_to_graph = (data: topicInfo[]) => {
-    console.log('load data', data);
-    const nodes: KeyGraph["nodes"] = []
-    const links: KeyGraph["links"] = []
+    // console.log('load data', data);
+    const nodes: TopicGraph["nodes"] = []
+    const links: TopicGraph["links"] = []
     for (let i = 0; i < data.length; i++) {
-        console.log(data[i].documents.map((d) => d.id));
-        nodes.push({ paperId: data[i].documents.map((d) => d.id), topic: data[i].topic, keyWord: data[i].documentVocab.map((d) => d.word)});
+        // console.log(data[i].documents.map((d) => d.id));
+        nodes.push({ 
+            id: `${data[i].topic}`, 
+            keywords: data[i].documentVocab.map((d) => d.word), 
+            paperIds: data[i].documents.map((d) => `${d.id}`), 
+            neighbors: [],
+            links: []
+        });
     }
     for (let i = 0; i < data.length; i++) {
         for (let j = i + 1; j < data.length; j++) {
@@ -164,15 +179,26 @@ export const keyWord_to_graph = (data: topicInfo[]) => {
                 for (let l = 0; l < documentVocabB.length; l++) {
                     if (documentVocabA[k].word == documentVocabB[l].word) {
                         sameWord++;
-                        console.log(documentVocabA[k].word);
+                        // console.log(documentVocabA[k].word);
                         break;
                     }
                 }
             }
             if (sameWord != 0) {
-                links.push({ source: data[i].topic, target: data[j].topic, strength: sameWord });
+                nodes[i].neighbors.push(`${data[j].topic}`);
+                nodes[i].links.push(`${data[i].topic}-${data[j].topic}`);
+                nodes[j].neighbors.push(data[i].topic);
+                nodes[j].links.push(`${data[i].topic}-${data[j].topic}`);
+                links.push({
+                    id: `${data[i].topic}-${data[j].topic}`,
+                    source: `${data[i].topic}`, 
+                    target: `${data[j].topic}`, 
+                    strength: sameWord 
+                });
+                
             }
         }
     }
+    // console.log(nodes)
     return { nodes, links };
 }

@@ -5,8 +5,9 @@ import { useWindowSize } from "@react-hook/window-size";
 import ForceGraph2D, {
   type NodeObject,
   type ForceGraphMethods,
+  LinkObject,
 } from "react-force-graph-2d";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { forceCollide } from "d3-force";
 
 export interface CGraphData {
@@ -17,68 +18,147 @@ export interface CGraphData {
     level: number;
     color: string;
     drawType: "circle" | "text";
+    neighbors: string[];
+    links: string[];
   }[];
   links: {
+    id: string;
     source: string;
     target: string;
     strength: number;
   }[];
 }
 
+const NODE_R = 8;
+
 const CGraph2D: React.FC<{
   graphData: CGraphData;
-}> = ({ graphData }) => {
+  hoverNodeId?: string | null;
+  highlightNodeIds?: Set<string>;
+  highlightLinkIds?: Set<string>;
+  handleNodeHover?: (
+    node: NodeObject<NodeObject<CGraphData["nodes"][0]>>,
+  ) => void;
+  handleLinkHover?: (link: LinkObject<CGraphData["links"][0]>) => void;
+}> = ({
+  graphData,
+  hoverNodeId,
+  highlightNodeIds,
+  highlightLinkIds,
+  handleNodeHover,
+  handleLinkHover,
+}) => {
   const [width, height] = useWindowSize();
   const graphRef = React.useRef<ForceGraphMethods | null>(null);
 
-  function nodePaint(
-    node: NodeObject<
-      NodeObject<{
-        id: string;
-        label: string;
-        size: number;
-        color: string;
-        drawType: string;
-        level: number;
-      }>
-    >,
-    ctx: CanvasRenderingContext2D,
-    globalScale: number,
-  ) {
-    const x = node.x ?? 0;
-    const y = node.y ?? 0;
+  // function nodePaint(
+  //   node: NodeObject<
+  //     NodeObject<CGraphData["nodes"][0]> & CGraphData["nodes"][0]
+  //   >,
+  //   ctx: CanvasRenderingContext2D,
+  //   globalScale: number,
+  // ) {
+  //   const x = node.x ?? 0;
+  //   const y = node.y ?? 0;
 
-    ctx.fillStyle = node.color;
-    if (node.drawType == "text") {
-      const label = node.label;
-      const fontSize = 16 / globalScale;
-      const textWidth = ctx.measureText(label).width;
-      const bgDim = {
-        textWidth: textWidth + fontSize * 0.2,
-        textHeight: fontSize + fontSize * 0.2,
-      };
+  //   ctx.fillStyle = node.color;
+  //   if (node.drawType == "text") {
+  //     const label = node.label;
+  //     const fontSize = 16 / globalScale;
+  //     const textWidth = ctx.measureText(label).width;
+  //     const bgDim = {
+  //       textWidth: textWidth + fontSize * 0.2,
+  //       textHeight: fontSize + fontSize * 0.2,
+  //     };
 
-      ctx.font = `${fontSize}px Sans-Serif`;
-      ctx.fillStyle = "rgba(255, 155, 155, 0.8)";
-      ctx.fillRect(
-        x - bgDim.textWidth / 2,
-        y - bgDim.textHeight / 2,
-        bgDim.textWidth,
-        bgDim.textHeight,
-      );
+  //     ctx.font = `${fontSize}px Sans-Serif`;
+  //     ctx.fillStyle = "rgba(255, 155, 155, 0.8)";
+  //     ctx.fillRect(
+  //       x - bgDim.textWidth / 2,
+  //       y - bgDim.textHeight / 2,
+  //       bgDim.textWidth,
+  //       bgDim.textHeight,
+  //     );
 
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
+  //     ctx.textAlign = "center";
+  //     ctx.textBaseline = "middle";
+  //     ctx.fillStyle = node.color;
+  //     ctx.fillText(label, x, y);
+
+  //     node.__bgDim = bgDim;
+  //   } else if (node.drawType == "circle") {
+  //     ctx.beginPath();
+  //     ctx.arc(x, y, node.size, 0, 2 * Math.PI, false);
+  //     ctx.fill();
+  //   }
+
+  //   if (highlightNodeIds?.has(node.id)) {
+  //     ctx.beginPath();
+  //     ctx.arc(x, y, NODE_R * 1.4, 0, 2 * Math.PI, false);
+  //     ctx.fillStyle = node.id === hoverNodeId ? "red" : "orange";
+  //     ctx.fill();
+  //   }
+  // }
+
+  const nodePaint = useCallback(
+    (
+      node: NodeObject<
+        NodeObject<CGraphData["nodes"][0]> & CGraphData["nodes"][0]
+      >,
+      ctx: CanvasRenderingContext2D,
+      globalScale: number,
+    ) => {
+      const x = node.x ?? 0;
+      const y = node.y ?? 0;
+
       ctx.fillStyle = node.color;
-      ctx.fillText(label, x, y);
+      if (node.drawType == "text") {
+        const label = node.label;
+        const fontSize = 16 / globalScale;
+        const textWidth = ctx.measureText(label).width;
+        const bgDim = {
+          textWidth: textWidth + fontSize * 0.2,
+          textHeight: fontSize + fontSize * 0.2,
+        };
 
-      node.__bgDim = bgDim;
-    } else if (node.drawType == "circle") {
-      ctx.beginPath();
-      ctx.arc(x, y, node.size, 0, 2 * Math.PI, false);
-      ctx.fill();
-    }
-  }
+        ctx.font = `${fontSize}px Sans-Serif`;
+        ctx.fillStyle = "rgba(255, 155, 155, 0.8)";
+        ctx.fillRect(
+          x - bgDim.textWidth / 2,
+          y - bgDim.textHeight / 2,
+          bgDim.textWidth,
+          bgDim.textHeight,
+        );
+
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = node.color;
+        ctx.fillText(label, x, y);
+
+        node.__bgDim = bgDim;
+      } else if (node.drawType == "circle") {
+        ctx.beginPath();
+        ctx.arc(x, y, node.size, 0, 2 * Math.PI, false);
+        ctx.fill();
+      }
+
+      if (highlightNodeIds?.has(node.id)) {
+        ctx.beginPath();
+        ctx.arc(x, y, NODE_R * 1.4, 0, 2 * Math.PI, false);
+        ctx.fillStyle = node.id === hoverNodeId ? "red" : "orange";
+        ctx.fill();
+      }
+    },
+    [highlightNodeIds, hoverNodeId],
+  );
+
+  // const paintRing = useCallback((node, ctx) => {
+  //   // add ring just for highlighted nodes
+  //   ctx.beginPath();
+  //   ctx.arc(node.x, node.y, NODE_R * 1.4, 0, 2 * Math.PI, false);
+  //   ctx.fillStyle = node === hoverNode ? 'red' : 'orange';
+  //   ctx.fill();
+  // }, [hoverNode]);
 
   useEffect(() => {
     const graph = graphRef.current;
@@ -97,28 +177,23 @@ const CGraph2D: React.FC<{
       height={height}
       width={width}
       graphData={graphData}
+      nodeRelSize={NODE_R}
+      autoPauseRedraw={false}
       nodeVal={(node) => node?.size ?? 10}
-      nodeCanvasObject={(node, ctx, globalScale) =>
-        nodePaint(node, ctx, globalScale)
-      }
-      onNodeDragEnd={(node) => {
-        node.fx = node.x;
-        node.fy = node.y;
-      }}
-      // nodePointerAreaPaint={(node, color, ctx) => {
-      //   const x = node.x ?? 0;
-      //   const y = node.y ?? 0;
-      //   const bgDim = node.__bgDim as { textWidth: number; textHeight: number };
-
-      //   ctx.fillStyle = color;
-      //   bgDim &&
-      //     ctx.fillRect(
-      //       x - bgDim.textWidth / 2,
-      //       y - bgDim.textHeight / 2,
-      //       bgDim.textWidth,
-      //       bgDim.textHeight,
-      //     );
+      nodeCanvasObject={nodePaint}
+      // nodeCanvasObjectMode={node => highlightNodes?.has(node.id) ? 'before' : undefined}
+      // onNodeDragEnd={(node) => {
+      //   node.fx = node.x;
+      //   node.fy = node.y;
       // }}
+      linkWidth={(link) => (highlightLinkIds?.has(link.id) ? 5 : 1)}
+      linkDirectionalParticles={4}
+      linkDirectionalParticleWidth={(link) =>
+        highlightLinkIds?.has(link.id) ? 4 : 0
+      }
+      linkDirectionalParticleSpeed={0.005}
+      // onNodeHover={handleNodeHover}
+      // onLinkHover={handleLinkHover}
     />
   );
 };
