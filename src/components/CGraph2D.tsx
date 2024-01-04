@@ -111,6 +111,31 @@ const CGraph2D: React.FC<{
         ctx.beginPath();
         ctx.arc(x, y, node.size, 0, 2 * Math.PI, false);
         ctx.fill();
+
+        //label
+        const label = node.label;
+        const fontSize = 16 / globalScale;
+        const textWidth = ctx.measureText(label).width;
+        const bgDim = {
+          textWidth: textWidth + fontSize * 0.2,
+          textHeight: fontSize + fontSize * 0.2,
+        };
+
+        ctx.font = `${fontSize}px Sans-Serif`;
+        ctx.fillStyle = "rgba(255, 155, 155, 0.3)";
+        ctx.fillRect(
+          x - bgDim.textWidth / 2,
+          y - bgDim.textHeight / 2,
+          bgDim.textWidth,
+          bgDim.textHeight,
+        );
+
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = getColorCode(node.color, node.opacity);
+        ctx.fillText(label, x, y);
+
+        node.__bgDim = bgDim;
       }
 
       if (highlightNodeIds?.has(node.id)) {
