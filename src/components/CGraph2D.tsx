@@ -20,6 +20,7 @@ export interface CGraphData {
     drawType: "circle" | "text";
     neighbors: string[];
     links: string[];
+    opacity: number;
   }[];
   links: {
     id: string;
@@ -31,6 +32,15 @@ export interface CGraphData {
 
 const NODE_R = 8;
 
+const getColorCode = (color: string, opacity: number): string => {
+  if (color == "red") {
+    return `rgba(255, 0, 0, ${opacity})`;
+  } else if (color == "green") {
+    return `rgba(0, 255, 0, ${opacity})`;
+  } else {
+    return `rgba(0, 0, 255, ${opacity})`;
+  }
+}
 const CGraph2D: React.FC<{
   graphData: CGraphData;
   hoverNodeId?: string | null;
@@ -62,7 +72,7 @@ const CGraph2D: React.FC<{
       const x = node.x ?? 0;
       const y = node.y ?? 0;
 
-      ctx.fillStyle = node.color;
+      ctx.fillStyle = getColorCode(node.color, node.opacity);
       if (node.drawType == "text") {
         const label = node.label;
         const fontSize = 16 / globalScale;
@@ -73,7 +83,7 @@ const CGraph2D: React.FC<{
         };
 
         ctx.font = `${fontSize}px Sans-Serif`;
-        ctx.fillStyle = "rgba(255, 155, 155, 0.8)";
+        ctx.fillStyle = "rgba(255, 155, 155, 0.3)";
         ctx.fillRect(
           x - bgDim.textWidth / 2,
           y - bgDim.textHeight / 2,
@@ -83,7 +93,7 @@ const CGraph2D: React.FC<{
 
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillStyle = node.color;
+        ctx.fillStyle = getColorCode(node.color, node.opacity);;
         ctx.fillText(label, x, y);
 
         node.__bgDim = bgDim;

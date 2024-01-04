@@ -1,10 +1,9 @@
 import { api } from "~/utils/api";
 import { useState } from "react";
-import useSWR from "swr";
 import { to_lda } from "~/utils/graph_utils";
-import { getPaper } from "~/utils/node_fetcher";
+import { getApaper } from "~/utils/node_fetcher";
 import { type Paper } from "~/server/server_utils/fetchHandler"
-import { set } from "zod";
+
 
 export default function TestUrl() {
   // const search_mutation = api.scholar.searchByInput.useMutation();
@@ -20,8 +19,7 @@ export default function TestUrl() {
   // console.log('aaa', search_mutation.data, search_mutation.isLoading, search_mutation.error);
   // console.log('bbb', lda_mutation.data, lda_mutation.isLoading, lda_mutation.error);
 
-  const { data: data, error: error, isLoading: isLoading, } = useSWR(["649def34f8be52c8b66281af98ae884c09aef38b", ['paperId', 'title', 'abstract', 'authors']], getPaper);
-  if (isLoading) return <div>loading</div>
+  const data = getApaper("649def34f8be52c8b66281af98ae884c09aef38b");
   console.log('data', data)
 
 
