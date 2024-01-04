@@ -131,17 +131,14 @@ const CGraph2D: React.FC<{
   //   ctx.fill();
   // }, [hoverNode]);
 
-  // useEffect(() => {
-  //   const graph = graphRef.current;
-  //   // add collision force
-  //   if (graph) {
-  //     graph.d3Force(
-  //       "collision",
-  //       forceCollide().radius((node) => node.__bgDim?.textWidth / 2 ?? 0),
-  //     );
-  //     // graph?.d3Force("link").distance(400);
-  //   }
-  // }, []);
+  useEffect(() => {
+    const graph = graphRef.current;
+    // add collision force
+    if (graph) {
+      graph.zoomToFit();
+      // graph?.d3Force("link").distance(400);
+    }
+  }, []);
 
   return (
     <ForceGraph2D
