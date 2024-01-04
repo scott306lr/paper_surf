@@ -9,15 +9,11 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "~/components/ui/resizable";
-import { Combobox } from "~/components/Combobox";
-import { Input } from "~/components/ui/input";
-import { Button } from "~/components/ui/button";
 import { useState } from "react";
 import InputForm, { type inputFormSchema } from "~/components/InputForm";
 import { type z } from "zod";
 import { Panel } from "react-resizable-panels";
-import { link } from "fs";
-import { LinkObject, NodeObject } from "react-force-graph-2d";
+import { type LinkObject, type NodeObject } from "react-force-graph-2d";
 
 const RenderGraph: React.FC<{ topics: topicInfo[] }> = ({ topics }) => {
   const graph = keyWord_to_graph(topics);
@@ -41,24 +37,24 @@ const RenderGraph: React.FC<{ topics: topicInfo[] }> = ({ topics }) => {
     })),
   };
 
-  const [highlightNodes, setHighlightNodes] = useState(new Set<string>());
-  const [highlightLinks, setHighlightLinks] = useState(new Set<string>());
+  const [highlightNodeIds, setHighlightNodeIds] = useState(new Set<string>());
+  const [highlightLinkIds, setHighlightLinkIds] = useState(new Set<string>());
   const [hoverNodeId, setHoverNodeId] = useState<string | null>(null);
 
   const updateHighlight = () => {
-    setHighlightNodes(highlightNodes);
-    setHighlightLinks(highlightLinks);
+    setHighlightNodeIds(highlightNodeIds);
+    setHighlightLinkIds(highlightLinkIds);
   };
 
   const handleNodeHover = (
     node: NodeObject<NodeObject<CGraphData["nodes"][0]>> | null,
   ) => {
-    highlightNodes.clear();
-    highlightLinks.clear();
+    highlightNodeIds.clear();
+    highlightLinkIds.clear();
     if (node) {
-      highlightNodes.add(node.id);
-      node.neighbors.forEach((neighbor) => highlightNodes.add(neighbor));
-      node.links.forEach((link) => highlightLinks.add(link));
+      highlightNodeIds.add(node.id);
+      node.neighbors.forEach((neighbor) => highlightNodeIds.add(neighbor));
+      node.links.forEach((link) => highlightLinkIds.add(link));
     }
 
     setHoverNodeId(node?.id ?? null);
@@ -66,13 +62,13 @@ const RenderGraph: React.FC<{ topics: topicInfo[] }> = ({ topics }) => {
   };
 
   const handleLinkHover = (link: LinkObject<CGraphData["links"][0]>) => {
-    highlightNodes.clear();
-    highlightLinks.clear();
+    highlightNodeIds.clear();
+    highlightLinkIds.clear();
 
     if (link) {
-      highlightLinks.add(link.id);
-      highlightNodes.add(link.source);
-      highlightNodes.add(link.target);
+      highlightLinkIds.add(link.id);
+      highlightNodeIds.add(link.source);
+      highlightNodeIds.add(link.target);
     }
 
     updateHighlight();
@@ -89,12 +85,15 @@ const RenderGraph: React.FC<{ topics: topicInfo[] }> = ({ topics }) => {
   //   [hoverNode],
   // );
 
+  console.log("graphData");
+  console.log(graphData);
+
   return (
     <CitationGraph
       graphData={graphData}
       hoverNodeId={hoverNodeId}
-      highlightNodes={highlightNodes}
-      highlightLinks={highlightLinks}
+      highlightNodeIds={highlightNodeIds}
+      highlightLinkIds={highlightLinkIds}
       handleNodeHover={handleNodeHover}
       handleLinkHover={handleLinkHover}
     />

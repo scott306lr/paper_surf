@@ -181,9 +181,13 @@ const CGraph2D: React.FC<{
       autoPauseRedraw={false}
       nodeVal={(node) => node?.size ?? 10}
       nodeCanvasObject={nodePaint}
-      nodeCanvasObjectMode={(node) =>
-        highlightNodes?.has(node.id) ? "before" : undefined
-      }
+      // nodeCanvasObject={(node, ctx, globalScale) =>
+      //   nodePaint(node, ctx, globalScale)
+      // }
+      // nodeCanvasObjectMode={(node) =>
+      //   highlightNodeIds?.has(node.id) ? "before" : undefined
+      // }
+      nodeCanvasObjectMode={undefined}
       onNodeDragEnd={(node) => {
         node.fx = node.x;
         node.fy = node.y;
