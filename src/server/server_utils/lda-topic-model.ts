@@ -6,13 +6,14 @@ import XRegExp from 'xregexp';
 import { stemmer } from 'stemmer';
 
 
-export const lda_abstract = (data: { paperId: string, abstract: string }[], dict?: string[]) => {
+export const lda_abstract = (data: { paperId: string, abstract: string }[], sweep: number, dict?: string[]) => {
     const dictionary = dict ?? []
+    const sweeps = (sweep > 10) ? 10 : sweep * 10000;
     const options = {
         displayingStopwords: false,
         language: 'en',
         numberTopics: 20,
-        sweeps: 100,
+        sweeps: sweeps,
         stem: false,
     };
 

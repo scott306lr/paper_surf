@@ -17,10 +17,10 @@ export const scholarRouter = createTRPCRouter({
     }),
 
   lda: publicProcedure
-    .input(z.object({ paperID_array: z.array(z.string()), stopwords: z.array(z.string()) }))
+    .input(z.object({ paperID_array: z.array(z.string()), sweeps: z.number(), stopwords: z.array(z.string()) }))
     .mutation(async ({ input }) => {
       const data = await PostPaper(input.paperID_array);
-      const result = data && lda_abstract(data, input.stopwords);
+      const result = data && lda_abstract(data, input.sweeps, input.stopwords);
       return result;
     }),
 });
