@@ -102,7 +102,7 @@ export const scholarRouter = createTRPCRouter({
             nodes.push({
               id: d.paperId,
               label: id_map.get(d.paperId)?.title ?? "",
-              size: Math.sqrt(id_map.get(d.paperId)?.size ?? 0) / 2 + 5,
+              size: Math.sqrt(id_map.get(d.paperId)?.size ?? 0) / 2 + 10,
               level: 0,
               color: "red",
               drawType: "circle",
@@ -127,7 +127,7 @@ export const scholarRouter = createTRPCRouter({
             nodes.push({
               id: c,
               label: id_map.get(c)?.title ?? "",
-              size: Math.sqrt(id_map.get(c)?.size ?? 0) / 2 + 5,
+              size: Math.sqrt(id_map.get(c)?.size ?? 0) / 2 + 10,
               level: 0,
               color: "red",
               drawType: "circle",
@@ -148,7 +148,7 @@ export const scholarRouter = createTRPCRouter({
             nodes.push({
               id: c,
               label: id_map.get(c)?.title ?? "",
-              size: Math.sqrt(id_map.get(c)?.size ?? 0) / 2 + 5,
+              size: Math.sqrt(id_map.get(c)?.size ?? 0) / 2 + 10,
               level: 0,
               color: "red",
               drawType: "circle",

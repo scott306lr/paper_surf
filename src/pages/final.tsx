@@ -32,7 +32,10 @@ import {
   AccordionTrigger,
 } from "~/components/ui/accordion";
 
-const RenderGraph: React.FC<{ graphData: CGraphData }> = ({ graphData }) => {
+const RenderGraph: React.FC<{
+  graphData: CGraphData;
+  setClickNodeId: (nodeId: string) => void;
+}> = ({ graphData, setClickNodeId }) => {
   // const graphData = useMemo<CGraphData>(() => {
   //   const dataDict = papers.reduce(
   //     (acc, cur) => {
@@ -169,85 +172,29 @@ const RenderGraph: React.FC<{ graphData: CGraphData }> = ({ graphData }) => {
       highlightLinkIds={highlightLinkIds}
       handleNodeHover={handleNodeHover}
       handleLinkHover={handleLinkHover}
+      handleClickNode={(node) => setClickNodeId(node.id)}
     />
   );
 };
 
 export default function PaperSurf() {
-  // const {
-  //   mutateAsync: search_mutateAsync,
-  //   data: search_data,
-  //   isLoading: search_isLoading,
-  // } = api.scholar.searchByInput.useMutation();
-
   const {
     mutate: lda_mutate,
     data: lda_data,
     isLoading: lda_isLoading,
   } = api.scholar.lda.useMutation();
 
-  const { data: paper_data, isLoading: paper_isLoading } = getDataByPaperId(
-    "649def34f8be52c8b66281af98ae884c09aef38b",
-  );
+  const [clickNodeId, setClickNodeId] = useState<string>("");
+  const { data: paper_data, isLoading: paper_isLoading } =
+    getDataByPaperId(clickNodeId);
 
-  // console.log("paper_data", paper_data);
-  // console.log('lda_data', lda_data)
-
-  // const lda_map = new Map<string, number>();
-  // lda_data?.forEach((d) => {
-  //   d.documents.forEach((b) => {
-  //     if (lda_map.has(b.id)) lda_map.set(b.id, lda_map.get(b.id) + 1);
-  //     else lda_map.set(b.id, 1);
-  //   });
-  // });
-
-  // console.log('lda_map', lda_map)
-
-  const onSubmit = async (values: z.infer<typeof inputFormSchema>) => {
+  const onSubmit = async (values: z.infer<typeof inputFormSchema>) =>
     lda_mutate({
       input: values.positive.split(", "),
       filter_input: values.negative.split(", "),
       stopwords: values.stopwords.split(", "),
       sweeps: values.precision,
     });
-
-    // // console.log(values);
-    // const search_result = await search_mutateAsync({
-    //   input: values.positive.split(", "),
-    //   filter_input: values.negative.split(", "),
-    // });
-
-    // // console.log("search_result", search_result);
-
-    // if (search_result != null) {
-    //   const search_map = new Map<string, number>();
-
-    //   search_result?.forEach((d) => {
-    //     if (search_map.has(d.paperId))
-    //       search_map.set(d.paperId, search_map.get(d.paperId) + 1);
-    //     else search_map.set(d.paperId, 1);
-    //     d.citations.forEach((c) => {
-    //       if (search_map.has(c.paperId))
-    //         search_map.set(c.paperId, search_map.get(c.paperId) + 1);
-    //       else search_map.set(c.paperId, 1);
-    //     });
-    //     d.references.forEach((r) => {
-    //       if (search_map.has(r.paperId))
-    //         search_map.set(r.paperId, search_map.get(r.paperId) + 1);
-    //       else search_map.set(r.paperId, 1);
-    //     });
-    //   });
-    //   // console.log('search_map', search_map)
-    //   // console.log('lda', to_lda(search_result))
-    // }
-
-    // if (search_result != null)
-    //   lda_mutate({
-    //     paperID_array: to_lda(search_result),
-    //     stopwords: values.stopwords.split(", "),
-    //     sweeps: values.precision,
-    //   });
-  };
 
   return (
     <main className="h-screen w-screen items-center justify-center">
@@ -272,18 +219,21 @@ export default function PaperSurf() {
                 <span>Search for a topic</span>
               </div>
             ) : (
-              <RenderGraph graphData={lda_data} />
+              <RenderGraph
+                graphData={lda_data}
+                setClickNodeId={setClickNodeId}
+              />
             )}
           </div>
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={30} minSize={30}>
+        <ResizablePanel defaultSize={30} minSize={30} collapsible>
           <div className="flex h-full flex-col">
             {paper_isLoading ? (
               <div className="flex items-center justify-center">
                 <div className="h-32 w-32 animate-spin rounded-full border-b-2 border-t-2 border-black"></div>
               </div>
-            ) : !paper_data ? (
+            ) : clickNodeId == "" || !paper_data ? (
               <div className="flex items-center justify-center">
                 <span>Search for a topic</span>
               </div>
@@ -303,7 +253,7 @@ export default function PaperSurf() {
                   ))}
                   {/* {paper_data.authors.map((author) => author.name).join(", ")} */}
                 </p>
-                {paper_data.tldr.text && (
+                {paper_data.tldr?.text && (
                   <Accordion type="single" defaultValue="item-1" collapsible>
                     <AccordionItem value="item-1">
                       <AccordionTrigger>TL;DR</AccordionTrigger>
@@ -346,7 +296,7 @@ export default function PaperSurf() {
                   <TabsContent value="reference">
                     <ScrollArea className="h-[25rem] rounded-lg border px-4 py-2">
                       <div className="flex h-full flex-col gap-4">
-                        {paper_data.references.map((ref) => (
+                        {paper_data.references?.map((ref) => (
                           <>
                             <div className="flex flex-col justify-center gap-2 px-2">
                               <span className="text-lg font-extrabold">
@@ -381,7 +331,7 @@ export default function PaperSurf() {
                   <TabsContent value="citation">
                     <ScrollArea className="h-[25rem] rounded-lg border px-4 py-2">
                       <div className="flex h-full flex-col gap-4">
-                        {paper_data.citations.map((ref) => (
+                        {paper_data.citations?.map((ref) => (
                           <>
                             <div className="flex flex-col justify-center gap-2 px-2">
                               <span className="text-lg font-extrabold">
