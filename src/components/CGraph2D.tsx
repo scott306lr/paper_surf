@@ -50,6 +50,7 @@ const CGraph2D: React.FC<{
 }) => {
   const [width, height] = useWindowSize();
   const graphRef = React.useRef<ForceGraphMethods | null>(null);
+  // console.log("2D rerendered.");
 
   // function nodePaint(
   //   node: NodeObject<
@@ -142,14 +143,14 @@ const CGraph2D: React.FC<{
         ctx.fill();
       }
 
-      if (highlightNodeIds?.has(node.id)) {
-        ctx.beginPath();
-        ctx.arc(x, y, NODE_R * 1.4, 0, 2 * Math.PI, false);
-        ctx.fillStyle = node.id === hoverNodeId ? "red" : "orange";
-        ctx.fill();
-      }
+      // if (highlightNodeIds?.has(node.id)) {
+      //   ctx.beginPath();
+      //   ctx.arc(x, y, NODE_R * 1.4, 0, 2 * Math.PI, false);
+      //   ctx.fillStyle = node.id === hoverNodeId ? "red" : "orange";
+      //   ctx.fill();
+      // }
     },
-    [highlightNodeIds, hoverNodeId],
+    [hoverNodeId],
   );
 
   // const paintRing = useCallback((node, ctx) => {
@@ -198,7 +199,7 @@ const CGraph2D: React.FC<{
         highlightLinkIds?.has(link.id) ? 4 : 0
       }
       linkDirectionalParticleSpeed={0.005}
-      // onNodeHover={handleNodeHover}
+      onNodeHover={handleNodeHover}
       // onLinkHover={handleLinkHover}
     />
   );
