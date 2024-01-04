@@ -174,7 +174,7 @@ export const data_to_graph = (data: PaperBrief[]) => {
     return { nodes, links };
 }
 
-export const to_lda = (data: Paper[]) => {
+export const to_lda = (data: PaperBrief[]) => {
     const id_set = new Set<string>()
     data.forEach((d) => {
         id_set.add(d.paperId)

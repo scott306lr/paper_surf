@@ -70,8 +70,14 @@ export const fetchPaperbyInput = async (input_arr: string[], filter_arr: string[
     },
   })
     .then((response) => response.json())
+    // .then((data) => {console.log(data); return data;})
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
     .then((data: any) => data.data as PaperBrief[])
+    .then((data) => data.map((d) => {
+      d.citations = d.citations.filter((c) => c.paperId != null).slice(0, 5) ?? [];
+      d.references = d.references.filter((c) => c.paperId != null).slice(0, 5) ?? [];
+      return d;
+    }))
     .catch((error) => {
       console.log(error);
     });

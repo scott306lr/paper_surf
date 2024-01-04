@@ -78,7 +78,7 @@ export default function GraphTest() {
   const { mutate, data, isLoading, error } =
     api.scholar.searchByInput.useMutation();
 
-  console.log(mutate, data, isLoading, error);
+  console.log("mutate", data);
 
   return (
     <>

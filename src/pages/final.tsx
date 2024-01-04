@@ -168,6 +168,8 @@ export default function PaperSurf() {
       filter_input: values.negative.split(", "),
     });
 
+    console.log("search_result", search_result);
+
     if (search_result != null)
       lda_mutate({
         paperID_array: to_lda(search_result),
