@@ -287,10 +287,16 @@ export default function PaperSurf() {
                 <Tabs defaultValue="account" className="w-full">
                   <TabsList className="flex gap-2">
                     <TabsTrigger value="reference" className="flex-1">
-                      Reference
+                      References
+                      <span className="ml-2 text-sm font-light">
+                        {paper_data.referenceCount}
+                      </span>
                     </TabsTrigger>
                     <TabsTrigger value="citation" className="flex-1">
-                      Citation
+                      Citations
+                      <span className="ml-2 text-sm font-light">
+                        {paper_data.citationCount}
+                      </span>
                     </TabsTrigger>
                   </TabsList>
                   <TabsContent value="reference">
