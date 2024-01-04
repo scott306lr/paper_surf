@@ -14,12 +14,8 @@ export interface Paper {
   title: string;
   embedding: { model: string; vector: number[] };
   abstract: string;
-<<<<<<< HEAD
-  authors: { authorId: string; name: string }[];
-=======
   citationCount: number;
-  authors?: { authorId: string; name: string }[];
->>>>>>> 0967c9810675a9061a53f35e4f7dfac154be810f
+  authors: { authorId: string; name: string }[];
   citations: { paperId: string; title: string; abstract: string }[];
   references: { paperId: string; title: string; abstract: string }[];
 }

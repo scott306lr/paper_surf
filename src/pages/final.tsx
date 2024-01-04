@@ -32,7 +32,6 @@ import {
   AccordionTrigger,
 } from "~/components/ui/accordion";
 
-
 const RenderGraph: React.FC<{ topics: topicInfo[]; papers: PaperBrief[] }> = ({
   topics,
   papers,
@@ -190,63 +189,67 @@ export default function PaperSurf() {
     isLoading: lda_isLoading,
   } = api.scholar.lda.useMutation();
 
-<<<<<<< HEAD
   const { data: paper_data, isLoading: paper_isLoading } = getDataByPaperId(
     "649def34f8be52c8b66281af98ae884c09aef38b",
   );
 
-  console.log("paper_data", paper_data);
-=======
-  console.log('lda_data', lda_data)
+  // console.log("paper_data", paper_data);
+  // console.log('lda_data', lda_data)
 
   const lda_map = new Map<string, number>();
   lda_data?.forEach((d) => {
     d.documents.forEach((b) => {
       if (lda_map.has(b.id)) lda_map.set(b.id, lda_map.get(b.id) + 1);
       else lda_map.set(b.id, 1);
-    })
-  })
+    });
+  });
 
-  console.log('lda_map', lda_map)
->>>>>>> 0967c9810675a9061a53f35e4f7dfac154be810f
+  // console.log('lda_map', lda_map)
 
   const onSubmit = async (values: z.infer<typeof inputFormSchema>) => {
-    // console.log(values);
-    const search_result = await search_mutateAsync({
+    lda_mutate({
       input: values.positive.split(", "),
       filter_input: values.negative.split(", "),
+      stopwords: values.stopwords.split(", "),
+      sweeps: values.precision,
     });
 
-<<<<<<< HEAD
-=======
-    console.log("search_result", search_result);
+    // // console.log(values);
+    // const search_result = await search_mutateAsync({
+    //   input: values.positive.split(", "),
+    //   filter_input: values.negative.split(", "),
+    // });
 
-    if (search_result != null) {
-      const search_map = new Map<string, number>();
+    // // console.log("search_result", search_result);
 
-      search_result?.forEach((d) => {
-        if (search_map.has(d.paperId)) search_map.set(d.paperId, search_map.get(d.paperId) + 1);
-        else search_map.set(d.paperId, 1);
-        d.citations.forEach((c) => {
-          if (search_map.has(c.paperId)) search_map.set(c.paperId, search_map.get(c.paperId) + 1);
-          else search_map.set(c.paperId, 1);
-        });
-        d.references.forEach((r) => {
-          if (search_map.has(r.paperId)) search_map.set(r.paperId, search_map.get(r.paperId) + 1);
-          else search_map.set(r.paperId, 1);
-        });
-      });
-      console.log('search_map', search_map)
-      console.log('lda', to_lda(search_result))
-    }
+    // if (search_result != null) {
+    //   const search_map = new Map<string, number>();
 
->>>>>>> 0967c9810675a9061a53f35e4f7dfac154be810f
-    if (search_result != null)
-      lda_mutate({
-        paperID_array: to_lda(search_result),
-        stopwords: values.stopwords.split(", "),
-        sweeps: values.precision,
-      });
+    //   search_result?.forEach((d) => {
+    //     if (search_map.has(d.paperId))
+    //       search_map.set(d.paperId, search_map.get(d.paperId) + 1);
+    //     else search_map.set(d.paperId, 1);
+    //     d.citations.forEach((c) => {
+    //       if (search_map.has(c.paperId))
+    //         search_map.set(c.paperId, search_map.get(c.paperId) + 1);
+    //       else search_map.set(c.paperId, 1);
+    //     });
+    //     d.references.forEach((r) => {
+    //       if (search_map.has(r.paperId))
+    //         search_map.set(r.paperId, search_map.get(r.paperId) + 1);
+    //       else search_map.set(r.paperId, 1);
+    //     });
+    //   });
+    //   // console.log('search_map', search_map)
+    //   // console.log('lda', to_lda(search_result))
+    // }
+
+    // if (search_result != null)
+    //   lda_mutate({
+    //     paperID_array: to_lda(search_result),
+    //     stopwords: values.stopwords.split(", "),
+    //     sweeps: values.precision,
+    //   });
   };
 
   return (
