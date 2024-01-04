@@ -63,13 +63,16 @@ interface TopicGraph {
         keywords: string[], 
         paperIds: string[], 
         neighbors: string[] ,
-        links: string[]
+        links: string[],
+        opcaity?: number
     }[];
     links: { 
         id: string,
         source: string; 
         target: string; 
-        strength: number; }[];
+        strength: number;
+        opacity?: number;
+    }[];
 }
 
 export interface document {
@@ -167,7 +170,8 @@ export const keyWord_to_graph = (data: topicInfo[]) => {
             keywords: data[i].documentVocab.map((d) => d.word), 
             paperIds: data[i].documents.map((d) => `${d.id}`), 
             neighbors: [],
-            links: []
+            links: [],
+            opcaity: 1
         });
     }
     for (let i = 0; i < data.length; i++) {
@@ -193,7 +197,8 @@ export const keyWord_to_graph = (data: topicInfo[]) => {
                     id: `${data[i].topic}-${data[j].topic}`,
                     source: `${data[i].topic}`, 
                     target: `${data[j].topic}`, 
-                    strength: sameWord 
+                    strength: sameWord,
+                    opacity: 1
                 });
                 
             }
