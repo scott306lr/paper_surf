@@ -49,6 +49,7 @@
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.160.0",
     "three-spritetext": "^1.8.1",
+    "tsne-js": "^1.0.3",
     "vaul": "^0.8.0",
     "zod": "^3.22.4"
   },
