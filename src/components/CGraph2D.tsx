@@ -181,19 +181,21 @@ const CGraph2D: React.FC<{
       autoPauseRedraw={false}
       nodeVal={(node) => node?.size ?? 10}
       nodeCanvasObject={nodePaint}
-      // nodeCanvasObjectMode={node => highlightNodes?.has(node.id) ? 'before' : undefined}
-      // onNodeDragEnd={(node) => {
-      //   node.fx = node.x;
-      //   node.fy = node.y;
-      // }}
+      nodeCanvasObjectMode={(node) =>
+        highlightNodes?.has(node.id) ? "before" : undefined
+      }
+      onNodeDragEnd={(node) => {
+        node.fx = node.x;
+        node.fy = node.y;
+      }}
       linkWidth={(link) => (highlightLinkIds?.has(link.id) ? 5 : 1)}
       linkDirectionalParticles={4}
       linkDirectionalParticleWidth={(link) =>
         highlightLinkIds?.has(link.id) ? 4 : 0
       }
       linkDirectionalParticleSpeed={0.005}
-      onNodeHover={handleNodeHover}
-      onLinkHover={handleLinkHover}
+      // onNodeHover={handleNodeHover}
+      // onLinkHover={handleLinkHover}
     />
   );
 };
