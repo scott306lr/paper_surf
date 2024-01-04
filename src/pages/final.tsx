@@ -2,6 +2,12 @@ import { randFloat } from "three/src/math/MathUtils.js";
 import CitationGraph from "~/components/CGWrapper2D";
 import { type CGraphData } from "~/components/CGraph2D";
 
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "~/components/ui/resizable";
+
 export default function PaperSurf() {
   //create 100 nodes, each with a random size and random links to other nodes
   const ABCData = {
@@ -33,12 +39,28 @@ export default function PaperSurf() {
   };
 
   return (
-    <main className="h-full w-full">
-      {/* <div className="flex h-full w-full flex-col items-center justify-center gap-12 px-4 py-16 ">
-        <CGraph graphData={graphData} />
+    <main className="h-screen w-screen items-center justify-center">
+      {/* <div className="flex h-full w-1/2 gap-12 bg-black px-4 py-16">
+        <CitationGraph graphData={graphData} />
       </div> */}
       {/* <CGraph graphData={graphData} /> */}
-      <CitationGraph graphData={graphData} />
+      {/* <CitationGraph graphData={graphData} /> */}
+      <ResizablePanelGroup
+        direction="horizontal"
+        className="min-h-[200px] rounded-lg border"
+      >
+        <ResizablePanel defaultSize={70}>
+          <div className="flex h-full items-center justify-center p-6">
+            <CitationGraph graphData={graphData} />
+          </div>
+        </ResizablePanel>
+        <ResizableHandle withHandle />
+        <ResizablePanel minSize={20} defaultSize={30}>
+          <div className="flex h-full items-center justify-center p-6">
+            <span className="font-semibold">Content</span>
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </main>
   );
 }

@@ -98,7 +98,7 @@ export const PostPaper = async (data: string[]) => {
     body: JSON.stringify({ "ids": data })
   })
     .then((response) => response.json())
-    .then (data => {console.log(data); return data;})
+    // .then (data => {console.log(data); return data;})
     .then((data: Paper[]) => processPaper(data))
     .catch((error) => { console.log(error) });
   return response;

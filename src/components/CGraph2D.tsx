@@ -101,20 +101,24 @@ const CGraph2D: React.FC<{
       nodeCanvasObject={(node, ctx, globalScale) =>
         nodePaint(node, ctx, globalScale)
       }
-      nodePointerAreaPaint={(node, color, ctx) => {
-        const x = node.x ?? 0;
-        const y = node.y ?? 0;
-        const bgDim = node.__bgDim as { textWidth: number; textHeight: number };
-
-        ctx.fillStyle = color;
-        bgDim &&
-          ctx.fillRect(
-            x - bgDim.textWidth / 2,
-            y - bgDim.textHeight / 2,
-            bgDim.textWidth,
-            bgDim.textHeight,
-          );
+      onNodeDragEnd={(node) => {
+        node.fx = node.x;
+        node.fy = node.y;
       }}
+      // nodePointerAreaPaint={(node, color, ctx) => {
+      //   const x = node.x ?? 0;
+      //   const y = node.y ?? 0;
+      //   const bgDim = node.__bgDim as { textWidth: number; textHeight: number };
+
+      //   ctx.fillStyle = color;
+      //   bgDim &&
+      //     ctx.fillRect(
+      //       x - bgDim.textWidth / 2,
+      //       y - bgDim.textHeight / 2,
+      //       bgDim.textWidth,
+      //       bgDim.textHeight,
+      //     );
+      // }}
     />
   );
 };
