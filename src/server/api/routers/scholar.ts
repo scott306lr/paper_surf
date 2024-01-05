@@ -215,7 +215,7 @@ export const scholarRouter = createTRPCRouter({
           label: d.documentVocab[0].word,
           size: 24,//0,
           level: 0,
-          color: "black",//"red",
+          color: ['#e63946', '#ee6558', '#f3886e', '#f1ab8c', '#b5d5ef', '#e1c1e9', '#c2abd3', '#a496c0', '#0088f1'][+d.topic%9]!,
           drawType: "text",
           myX: x,
           myY: y,

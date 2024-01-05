@@ -42,7 +42,7 @@ const recommend_url =
 
 export const getColor = (year: number, min_year: number, max_year: number) => {
   if (year == -1) return "#000000";
-  const f = chroma.scale(['yellow', '008ae5']).domain([min_year, max_year]);
+  const f = chroma.scale(['#ffffd9', '#41b6c4', '#081d58']).domain([min_year, max_year]);
   return f(year).hex().toString();
 }
 
