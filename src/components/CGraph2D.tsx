@@ -58,8 +58,8 @@ const CGraph2D: React.FC<{
   handleClickNode,
 }) => {
   const [w_width, w_height] = useWindowSize();
-  const width = w_width * 0.5;
-  const height = w_height * 0.8;
+  const width = w_width * 0.6;
+  const height = w_height * 1;
 
   const graphRef = React.useRef<ForceGraphMethods | null>(null);
 

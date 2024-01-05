@@ -50,7 +50,7 @@ const InputForm: React.FC<{
             <FormItem>
               <FormLabel> Positive </FormLabel>
               <FormControl>
-                <Input placeholder="shadcn" {...field} />
+                <Input placeholder="eat apple, read book, cat" {...field} />
               </FormControl>
               <FormDescription>
                 Positive words are words that are useful
@@ -66,7 +66,7 @@ const InputForm: React.FC<{
             <FormItem>
               <FormLabel> Negative </FormLabel>
               <FormControl>
-                <Input placeholder="shadcn" {...field} />
+                <Input placeholder="do homework, play computer" {...field} />
               </FormControl>
               <FormDescription>
                 Negative words are words that are not useful
@@ -82,7 +82,7 @@ const InputForm: React.FC<{
             <FormItem>
               <FormLabel> Stopwords </FormLabel>
               <FormControl>
-                <Input placeholder="shadcn" {...field} />
+                <Input placeholder="am, are, is" {...field} />
               </FormControl>
               <FormDescription>
                 Stopwords are words that are so common that they are not useful
