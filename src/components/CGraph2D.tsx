@@ -33,7 +33,7 @@ export interface CGraphData {
   }[];
 }
 
-const NODE_R = 1; //8;
+const NODE_R = 8; //8;
 
 const getColorCode = (color: string, opacity: number): string => {
   if (color == "red") {
@@ -88,33 +88,10 @@ const CGraph2D: React.FC<{
       const x = node.x ?? 0;
       const y = node.y ?? 0;
 
-      ctx.fillStyle = getColorCode(node.color, node.opacity);
+      ctx.fillStyle = node.color;
       if (node.drawType == "text") {
         const label = node.label;
-        const fontSize = 16 / globalScale;
-        const textWidth = ctx.measureText(label).width;
-        const bgDim = {
-          textWidth: textWidth + fontSize * 0.2,
-          textHeight: fontSize + fontSize * 0.2,
-        };
-
-        ctx.font = `${fontSize}px Sans-Serif`;
-        ctx.fillStyle = "rgba(255, 155, 155, 0.3)";
-        ctx.fillRect(
-          x - bgDim.textWidth / 2,
-          y - bgDim.textHeight / 2,
-          bgDim.textWidth,
-          bgDim.textHeight,
-        );
-        node.__bgDim = bgDim;
-      } else if (node.drawType == "circle") {
-        ctx.beginPath();
-        ctx.arc(x, y, node.size, 0, 2 * Math.PI, false);
-        ctx.fill();
-
-        //label
-        const label = node.label;
-        const fontSize = 16 / globalScale;
+        const fontSize = node.size / globalScale;
         const textWidth = ctx.measureText(label).width;
         const bgDim = {
           textWidth: textWidth + fontSize * 0.2,
@@ -132,17 +109,40 @@ const CGraph2D: React.FC<{
 
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillStyle = getColorCode(node.color, node.opacity);
+        ctx.fillStyle = node.color;
         ctx.fillText(label, x, y);
 
         node.__bgDim = bgDim;
-      }
+      } else if (node.drawType == "circle") {
+        if (highlightNodeIds?.has(node.id)) {
+          ctx.beginPath();
+          ctx.arc(x, y, node.size * 1.2 + 2, 0, 2 * Math.PI, false);
+          ctx.fill();
 
-      if (highlightNodeIds?.has(node.id)) {
-        ctx.beginPath();
-        ctx.arc(x, y, NODE_R * 1.4, 0, 2 * Math.PI, false);
-        ctx.fillStyle = node.id === hoverNodeId ? "red" : "orange";
-        ctx.fill();
+          //label
+          const label = node.label;
+          const fontSize = 16 / globalScale;
+
+          ctx.font = `${fontSize}px Sans-Serif`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+          ctx.fillText(label, x, y);
+        } else {
+          ctx.beginPath();
+          ctx.arc(x, y, node.size, 0, 2 * Math.PI, false);
+          ctx.fill();
+
+          //label
+          const label = node.label;
+          const fontSize = 16 / globalScale;
+
+          ctx.font = `${fontSize}px Sans-Serif`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+          ctx.fillText(label, x, y);
+        }
       }
     },
     [hoverNodeId],
@@ -155,26 +155,6 @@ const CGraph2D: React.FC<{
       // graph?.d3Force("link").distance(400);
     }
   }, []);
-
-  // const paintRing = useCallback((node, ctx) => {
-  //   // add ring just for highlighted nodes
-  //   ctx.beginPath();
-  //   ctx.arc(node.x, node.y, NODE_R * 1.4, 0, 2 * Math.PI, false);
-  //   ctx.fillStyle = node === hoverNode ? 'red' : 'orange';
-  //   ctx.fill();
-  // }, [hoverNode]);
-
-  // useEffect(() => {
-  //   const graph = graphRef.current;
-  //   // add collision force
-  //   if (graph) {
-  //     graph.d3Force(
-  //       "collision",
-  //       forceCollide().radius((node) => node.__bgDim?.textWidth / 2 ?? 0),
-  //     );
-  //     // graph?.d3Force("link").distance(400);
-  //   }
-  // }, []);
 
   return (
     <ForceGraph2D
@@ -189,24 +169,17 @@ const CGraph2D: React.FC<{
       enableNodeDrag={false}
       nodeCanvasObject={nodePaint}
       nodeCanvasObjectMode={undefined}
-      // onNodeDragEnd={(node) => {
-      //   node.fx = node.x;
-      //   node.fy = node.y;
-      // }}
-      linkWidth={(link) => (highlightLinkIds?.has(link.id) ? 5 : 1)}
       linkDirectionalParticles={4}
       linkDirectionalParticleWidth={(link) =>
-        highlightLinkIds?.has(link.id) ? 4 : 0
+        highlightLinkIds?.has(link.id) ? 8 : 0
       }
       linkDirectionalParticleSpeed={0.005}
       linkCanvasObject={(link, ctx) => {
         const start = link.source;
         const end = link.target;
-        // const strength = link.strength;
-
         ctx.beginPath();
-        ctx.strokeStyle = getColorCode(link.color, link.opacity);
-        ctx.lineWidth = 1;
+        ctx.strokeStyle = link.color;
+        ctx.lineWidth = highlightLinkIds?.has(link.id) ? 5 : 0.1;
         ctx.moveTo(start.x, start.y);
         ctx.lineTo(end.x, end.y);
         ctx.stroke();
@@ -214,6 +187,7 @@ const CGraph2D: React.FC<{
       onNodeHover={handleNodeHover}
       onLinkHover={handleLinkHover}
       onNodeClick={handleClickNode}
+      linkOpacity={0.3}
     />
   );
 };
