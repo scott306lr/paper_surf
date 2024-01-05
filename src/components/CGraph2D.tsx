@@ -86,7 +86,7 @@ const CGraph2D: React.FC<{
         const fontSize = node.size / globalScale;
         const textWidth = ctx.measureText(label).width;
         const bgDim = {
-          textWidth: textWidth + fontSize * 0.2,
+          textWidth: textWidth + fontSize * 1,
           textHeight: fontSize + fontSize * 0.2,
         };
 
@@ -110,9 +110,10 @@ const CGraph2D: React.FC<{
 
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          ctx.fillStyle = convertHexToRGBA(node.color, 0.7);
+          ctx.fillStyle = convertHexToRGBA(node.color, 1);
         } else {
           ctx.font = `${fontSize}px Sans-Serif`;
+          ctx.fillStyle = convertHexToRGBA(node.color, 0.3);
           ctx.fillRect(
             node.__hDim[0],
             node.__hDim[1],
@@ -122,7 +123,7 @@ const CGraph2D: React.FC<{
 
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          ctx.fillStyle = convertHexToRGBA(node.color, 0.3);
+          ctx.fillStyle = convertHexToRGBA(node.color, 0.8);
           ctx.fillText(label, x, y);
         }
       } else if (node.drawType == "circle") {
@@ -197,7 +198,7 @@ const CGraph2D: React.FC<{
           const saturation = 100;
           const lightness = 50;
           // ctx.fillStyle = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-          ctx.fillStyle = convertHexToRGBA(node.color, 0.8);
+          ctx.fillStyle = convertHexToRGBA(node.color, 0.6);
 
           // Convert HSL to CSS color format
 
@@ -270,8 +271,12 @@ const CGraph2D: React.FC<{
       linkCanvasObject={(link, ctx) => {
         const start = link.source;
         const end = link.target;
+        if (link.type == "topic-paper") {
+          ctx.strokeStyle = convertHexToRGBA("#000000", 0);
+        } else {
+          ctx.strokeStyle = convertHexToRGBA("#000000", 0.6);
+        }
         ctx.beginPath();
-        ctx.strokeStyle = link.color;
         ctx.lineWidth = highlightLinkIds?.has(link.id) ? 5 : 0.1;
         ctx.moveTo(start.x, start.y);
         ctx.lineTo(end.x, end.y);
