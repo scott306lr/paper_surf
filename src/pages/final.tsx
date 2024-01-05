@@ -36,9 +36,13 @@ import {
   DrawerTrigger,
 } from "~/components/ui/drawer";
 import dynamic from "next/dynamic";
-// import PopularBoxPlot from "~/components/MyBoxPlot";
+// import MyBoxPlot from "~/components/MyBoxPlot";
 
-const PopularBoxPlot = dynamic(() => import("~/components/MyBoxPlot"), {
+const MyBoxPlot = dynamic(() => import("~/components/MyBoxPlot"), {
+  ssr: false,
+});
+
+const MyColorBar = dynamic(() => import("~/components/MyColorBar"), {
   ssr: false,
 });
 
@@ -157,18 +161,26 @@ export default function PaperSurf() {
               />
             )}
           </div>
-          <div className="absolute bottom-2 left-2 h-[4rem] w-[20rem]">
-            <PopularBoxPlot
-              data={years}
-              min={minYear}
-              max={maxYear}
-              colors={["#F6B17A"]}
-            />
-          </div>
+          {lda_data && (
+            <>
+              <div className="absolute bottom-2 left-2 h-[4rem] w-[20rem]">
+                <MyBoxPlot
+                  data={years}
+                  min={minYear}
+                  max={maxYear}
+                  colors={["#F6B17A"]}
+                />
+              </div>
+
+              <div className="absolute bottom-2 left-2 h-[4rem] w-[20rem]">
+                <MyColorBar min={minYear} max={maxYear} />
+              </div>
+            </>
+          )}
         </div>
         {/* <div className="absolute flex h-full w-3/5 flex-col items-end justify-end p-2">
           <div className="h-[4rem] w-[20rem]">
-            <PopularBoxPlot data={years} min={minYear} max={maxYear} />
+            <MyBoxPlot data={years} min={minYear} max={maxYear} />
           </div>
         </div> */}
 
