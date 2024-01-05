@@ -122,14 +122,17 @@ export default function PaperSurf() {
   };
 
   const years =
-    lda_data?.nodes.map((node) => ({
-      value: node.year,
-    })) ?? [];
-
-  console.log(years);
+    lda_data?.nodes
+      .filter((node) => node.year > 0)
+      .map((node) => ({
+        value: node.year,
+      })) ?? [];
+  const minYear = Math.min(...years.map((year) => year.value));
+  const maxYear = Math.max(...years.map((year) => year.value));
+  console.log(years, minYear, maxYear);
 
   return (
-    <main className="h-screen w-screen items-center justify-center">
+    <main className="relative h-screen w-screen items-center justify-center">
       <div className="flex h-full w-full">
         {/* <ResizablePanel minSize={20} maxSize={50} defaultSize={20} collapsible>
           <div className="flex h-full flex-col items-center justify-center gap-6 p-6">
@@ -154,17 +157,21 @@ export default function PaperSurf() {
               />
             )}
           </div>
+          <div className="absolute bottom-2 left-2 h-[4rem] w-[20rem]">
+            <PopularBoxPlot
+              data={years}
+              min={minYear}
+              max={maxYear}
+              colors={["#F6B17A"]}
+            />
+          </div>
         </div>
-        <div className="absolute left-0 top-0 h-1/2 w-2/5 flex-col items-center justify-center gap-6 overflow-hidden border border-gray-300">
-          <PopularBoxPlot
-            data={years}
-            min={years.reduce(
-              (min, p) => (p.value < min ? p.value : min),
-              3000,
-            )}
-            max={years.reduce((max, p) => (p.value > max ? p.value : max), 0)}
-          />
-        </div>
+        {/* <div className="absolute flex h-full w-3/5 flex-col items-end justify-end p-2">
+          <div className="h-[4rem] w-[20rem]">
+            <PopularBoxPlot data={years} min={minYear} max={maxYear} />
+          </div>
+        </div> */}
+
         <div className="flex h-full w-2/5 flex-col items-center justify-center gap-6 overflow-hidden border border-gray-300">
           <div className="flex h-full w-full flex-col overflow-auto">
             <div className="flex h-full w-full flex-col gap-4 p-6">

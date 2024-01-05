@@ -155,9 +155,9 @@ export const FetchPaper = async (paperId: string) => {
     return response;
 }
 
-export const getDataByPaperId = (paperId: string) => {
+export const getDataByPaperId = (paperId?: string) => {
     return useQuery({
         queryKey: [paperId],
-        queryFn: () => FetchPaper(paperId)
+        queryFn: () => paperId ? FetchPaper(paperId) : undefined,
     });
 }
