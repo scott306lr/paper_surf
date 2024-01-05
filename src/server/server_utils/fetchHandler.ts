@@ -38,6 +38,10 @@ const recommend_url =
   "https://api.semanticscholar.org/recommendations/v1/papers?limit=15&fields=";
 
 
+export const getColor = (year: number) => {
+  return "#123456"
+}
+
 const getSearchURL = (input: string[], filter_input: string[]) => {
   const input_str = input.join("+");
   const prepend = [input_str].concat(filter_input).join("-");
