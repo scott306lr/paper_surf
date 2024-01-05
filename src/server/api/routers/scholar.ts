@@ -78,7 +78,8 @@ export const scholarRouter = createTRPCRouter({
               source: d.paperId,
               target: c,
               opacity: 1,
-              strength: 0
+              strength: 0,
+              type: "Paper-Paper"
             });
             // citations node
             if (current_node.has(c)) {
@@ -112,7 +113,8 @@ export const scholarRouter = createTRPCRouter({
               source: r,
               target: d.paperId,
               opacity: 1,
-              strength: 0
+              strength: 0,
+              type: "Paper-Paper"
             });
             if (current_node.has(r)) {
               nodes.find((n) => n.id == r)?.neighbors.push(d.paperId)
@@ -202,7 +204,8 @@ export const scholarRouter = createTRPCRouter({
             source: `${d.topic}`,
             target: c.id,
             opacity: 1,
-            strength: 0
+            strength: 0,
+            type: "Topic-Paper"
           });
         })
         x /= x_score;

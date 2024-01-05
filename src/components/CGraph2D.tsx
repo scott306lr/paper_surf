@@ -32,6 +32,7 @@ export interface CGraphData {
     target: string;
     opacity: number;
     strength: number;
+    type: string;
   }[];
 }
 
