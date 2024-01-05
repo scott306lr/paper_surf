@@ -339,7 +339,7 @@ export default function PaperSurf() {
           </div>
           {lda_data && (
             <>
-              <div className="absolute bottom-2 left-[51rem] h-[4rem] w-[20rem]">
+              <div className="absolute bottom-16 h-[4rem] w-[20rem]">
                 <MyBoxPlot
                   data={years}
                   min={minYear}

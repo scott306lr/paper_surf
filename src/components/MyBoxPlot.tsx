@@ -14,7 +14,7 @@ const MyBoxPlot: React.FC<{
         data={data}
         layout="horizontal"
         quantiles={[0, 0.25, 0.5, 0.75, 1.0]}
-        margin={margin ?? { left: 20, right: 20, bottom: 24, top: 0 }}
+        margin={margin ?? { left: 40, right: 40, bottom: 24, top: 0 }}
         minValue={min}
         maxValue={max}
         padding={0.2}
