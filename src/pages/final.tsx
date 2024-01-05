@@ -184,6 +184,9 @@ export default function PaperSurf() {
     isLoading: lda_isLoading,
   } = api.scholar.lda.useMutation();
 
+
+
+
   const [clickNodeId, setClickNodeId] = useState<string>("");
   const { data: paper_data, isLoading: paper_isLoading } =
     getDataByPaperId(clickNodeId);
