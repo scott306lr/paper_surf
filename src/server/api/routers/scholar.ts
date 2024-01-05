@@ -48,6 +48,7 @@ export const scholarRouter = createTRPCRouter({
       const id_map = new Map<string, {
         id: string,
         title: string,
+        year: number,
         embedding: number[],
         size: number
       }>()
@@ -56,6 +57,7 @@ export const scholarRouter = createTRPCRouter({
         id_map.set(data[i].paperId, {
           id: data[i].paperId,
           title: `${data[i].authors[0]?.name ?? "Unknown"}, ${data[i].year}`,
+          year: data[i].year,
           embedding: output[i],
           size: data[i].citationCount
         })
