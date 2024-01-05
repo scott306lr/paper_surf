@@ -110,7 +110,7 @@ const CGraph2D: React.FC<{
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.fillStyle = `rgba(${node.color[0]}, ${node.color[1]}, ${node.color[2]}, ${node.color[3]})`;
-          ctx.fillText(label, x, y);
+          ctx.fillText(label, x, y-fontSize*1.2);
         } else {
           ctx.font = `${fontSize}px Sans-Serif`;
           ctx.fillStyle = convertHexToRGBA(node.color, 0.3);
@@ -124,7 +124,7 @@ const CGraph2D: React.FC<{
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.fillStyle = node.color;
-          ctx.fillText(label, x, y);
+          ctx.fillText(label, x, y-fontSize*1.2);
         }
       } else if (node.drawType == "circle") {
         if (hoverNodeId === node.id) {
@@ -145,12 +145,12 @@ const CGraph2D: React.FC<{
           //label
           const label = node.label;
           const fontSize = 16 / globalScale;
-
+          console.log(label);
           ctx.font = `${fontSize}px Sans-Serif`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
-          ctx.fillText(label, x, y);
+          ctx.fillText(label, x, y-fontSize*1.2);
         } else if (highlightNodeIds?.has(node.id)) {
           node.__hType = "circle";
           node.__hDim = [x, y, node.size * 1.2 + 2, 0];
@@ -175,7 +175,7 @@ const CGraph2D: React.FC<{
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
-          ctx.fillText(label, x, y);
+          ctx.fillText(label, x, y-fontSize*1.2);
         } else {
           node.__hType = "circle";
           node.__hDim = [x, y, node.size, 0];
@@ -189,17 +189,29 @@ const CGraph2D: React.FC<{
             2 * Math.PI,
             false,
           );
+
+          const label = node.label;
+          const year = Number(label.split(", ")[1]);
+          // write by chatgpt
+          const normalizedValue = (year - 2000) / (2024 - 2000);
+          const hue = 240 - normalizedValue * 240;
+          const saturation = 100;
+          const lightness = 50;
+          ctx.fillStyle = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+
+          
+          // Convert HSL to CSS color format
+          
           ctx.fill();
 
           //label
-          const label = node.label;
           const fontSize = 16 / globalScale;
 
           ctx.font = `${fontSize}px Sans-Serif`;
           ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
-          ctx.fillText(label, x, y);
+          ctx.textBaseline = "middle";    
+          ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+          ctx.fillText(`${year}`, x, y-fontSize*1.2);
         }
       }
     },
