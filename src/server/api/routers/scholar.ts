@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { fetchPaperbyInput, PostPaper } from "~/server/server_utils/fetchHandler";
+import { fetchPaperbyInput, PostPaper, getColor } from "~/server/server_utils/fetchHandler";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { lda_abstract } from "~/server/server_utils/lda-topic-model";
@@ -81,6 +81,7 @@ export const scholarRouter = createTRPCRouter({
               nodes.find((n) => n.id == c)?.links.push(`${d.paperId}-${c}`)
             }
             else {
+              console.log(getColor(id_map.get(c)?.year ?? 1980))
               nodes.push({
                 id: c,
                 label: id_map.get(c)?.title ?? "",
@@ -93,6 +94,7 @@ export const scholarRouter = createTRPCRouter({
                 neighbors: [d.paperId],
                 links: [`${d.paperId}-${c}`],
                 opacity: 1,
+                year: id_map.get(c)?.year ?? 1980,
               })
               current_node.add(c)
             }
@@ -125,6 +127,7 @@ export const scholarRouter = createTRPCRouter({
                 neighbors: [d.paperId],
                 links: [`${r}-${d.paperId}`],
                 opacity: 1,
+                year: id_map.get(r)?.year ?? 1980,
               })
               current_node.add(r)
             }
@@ -156,7 +159,7 @@ export const scholarRouter = createTRPCRouter({
       })
 
       const result = data && lda_abstract(data, input.sweeps, input.stopwords);
-      
+
       result?.forEach((d) => {
         let x = 0, y = 0;
         let x_score = 0, y_score = 0;
@@ -186,7 +189,7 @@ export const scholarRouter = createTRPCRouter({
               neighbors: [`${d.topic}`],
               links: [`${d.topic}-${c.id}`],
               opacity: 1,
-              year: id_map.get(c.id)?.;
+              year: id_map.get(c.id)?.year ?? 1980,
             })
             current_node.add(c.id)
           }
@@ -212,6 +215,7 @@ export const scholarRouter = createTRPCRouter({
           neighbors: node_neighbors,
           links: node_link,
           opacity: 1,
+          year: -1,
         })
       })
 
