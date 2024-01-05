@@ -1,3 +1,5 @@
+import chroma from "chroma-js";
+
 interface RawPaper {
   paperId?: string;
   title: string;
@@ -38,8 +40,10 @@ const recommend_url =
   "https://api.semanticscholar.org/recommendations/v1/papers?limit=15&fields=";
 
 
-export const getColor = (year: number) => {
-  return "#123456"
+export const getColor = (year: number, min_year: number, max_year: number) => {
+  if (year == -1) return "#000000";
+  const f = chroma.scale(['yellow', '008ae5']).domain([1980, 2024]);
+  return f(year).hex().toString();
 }
 
 const getSearchURL = (input: string[], filter_input: string[]) => {

@@ -124,7 +124,7 @@ const CGraph2D: React.FC<{
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             ctx.fillStyle = convertHexToRGBA(node.color, 0.3);
-            ctx.fillText(label, x, y - fontSize * 1.2);
+            ctx.fillText(label, x, y);
           }
         } else if (node.drawType == "circle") {
           if (hoverNodeId === node.id) {

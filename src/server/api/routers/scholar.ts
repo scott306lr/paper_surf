@@ -53,14 +53,19 @@ export const scholarRouter = createTRPCRouter({
         size: number
       }>()
 
-      for (let i = 0; i < (data == undefined ? 0 : data?.length); i++)
+      let min_year = 2024, max_year = 1980;
+      for (let i = 0; i < (data == undefined ? 0 : data?.length); i++) {
         id_map.set(data[i].paperId, {
           id: data[i].paperId,
           title: `${data[i].authors[0]?.name ?? "Unknown"}, ${data[i].year}`,
-          year: data[i].year,
+          year: data[i].year ?? -1,
           embedding: output[i],
           size: data[i].citationCount
         })
+        if (data[i].year == undefined) continue;
+        if (data[i].year < min_year) min_year = data[i].year;
+        if (data[i].year > max_year) max_year = data[i].year;
+      }
 
       const current_node = new Set<string>()
       search_data?.map((d: PaperBrief) => {
@@ -81,20 +86,19 @@ export const scholarRouter = createTRPCRouter({
               nodes.find((n) => n.id == c)?.links.push(`${d.paperId}-${c}`)
             }
             else {
-              console.log(getColor(id_map.get(c)?.year ?? 1980))
               nodes.push({
                 id: c,
                 label: id_map.get(c)?.title ?? "",
                 size: Math.sqrt(id_map.get(c)?.size ?? 0) / 2 + 10,
                 level: 0,
-                color: getColor(id_map.get(c)?.year ?? 1980),
+                color: getColor(id_map.get(c)?.year ?? -1, min_year, max_year),
                 drawType: "circle",
                 myX: id_map.get(c)?.embedding[0] ?? 0,
                 myY: id_map.get(c)?.embedding[1] ?? 0,
                 neighbors: [d.paperId],
                 links: [`${d.paperId}-${c}`],
                 opacity: 1,
-                year: id_map.get(c)?.year ?? 1980,
+                year: id_map.get(c)?.year ?? -1,
               })
               current_node.add(c)
             }
@@ -120,14 +124,14 @@ export const scholarRouter = createTRPCRouter({
                 label: id_map.get(r)?.title ?? "",
                 size: Math.sqrt(id_map.get(r)?.size ?? 0) / 2 + 10,
                 level: 0,
-                color: getColor(id_map.get(r)?.year ?? 1980),
+                color: getColor(id_map.get(r)?.year ?? -1, min_year, max_year),
                 drawType: "circle",
                 myX: id_map.get(r)?.embedding[0] ?? 0,
                 myY: id_map.get(r)?.embedding[1] ?? 0,
                 neighbors: [d.paperId],
                 links: [`${r}-${d.paperId}`],
                 opacity: 1,
-                year: id_map.get(r)?.year ?? 1980,
+                year: id_map.get(r)?.year ?? -1,
               })
               current_node.add(r)
             }
@@ -144,14 +148,14 @@ export const scholarRouter = createTRPCRouter({
               label: id_map.get(d.paperId)?.title ?? "",
               size: Math.sqrt(id_map.get(d.paperId)?.size ?? 0) / 2 + 10,
               level: 0,
-              color: getColor(id_map.get(d.paperId)?.year ?? 1980),
+              color: getColor(id_map.get(d.paperId)?.year ?? -1, min_year, max_year),
               drawType: "circle",
               myX: id_map.get(d.paperId)?.embedding[0] ?? 0,
               myY: id_map.get(d.paperId)?.embedding[1] ?? 0,
               neighbors: node_neighbors,
               links: node_link,
               opacity: 1,
-              year: id_map.get(d.paperId)?.year ?? 1980,
+              year: id_map.get(d.paperId)?.year ?? -1,
             })
             current_node.add(d.paperId)
           }
@@ -182,14 +186,14 @@ export const scholarRouter = createTRPCRouter({
               label: id_map.get(c.id)?.title ?? "",
               size: Math.sqrt(id_map.get(c.id)?.size ?? 0) / 2 + 10,
               level: 0,
-              color: getColor(id_map.get(c.id)?.year ?? 1980),
+              color: getColor(id_map.get(c.id)?.year ?? -1, min_year, max_year),
               drawType: "circle",
               myX: id_map.get(c.id)?.embedding[0] ?? 0,
               myY: id_map.get(c.id)?.embedding[1] ?? 0,
               neighbors: [`${d.topic}`],
               links: [`${d.topic}-${c.id}`],
               opacity: 1,
-              year: id_map.get(c.id)?.year ?? 1980,
+              year: id_map.get(c.id)?.year ?? -1,
             })
             current_node.add(c.id)
           }
