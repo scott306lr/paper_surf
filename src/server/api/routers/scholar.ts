@@ -60,8 +60,7 @@ export const scholarRouter = createTRPCRouter({
           size: data[i].citationCount
         })
 
-      const citation_map = new Map<string, string[]>()
-      const reference_map = new Map<string, string[]>()
+
       const current_node = new Set<string>()
       search_data?.map((d: PaperBrief) => {
         if (id_map.has(d.paperId)) {
@@ -75,10 +74,26 @@ export const scholarRouter = createTRPCRouter({
               opacity: 1,
               strength: 0
             });
-            if (citation_map.has(c))
-              citation_map.set(c, citation_map.get(c).concat([d.paperId]))
-            else
-              citation_map.set(c, [d.paperId])
+            // citations node
+            if (current_node.has(c)) {
+              nodes.find((n) => n.id == c)?.neighbors.push(d.paperId)
+              nodes.find((n) => n.id == c)?.links.push(`${d.paperId}-${c}`)
+            }
+            else {
+              nodes.push({
+                id: c,
+                label: id_map.get(c)?.title ?? "",
+                size: Math.sqrt(id_map.get(c)?.size ?? 0) / 2 + 10,
+                level: 0,
+                color: "red",
+                drawType: "circle",
+                myX: id_map.get(c)?.embedding[0] ?? 0,
+                myY: id_map.get(c)?.embedding[1] ?? 0,
+                neighbors: [d.paperId],
+                links: [`${d.paperId}-${c}`],
+                opacity: 1,
+              })
+            }
             node_link.push(`${d.paperId}-${c}`);
             node_neighbors.push(c);
           })
@@ -90,10 +105,25 @@ export const scholarRouter = createTRPCRouter({
               opacity: 1,
               strength: 0
             });
-            if (reference_map.has(c))
-              reference_map.set(c, reference_map.get(c).concat([d.paperId]))
-            else
-              reference_map.set(c, [d.paperId])
+            if (current_node.has(c)) {
+              nodes.find((n) => n.id == c)?.neighbors.push(d.paperId)
+              nodes.find((n) => n.id == c)?.links.push(`${c}-${d.paperId}`)
+            }
+            else {
+              nodes.push({
+                id: c,
+                label: id_map.get(c)?.title ?? "",
+                size: Math.sqrt(id_map.get(c)?.size ?? 0) / 2 + 10,
+                level: 0,
+                color: "red",
+                drawType: "circle",
+                myX: id_map.get(c)?.embedding[0] ?? 0,
+                myY: id_map.get(c)?.embedding[1] ?? 0,
+                neighbors: [d.paperId],
+                links: [`${c}-${d.paperId}`],
+                opacity: 1,
+              })
+            }
             node_link.push(`${c}-${d.paperId}`);
             node_neighbors.push(c);
           })
@@ -113,54 +143,13 @@ export const scholarRouter = createTRPCRouter({
               opacity: 1,
             })
           }
+          else {
+            nodes.find((n) => n.id == d.paperId)?.neighbors.push(...node_neighbors)
+            nodes.find((n) => n.id == d.paperId)?.links.push(...node_link)
+          }
         }
       })
 
-
-      search_data?.map((d: PaperBrief) => {
-        d.citations.map((c) => c.paperId).filter((c) => id_map.has(c)).map((c) => {
-          const citation_links = [] as string[]
-          citation_map.get(c)?.forEach((n) => {
-            citation_links.push(`${c}-${n}`)
-          })
-          if (!current_node.has(c)) {
-            nodes.push({
-              id: c,
-              label: id_map.get(c)?.title ?? "",
-              size: Math.sqrt(id_map.get(c)?.size ?? 0) / 2 + 10,
-              level: 0,
-              color: "red",
-              drawType: "circle",
-              myX: id_map.get(c)?.embedding[0] ?? 0,
-              myY: id_map.get(c)?.embedding[1] ?? 0,
-              neighbors: citation_map.get(c) ?? [],
-              links: citation_links,
-              opacity: 1,
-            })
-          }
-        })
-        d.references.map((c) => c.paperId).filter((c) => id_map.has(c)).map((c) => {
-          const reference_links = [] as string[]
-          reference_map.get(c)?.forEach((n) => {
-            reference_links.push(`${c}-${n}`)
-          })
-          if (!current_node.has(c)) {
-            nodes.push({
-              id: c,
-              label: id_map.get(c)?.title ?? "",
-              size: Math.sqrt(id_map.get(c)?.size ?? 0) / 2 + 10,
-              level: 0,
-              color: "red",
-              drawType: "circle",
-              myX: id_map.get(c)?.embedding[0] ?? 0,
-              myY: id_map.get(c)?.embedding[1] ?? 0,
-              neighbors: reference_map.get(c) ?? [],
-              links: reference_links,
-              opacity: 1,
-            })
-          }
-        })
-      })
       const result = data && lda_abstract(data, input.sweeps, input.stopwords);
 
       result?.forEach((d) => {
