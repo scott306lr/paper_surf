@@ -166,11 +166,11 @@ export default function PaperSurf() {
                         <span>Select a paper to view info</span>
                       </div>
                     ) : (
-                      <>
+                      <div className="flex flex-col gap-4">
                         <h1 className="text-3xl font-extrabold tracking-tight">
                           <a
                             href={paper_data.url}
-                            className="underline"
+                            className="mr-2 text-wrap font-serif underline"
                             target="_blank"
                             rel="noopener noreferrer"
                           >
@@ -358,7 +358,7 @@ export default function PaperSurf() {
                             </ScrollArea>
                           </TabsContent>
                         </Tabs>
-                      </>
+                      </div>
                     )}
                   </AccordionContent>
                 </AccordionItem>
