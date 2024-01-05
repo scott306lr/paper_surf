@@ -53,6 +53,7 @@ export interface PaperInformation {
     }[],
     'citations': {
         'title': string,
+        'url': string,
         'citationCount': number,
         'publicationVenue': string,
         'fieldsOfStudy': string[],
@@ -90,6 +91,7 @@ export interface PaperInformation {
     }[],
     'references': {
         'title': string,
+        'url': string,
         'citationCount': number,
         'publicationVenue': string,
         'fieldsOfStudy': string[],
@@ -132,8 +134,8 @@ export const FetchPaper = async (paperId: string) => {
         'isOpenAccess', 'openAccessPdf', 'fieldsOfStudy', 's2FieldsOfStudy', 'publicationTypes', 'publicationDate', 'journal',
         'citationStyles', 'embedding', 'authors.url', 'authors.name', 'authors.aliases', 'authors.affiliations',
         'authors.homepage', 'authors.paperCount', 'authors.citationCount', 'authors.hIndex',
-        'citations.title', 'citations.citationCount', 'citations.fieldsOfStudy','citations.authors', 'citations.publicationVenue', 'citations.year', 'citations.publicationTypes', 'citations.publicationDate', 'citations.journal',
-        'references.title', 'references.citationCount', 'references.fieldsOfStudy','references.authors', 'references.publicationVenue', 'references.year', 'references.publicationTypes', 'references.publicationDate', 'references.journal'].join();
+        'citations.title', 'citations.url', 'citations.citationCount', 'citations.fieldsOfStudy', 'citations.authors', 'citations.publicationVenue', 'citations.year', 'citations.publicationTypes', 'citations.publicationDate', 'citations.journal',
+        'references.title', 'references.url', 'references.citationCount', 'references.fieldsOfStudy', 'references.authors', 'references.publicationVenue', 'references.year', 'references.publicationTypes', 'references.publicationDate', 'references.journal'].join();
     const response = await fetch(url + paperId + "?fields=" + fieldsString, {
         method: "GET",
         headers: {
