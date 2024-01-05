@@ -35,7 +35,12 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "~/components/ui/drawer";
-import { Button } from "~/components/ui/button";
+import dynamic from "next/dynamic";
+// import PopularBoxPlot from "~/components/MyBoxPlot";
+
+const PopularBoxPlot = dynamic(() => import("~/components/MyBoxPlot"), {
+  ssr: false,
+});
 
 const RenderGraph: React.FC<{
   graphData: CGraphData;
@@ -115,8 +120,19 @@ export default function PaperSurf() {
   ): string => {
     return `https://www.semanticscholar.org/author/${authorName}/${authorId}`;
   };
+
+  const years =
+    lda_data?.nodes
+      .filter((node) => node.year > 0)
+      .map((node) => ({
+        value: node.year,
+      })) ?? [];
+  const minYear = Math.min(...years.map((year) => year.value));
+  const maxYear = Math.max(...years.map((year) => year.value));
+  console.log(years, minYear, maxYear);
+
   return (
-    <main className="h-screen w-screen items-center justify-center">
+    <main className="relative h-screen w-screen items-center justify-center">
       <div className="flex h-full w-full">
         {/* <ResizablePanel minSize={20} maxSize={50} defaultSize={20} collapsible>
           <div className="flex h-full flex-col items-center justify-center gap-6 p-6">
@@ -141,7 +157,21 @@ export default function PaperSurf() {
               />
             )}
           </div>
+          <div className="absolute bottom-2 left-2 h-[4rem] w-[20rem]">
+            <PopularBoxPlot
+              data={years}
+              min={minYear}
+              max={maxYear}
+              colors={["#F6B17A"]}
+            />
+          </div>
         </div>
+        {/* <div className="absolute flex h-full w-3/5 flex-col items-end justify-end p-2">
+          <div className="h-[4rem] w-[20rem]">
+            <PopularBoxPlot data={years} min={minYear} max={maxYear} />
+          </div>
+        </div> */}
+
         <div className="flex h-full w-2/5 flex-col items-center justify-center gap-6 overflow-hidden border border-gray-300">
           <div className="flex h-full w-full flex-col overflow-auto">
             <div className="flex h-full w-full flex-col gap-4 p-6">
