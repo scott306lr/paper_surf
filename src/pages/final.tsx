@@ -35,7 +35,12 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "~/components/ui/drawer";
-import { Button } from "~/components/ui/button";
+import dynamic from "next/dynamic";
+// import PopularBoxPlot from "~/components/MyBoxPlot";
+
+const PopularBoxPlot = dynamic(() => import("~/components/MyBoxPlot"), {
+  ssr: false,
+});
 
 const RenderGraph: React.FC<{
   graphData: CGraphData;
@@ -115,6 +120,14 @@ export default function PaperSurf() {
   ): string => {
     return `https://www.semanticscholar.org/author/${authorName}/${authorId}`;
   };
+
+  const years =
+    lda_data?.nodes.map((node) => ({
+      value: node.year,
+    })) ?? [];
+
+  console.log(years);
+
   return (
     <main className="h-screen w-screen items-center justify-center">
       <div className="flex h-full w-full">
@@ -141,6 +154,16 @@ export default function PaperSurf() {
               />
             )}
           </div>
+        </div>
+        <div className="absolute left-0 top-0 h-1/2 w-2/5 flex-col items-center justify-center gap-6 overflow-hidden border border-gray-300">
+          <PopularBoxPlot
+            data={years}
+            min={years.reduce(
+              (min, p) => (p.value < min ? p.value : min),
+              3000,
+            )}
+            max={years.reduce((max, p) => (p.value > max ? p.value : max), 0)}
+          />
         </div>
         <div className="flex h-full w-2/5 flex-col items-center justify-center gap-6 overflow-hidden border border-gray-300">
           <div className="flex h-full w-full flex-col overflow-auto">
