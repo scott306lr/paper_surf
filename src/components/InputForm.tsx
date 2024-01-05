@@ -39,7 +39,10 @@ const InputForm: React.FC<{
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col gap-4 rounded-lg border p-6"
+      >
         <FormField
           control={form.control}
           name="positive"
