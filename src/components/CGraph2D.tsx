@@ -197,8 +197,8 @@ const CGraph2D: React.FC<{
             const hue = 240 - normalizedValue * 240;
             const saturation = 100;
             const lightness = 50;
-            ctx.fillStyle = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-
+            // ctx.fillStyle = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+            ctx.fillStyle = convertHexToRGBA(node.color, 0.3);
 
             // Convert HSL to CSS color format
 
