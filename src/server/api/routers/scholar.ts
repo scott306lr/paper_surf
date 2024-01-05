@@ -172,10 +172,11 @@ export const scholarRouter = createTRPCRouter({
         const node_link = [] as string[]
         const node_neighbors = [] as string[]
         d.documents.forEach((c) => {
-          x += id_map.get(c.id)?.embedding[0] * c.score ?? 0;
-          y += id_map.get(c.id)?.embedding[1] * c.score ?? 0;
-          x_score += c.score ?? 0;
-          y_score += c.score ?? 0;
+          const score = c.score * (Math.sqrt(id_map.get(c.id)?.size) / 2 + 1);
+          x += id_map.get(c.id)?.embedding[0] * score ?? 0;
+          y += id_map.get(c.id)?.embedding[1] * score ?? 0;
+          x_score += score;
+          y_score += score;
           node_neighbors.push(c.id);
           node_link.push(`${d.topic}-${c.id}`);
           if (current_node.has(c.id)) {
@@ -212,10 +213,10 @@ export const scholarRouter = createTRPCRouter({
         y /= y_score;
         nodes.push({
           id: `${d.topic}`,
-          label: d.documentVocab[0].word,
+          label: `${d.documentVocab[0].word}, ${d.documentVocab[1].word}`,
           size: 24,//0,
           level: 0,
-          color: ['#e63946', '#ee6558', '#f3886e', '#f1ab8c', '#b5d5ef', '#e1c1e9', '#c2abd3', '#a496c0', '#0088f1'][+d.topic%9]!,
+          color: ['#e63946', '#ee6558', '#f3886e', '#f1ab8c', '#b5d5ef', '#e1c1e9', '#c2abd3', '#a496c0', '#0088f1'][+d.topic % 9]!,
           drawType: "text",
           myX: x,
           myY: y,
