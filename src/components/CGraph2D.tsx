@@ -33,7 +33,7 @@ export interface CGraphData {
   }[];
 }
 
-const NODE_R = 8; //8;
+const NODE_R = 2; //8;
 
 const getColorCode = (color: string, opacity: number): string => {
   if (color == "red") {
@@ -98,25 +98,64 @@ const CGraph2D: React.FC<{
           textHeight: fontSize + fontSize * 0.2,
         };
 
-        ctx.font = `${fontSize}px Sans-Serif`;
-        ctx.fillStyle = "rgba(255, 155, 155, 0.3)";
-        ctx.fillRect(
+        node.__hType = "square";
+        node.__hDim = [
           x - bgDim.textWidth / 2,
           y - bgDim.textHeight / 2,
           bgDim.textWidth,
           bgDim.textHeight,
+        ];
+
+        ctx.font = `${fontSize}px Sans-Serif`;
+        ctx.fillStyle = "rgba(255, 155, 155, 0.3)";
+        ctx.fillRect(
+          node.__hDim[0],
+          node.__hDim[1],
+          node.__hDim[2],
+          node.__hDim[3],
         );
 
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillStyle = node.color;
         ctx.fillText(label, x, y);
-
-        node.__bgDim = bgDim;
       } else if (node.drawType == "circle") {
-        if (highlightNodeIds?.has(node.id)) {
+        if (hoverNodeId === node.id) {
+          node.__hType = "circle";
+          node.__hDim = [x, y, node.size * 1.2 + 2, 0];
           ctx.beginPath();
-          ctx.arc(x, y, node.size * 1.2 + 2, 0, 2 * Math.PI, false);
+          ctx.arc(
+            node.__hDim[0],
+            node.__hDim[1],
+            node.__hDim[2],
+            node.__hDim[3],
+            2 * Math.PI,
+            false,
+          );
+          ctx.fill();
+
+          //label
+          const label = node.label;
+          const fontSize = 16 / globalScale;
+
+          ctx.font = `${fontSize}px Sans-Serif`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+          ctx.fillText(label, x, y);
+        } else if (highlightNodeIds?.has(node.id)) {
+          node.__hType = "circle";
+          node.__hDim = [x, y, node.size * 1.2 + 2, 0];
+
+          ctx.beginPath();
+          ctx.arc(
+            node.__hDim[0],
+            node.__hDim[1],
+            node.__hDim[2],
+            node.__hDim[3],
+            2 * Math.PI,
+            false,
+          );
           ctx.fill();
 
           //label
@@ -129,8 +168,18 @@ const CGraph2D: React.FC<{
           ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
           ctx.fillText(label, x, y);
         } else {
+          node.__hType = "circle";
+          node.__hDim = [x, y, node.size, 0];
+
           ctx.beginPath();
-          ctx.arc(x, y, node.size, 0, 2 * Math.PI, false);
+          ctx.arc(
+            node.__hDim[0],
+            node.__hDim[1],
+            node.__hDim[2],
+            node.__hDim[3],
+            2 * Math.PI,
+            false,
+          );
           ctx.fill();
 
           //label
@@ -147,6 +196,7 @@ const CGraph2D: React.FC<{
     },
     [hoverNodeId],
   );
+
   useEffect(() => {
     const graph = graphRef.current;
     // add collision force
@@ -169,6 +219,29 @@ const CGraph2D: React.FC<{
       enableNodeDrag={false}
       nodeCanvasObject={nodePaint}
       nodeCanvasObjectMode={undefined}
+      nodePointerAreaPaint={(node, color, ctx) => {
+        ctx.fillStyle = color;
+
+        if (node.__hType == "circle") {
+          ctx.beginPath();
+          ctx.arc(
+            node.__hDim[0],
+            node.__hDim[1],
+            node.__hDim[2],
+            node.__hDim[3],
+            2 * Math.PI,
+            false,
+          );
+          ctx.fill();
+        } else if (node.__hType == "square") {
+          ctx.fillRect(
+            node.__hDim[0],
+            node.__hDim[1],
+            node.__hDim[2],
+            node.__hDim[3],
+          );
+        }
+      }}
       linkDirectionalParticles={4}
       linkDirectionalParticleWidth={(link) =>
         highlightLinkIds?.has(link.id) ? 8 : 0
