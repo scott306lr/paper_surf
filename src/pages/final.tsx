@@ -176,7 +176,7 @@ const RenderGraph: React.FC<{
     />
   );
 };
-
+  
 export default function PaperSurf() {
   const {
     mutate: lda_mutate,
@@ -195,7 +195,9 @@ export default function PaperSurf() {
       stopwords: values.stopwords.split(", "),
       sweeps: values.precision,
     });
-
+  const authorURL = (authorId: string | undefined, authorName: string | undefined): string => {
+    return `https://www.semanticscholar.org/author/${authorName}/${authorId}`;
+  }
   return (
     <main className="h-screen w-screen items-center justify-center">
       <ResizablePanelGroup
@@ -243,11 +245,13 @@ export default function PaperSurf() {
               // </div>
               <div className="flex h-full w-full flex-col gap-4 p-6">
                 <h1 className="text-3xl font-extrabold tracking-tight">
-                  {paper_data.title}
+                  <a href={paper_data.url} className="underline"  target="_blank" rel="noopener noreferrer">
+                    {paper_data.title}
+                  </a>
                 </h1>
                 <p className="text-md w-full px-2">
                   {paper_data.authors?.map((author) => (
-                    <a href={author.url} className="mr-2 text-wrap underline">
+                    <a href={author.url} className="mr-2 text-wrap underline" target="_blank" rel="noopener noreferrer">
                       {author.name}
                     </a>
                   ))}
@@ -306,14 +310,19 @@ export default function PaperSurf() {
                           <>
                             <div className="flex flex-col justify-center gap-2 px-2">
                               <span className="text-lg font-extrabold">
-                                {ref.title}
+                                <a href={ref.url} className="mr-2 text-wrap underline" target="_blank" rel="noopener noreferrer">
+                                  {ref.title}  
+                                </a>
+  
                                 <span className="ml-4 whitespace-nowrap text-sm font-light">
                                   {ref.citationCount} citations
                                 </span>
                               </span>
                               <span className="text-md w-full space-x-2">
                                 <Badge variant="secondary" className="text-md">
-                                  {ref.authors[0]?.name}
+                                  <a href={authorURL(ref.authors[0]?.authorId, ref.authors[0]?.name)} className="mr-2 text-wrap underline" target="_blank" rel="noopener noreferrer">
+                                    {ref.authors[0]?.name}
+                                  </a>
                                 </Badge>
                                 {
                                   ref.fieldsOfStudy?.map((field) => (
@@ -341,14 +350,18 @@ export default function PaperSurf() {
                           <>
                             <div className="flex flex-col justify-center gap-2 px-2">
                               <span className="text-lg font-extrabold">
-                                {ref.title}
+                                <a href={ref.url} className="mr-2 text-wrap underline" target="_blank" rel="noopener noreferrer">
+                                  {ref.title}  
+                                </a>
                                 <span className="ml-4 whitespace-nowrap text-sm font-light">
                                   {ref.citationCount} citations
                                 </span>
                               </span>
                               <span className="text-md w-full space-x-2">
                                 <Badge variant="secondary" className="text-md">
-                                  {ref.authors[0]?.name}
+                                  <a href={authorURL(ref.authors[0]?.authorId, ref.authors[0]?.name)} className="mr-2 text-wrap underline" target="_blank" rel="noopener noreferrer">
+                                    {ref.authors[0]?.name}
+                                  </a>
                                 </Badge>
                                 {
                                   ref.fieldsOfStudy?.map((field) => (
