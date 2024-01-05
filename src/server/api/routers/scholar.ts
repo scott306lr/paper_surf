@@ -168,7 +168,7 @@ export const scholarRouter = createTRPCRouter({
           node_link.push(`${d.topic}-${c.id}`);
           if (current_node.has(c.id)) {
             nodes.find((n) => n.id == c.id)?.neighbors.push(`${d.topic}`)
-            nodes.find((n) => n.id == c.id)?.links.push(`${c.id}-${d.topic}`)
+            nodes.find((n) => n.id == c.id)?.links.push(`${d.topic}-${c.id}`)
           }
           else {
             nodes.push({
