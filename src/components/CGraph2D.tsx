@@ -41,6 +41,7 @@ const NODE_R = 2; //8;
 const CGraph2D: React.FC<{
   graphData: CGraphData;
   hoverNodeId?: string | null;
+  clickNodeId?: string | null;
   highlightNodeIds?: Set<string>;
   highlightLinkIds?: Set<string>;
   handleNodeHover?: (
@@ -53,6 +54,7 @@ const CGraph2D: React.FC<{
 }> = ({
   graphData,
   hoverNodeId,
+  clickNodeId,
   highlightNodeIds,
   highlightLinkIds,
   handleNodeHover,
@@ -74,10 +76,10 @@ const CGraph2D: React.FC<{
       globalScale: number,
     ) => {
       //random
-      node.fx = node.myX * width * 2.5;
-      node.fy = node.myY * height * 2;
-      node.x = node.myX * width * 2.5;
-      node.y = node.myY * height * 2;
+      node.fx = node.myX * width;
+      node.fy = node.myY * height;
+      node.x = node.fx;
+      node.y = node.fy;
 
       const x = node.x ?? 0;
       const y = node.y ?? 0;
@@ -85,10 +87,10 @@ const CGraph2D: React.FC<{
       if (node.drawType == "text") {
         const label = node.label;
         const fontSize = node.size / globalScale;
-        const textWidth = ctx.measureText(label).width;
+        const textWidth = (label.length * fontSize) / 2; //ctx.measureText(label).width;
         const bgDim = {
-          textWidth: textWidth + fontSize * 1,
-          textHeight: fontSize + fontSize * 0.2,
+          textWidth: textWidth + fontSize * 0.4,
+          textHeight: fontSize + fontSize * 0.4,
         };
 
         node.__hType = "square";
@@ -101,7 +103,7 @@ const CGraph2D: React.FC<{
 
         if (highlightNodeIds?.has(node.id)) {
           ctx.font = `${fontSize}px Sans-Serif`;
-          ctx.fillStyle = convertHexToRGBA(node.color, 0.3);
+          ctx.fillStyle = convertHexToRGBA(node.color, 0.8);
           ctx.fillRect(
             node.__hDim[0],
             node.__hDim[1],
@@ -111,16 +113,17 @@ const CGraph2D: React.FC<{
 
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          ctx.fillStyle = convertHexToRGBA(node.color, 1);
+          ctx.fillStyle = convertHexToRGBA("#FFFFFF", 1);
+          ctx.fillText(label, x, y);
         } else {
           ctx.font = `${fontSize}px Sans-Serif`;
           ctx.fillStyle = convertHexToRGBA(node.color, 0.3);
-          ctx.fillRect(
-            node.__hDim[0],
-            node.__hDim[1],
-            node.__hDim[2],
-            node.__hDim[3],
-          );
+          // ctx.fillRect(
+          //   node.__hDim[0],
+          //   node.__hDim[1],
+          //   node.__hDim[2],
+          //   node.__hDim[3],
+          // );
 
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
@@ -128,9 +131,12 @@ const CGraph2D: React.FC<{
           ctx.fillText(label, x, y);
         }
       } else if (node.drawType == "circle") {
-        if (hoverNodeId === node.id) {
+        if (
+          hoverNodeId === node.id ||
+          (hoverNodeId == null && clickNodeId === node.id)
+        ) {
           node.__hType = "circle";
-          node.__hDim = [x, y, node.size * 2 + 2, 0];
+          node.__hDim = [x, y, node.size * 1.5 + 5, 0];
           ctx.beginPath();
           ctx.arc(
             node.__hDim[0],
@@ -150,11 +156,20 @@ const CGraph2D: React.FC<{
           ctx.font = `${fontSize}px Sans-Serif`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
+
+          // ctx.shadowColor = convertHexToRGBA("#FFFFFF", 0.3);
+          // ctx.shadowBlur = 5;
+          // ctx.shadowOffsetX = 0;
+          // ctx.shadowOffsetY = 0;
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = convertHexToRGBA("#FFFFFF", 1);
           ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
-          ctx.fillText(label, x, y - fontSize * 1.2);
+          ctx.lineJoin = "round";
+          ctx.strokeText(label, x, y - fontSize);
+          ctx.fillText(label, x, y - fontSize);
         } else if (highlightNodeIds?.has(node.id)) {
           node.__hType = "circle";
-          node.__hDim = [x, y, node.size * 2 + 2, 0];
+          node.__hDim = [x, y, node.size * 1.5 + 5, 0];
 
           ctx.beginPath();
           ctx.arc(
@@ -175,8 +190,17 @@ const CGraph2D: React.FC<{
           ctx.font = `${fontSize}px Sans-Serif`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
+
+          // ctx.shadowColor = convertHexToRGBA("#FFFFFF", 0.3);
+          // ctx.shadowBlur = 5;
+          // ctx.shadowOffsetX = 0;
+          // ctx.shadowOffsetY = 0;
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = convertHexToRGBA("#FFFFFF", 1);
           ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
-          ctx.fillText(label, x, y - fontSize * 1.2);
+          ctx.lineJoin = "round";
+          ctx.strokeText(label, x, y - fontSize);
+          ctx.fillText(label, x, y - fontSize);
         } else {
           node.__hType = "circle";
           node.__hDim = [x, y, node.size * 1.5, 0];
@@ -193,11 +217,6 @@ const CGraph2D: React.FC<{
 
           const label = node.label;
           const year = Number(label.split(", ")[1]);
-          // write by chatgpt
-          const normalizedValue = (year - 2000) / (2024 - 2000);
-          const hue = 240 - normalizedValue * 240;
-          const saturation = 100;
-          const lightness = 50;
           // ctx.fillStyle = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
           ctx.fillStyle = convertHexToRGBA(node.color, 0.6);
 
@@ -211,8 +230,19 @@ const CGraph2D: React.FC<{
           ctx.font = `${fontSize}px Sans-Serif`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
+
+          ctx.shadowColor = convertHexToRGBA("#FFFFFF", 0.3);
+          ctx.shadowBlur = 5;
+          ctx.shadowOffsetX = 0;
+          ctx.shadowOffsetY = 0;
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = convertHexToRGBA("#FFFFFF", 1);
           ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
-          ctx.fillText(`${year}`, x, y - fontSize * 1.2);
+          ctx.lineJoin = "round";
+          // ctx.strokeText(`${year}`, x, y - fontSize);
+          // ctx.fillText(`${year}`, x, y - fontSize);
+          ctx.strokeText(label, x, y - fontSize);
+          ctx.fillText(label, x, y - fontSize);
         }
       }
     },
@@ -222,6 +252,10 @@ const CGraph2D: React.FC<{
   useEffect(() => {
     const graph = graphRef.current;
     // add collision force
+    if (graph) {
+      graph.d3Force("collide", forceCollide(NODE_R * 1.5));
+    }
+
     if (graph) {
       graph.zoomToFit(400);
       // graph?.d3Force("link").distance(400);
@@ -277,16 +311,39 @@ const CGraph2D: React.FC<{
         } else {
           ctx.strokeStyle = convertHexToRGBA("#000000", 0.8);
         }
+
+        if (highlightLinkIds?.has(link.id)) {
+          if (link.type == "Topic-Paper") {
+            ctx.strokeStyle = convertHexToRGBA("#000000", 0.1);
+          } else {
+            ctx.strokeStyle = convertHexToRGBA("#C6A969", 1);
+          }
+        } else {
+          if (link.type == "Topic-Paper") {
+            ctx.strokeStyle = convertHexToRGBA("#000000", 0);
+          } else {
+            ctx.strokeStyle = convertHexToRGBA("#000000", 0.8);
+          }
+        }
+
         ctx.beginPath();
-        ctx.lineWidth = highlightLinkIds?.has(link.id) ? 5 : 1;
+        ctx.lineWidth = highlightLinkIds?.has(link.id) ? 4 : 1;
         ctx.moveTo(start.x, start.y);
         ctx.lineTo(end.x, end.y);
         ctx.stroke();
       }}
-      onNodeHover={handleNodeHover}
+      onNodeHover={(node) => {
+        if (clickNodeId == null) handleNodeHover(node);
+      }}
       // onLinkHover={handleLinkHover}
-      onNodeClick={handleClickNode}
-      linkOpacity={0.3}
+      onNodeClick={(node) => {
+        if (clickNodeId != node?.id) {
+          handleClickNode(node);
+        } else {
+          handleClickNode(null);
+        }
+        handleNodeHover(node);
+      }}
     />
   );
 };

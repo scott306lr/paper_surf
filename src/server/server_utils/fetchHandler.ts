@@ -50,7 +50,8 @@ const getSearchURL = (input: string[], filter_input: string[]) => {
   const input_str = input.join("+");
   const prepend = [input_str].concat(filter_input).join("-");
   // return search_url + prepend + "&limit=10&fields=paperId,title,authors,year,embedding,abstract,tldr,citations,citations.paperId,citations.title,citations.authors,citations.year,references,references.paperId,references.authors,references.title,references.year";
-  return search_url + prepend + "&limit=30&fields=paperId,year,authors,citations,citations.paperId,citations.year,citations.authors,references,references.paperId,references.year,references.authors";
+  return search_url + prepend + "&limit=20&fields=paperId,year,authors,citations,citations.paperId,citations.year,citations.authors,references,references.paperId,references.year,references.authors";
+  // return search_url + prepend + "&limit=100&fields=paperId,year,authors";
 };
 
 const processPaper = (papers: RawPaper[]) => {
@@ -65,7 +66,7 @@ const processPaper = (papers: RawPaper[]) => {
     .filter((d) => d.paperId != null && d.abstract != null && d.embedding != null)
     .map((d) => {
       d.citations = d.citations?.filter((c) => c.paperId != null).slice(0, 3) ?? [];
-      d.references = d.references?.filter((c) => c.paperId != null).slice(0, 5) ?? [];
+      d.references = d.references?.filter((c) => c.paperId != null).slice(0, 3) ?? [];
       return d as Paper;
     });
 
@@ -85,7 +86,7 @@ export const fetchPaperbyInput = async (input_arr: string[], filter_arr: string[
     .then((data: any) => data.data as PaperBrief[])
     .then((data) => data.map((d) => {
       d.citations = d.citations.filter((c) => c.paperId != null).slice(0, 3) ?? [];
-      d.references = d.references.filter((c) => c.paperId != null).slice(0, 5) ?? [];
+      d.references = d.references.filter((c) => c.paperId != null).slice(0, 3) ?? [];
       return d;
     }))
     .catch((error) => {

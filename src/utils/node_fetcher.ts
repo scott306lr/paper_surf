@@ -1,4 +1,3 @@
-import { type Paper } from "~/server/server_utils/fetchHandler"
 import { useQuery } from "@tanstack/react-query"
 
 const url = 'https://api.semanticscholar.org/graph/v1/paper/'
@@ -155,9 +154,9 @@ export const FetchPaper = async (paperId: string) => {
     return response;
 }
 
-export const getDataByPaperId = (paperId?: string) => {
+export const getDataByPaperId = (paperId: string) => {
     return useQuery({
         queryKey: [paperId],
-        queryFn: () => paperId ? FetchPaper(paperId) : undefined,
+        queryFn: () => FetchPaper(paperId),
     });
 }
