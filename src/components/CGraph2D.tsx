@@ -9,6 +9,7 @@ import ForceGraph2D, {
 } from "react-force-graph-2d";
 import React, { useCallback, useEffect } from "react";
 import { forceCollide } from "d3-force";
+import { convertHexToRGBA } from "~/lib/utils";
 
 export interface CGraphData {
   nodes: {
@@ -35,15 +36,6 @@ export interface CGraphData {
 
 const NODE_R = 2; //8;
 
-const getColorCode = (color: string, opacity: number): string => {
-  if (color == "red") {
-    return `rgba(255, 0, 0, ${opacity})`;
-  } else if (color == "green") {
-    return `rgba(0, 255, 0, ${opacity})`;
-  } else {
-    return `rgba(0, 0, 255, ${opacity})`;
-  }
-};
 const CGraph2D: React.FC<{
   graphData: CGraphData;
   hoverNodeId?: string | null;
@@ -88,7 +80,6 @@ const CGraph2D: React.FC<{
       const x = node.x ?? 0;
       const y = node.y ?? 0;
 
-      ctx.fillStyle = node.color;
       if (node.drawType == "text") {
         const label = node.label;
         const fontSize = node.size / globalScale;
@@ -106,19 +97,35 @@ const CGraph2D: React.FC<{
           bgDim.textHeight,
         ];
 
-        ctx.font = `${fontSize}px Sans-Serif`;
-        ctx.fillStyle = "rgba(255, 155, 155, 0.3)";
-        ctx.fillRect(
-          node.__hDim[0],
-          node.__hDim[1],
-          node.__hDim[2],
-          node.__hDim[3],
-        );
+        if (highlightNodeIds?.has(node.id)) {
+          ctx.font = `${fontSize}px Sans-Serif`;
+          ctx.fillStyle = convertHexToRGBA(node.color, 0.3);
+          ctx.fillRect(
+            node.__hDim[0],
+            node.__hDim[1],
+            node.__hDim[2],
+            node.__hDim[3],
+          );
 
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillStyle = node.color;
-        ctx.fillText(label, x, y);
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillStyle = `rgba(${node.color[0]}, ${node.color[1]}, ${node.color[2]}, ${node.color[3]})`;
+          ctx.fillText(label, x, y);
+        } else {
+          ctx.font = `${fontSize}px Sans-Serif`;
+          ctx.fillStyle = convertHexToRGBA(node.color, 0.3);
+          ctx.fillRect(
+            node.__hDim[0],
+            node.__hDim[1],
+            node.__hDim[2],
+            node.__hDim[3],
+          );
+
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillStyle = node.color;
+          ctx.fillText(label, x, y);
+        }
       } else if (node.drawType == "circle") {
         if (hoverNodeId === node.id) {
           node.__hType = "circle";
@@ -132,6 +139,7 @@ const CGraph2D: React.FC<{
             2 * Math.PI,
             false,
           );
+          ctx.fillStyle = convertHexToRGBA(node.color, 0.3);
           ctx.fill();
 
           //label
@@ -156,6 +164,7 @@ const CGraph2D: React.FC<{
             2 * Math.PI,
             false,
           );
+          ctx.fillStyle = convertHexToRGBA(node.color, 0.3);
           ctx.fill();
 
           //label
