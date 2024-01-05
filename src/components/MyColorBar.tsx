@@ -8,10 +8,10 @@ const MyColorBar: React.FC<{
     <div className="flex h-full w-full items-center justify-center">
       <ResponsiveHeatMap
         data={[]}
-        margin={{ top: 60, right: 90, bottom: 60, left: 90 }}
+        margin={{ right: 60, left: 60 }}
         colors={{
           type: "diverging",
-          scheme: "red_yellow_blue",
+          scheme: "yellow_green_blue",
           divergeAt: 0.5,
           minValue: min, //-100000,
           maxValue: max, //100000,
@@ -21,18 +21,18 @@ const MyColorBar: React.FC<{
           {
             anchor: "bottom",
             translateX: 0,
-            translateY: 30,
+            translateY: -30,
             length: 400,
-            thickness: 8,
+            thickness: 12,
             direction: "row",
             tickPosition: "after",
             tickSize: 3,
             tickSpacing: 4,
             tickOverlap: false,
-            tickFormat: ">-.2s",
-            title: "Value →",
+            tickFormat: " >-.0~f",
+            title: "Year →",
             titleAlign: "start",
-            titleOffset: 4,
+            titleOffset: 8,
           },
         ]}
       />
