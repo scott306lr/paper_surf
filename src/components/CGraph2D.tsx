@@ -24,6 +24,7 @@ export interface CGraphData {
     opacity: number;
     myX: number;
     myY: number;
+    year: number;
   }[];
   links: {
     id: string;

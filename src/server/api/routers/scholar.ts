@@ -86,7 +86,7 @@ export const scholarRouter = createTRPCRouter({
                 label: id_map.get(c)?.title ?? "",
                 size: Math.sqrt(id_map.get(c)?.size ?? 0) / 2 + 10,
                 level: 0,
-                color: "red",
+                color: getColor(id_map.get(c)?.year ?? 1980),
                 drawType: "circle",
                 myX: id_map.get(c)?.embedding[0] ?? 0,
                 myY: id_map.get(c)?.embedding[1] ?? 0,
@@ -118,7 +118,7 @@ export const scholarRouter = createTRPCRouter({
                 label: id_map.get(r)?.title ?? "",
                 size: Math.sqrt(id_map.get(r)?.size ?? 0) / 2 + 10,
                 level: 0,
-                color: "red",
+                color: getColor(id_map.get(r)?.year ?? 1980),
                 drawType: "circle",
                 myX: id_map.get(r)?.embedding[0] ?? 0,
                 myY: id_map.get(r)?.embedding[1] ?? 0,
@@ -141,13 +141,14 @@ export const scholarRouter = createTRPCRouter({
               label: id_map.get(d.paperId)?.title ?? "",
               size: Math.sqrt(id_map.get(d.paperId)?.size ?? 0) / 2 + 10,
               level: 0,
-              color: "red",
+              color: getColor(id_map.get(d.paperId)?.year ?? 1980),
               drawType: "circle",
               myX: id_map.get(d.paperId)?.embedding[0] ?? 0,
               myY: id_map.get(d.paperId)?.embedding[1] ?? 0,
               neighbors: node_neighbors,
               links: node_link,
               opacity: 1,
+              year: id_map.get(d.paperId)?.year ?? 1980,
             })
             current_node.add(d.paperId)
           }
@@ -155,7 +156,7 @@ export const scholarRouter = createTRPCRouter({
       })
 
       const result = data && lda_abstract(data, input.sweeps, input.stopwords);
-
+      
       result?.forEach((d) => {
         let x = 0, y = 0;
         let x_score = 0, y_score = 0;
@@ -178,13 +179,14 @@ export const scholarRouter = createTRPCRouter({
               label: id_map.get(c.id)?.title ?? "",
               size: Math.sqrt(id_map.get(c.id)?.size ?? 0) / 2 + 10,
               level: 0,
-              color: "red",
+              color: getColor(id_map.get(c.id)?.year ?? 1980),
               drawType: "circle",
               myX: id_map.get(c.id)?.embedding[0] ?? 0,
               myY: id_map.get(c.id)?.embedding[1] ?? 0,
               neighbors: [`${d.topic}`],
               links: [`${d.topic}-${c.id}`],
               opacity: 1,
+              year: id_map.get(c.id)?.;
             })
             current_node.add(c.id)
           }
