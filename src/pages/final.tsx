@@ -98,9 +98,6 @@ export default function PaperSurf() {
     isLoading: lda_isLoading,
   } = api.scholar.lda.useMutation();
 
-
-
-
   const [clickNodeId, setClickNodeId] = useState<string>("");
   const { data: paper_data, isLoading: paper_isLoading } =
     getDataByPaperId(clickNodeId);
@@ -120,17 +117,14 @@ export default function PaperSurf() {
   };
   return (
     <main className="h-screen w-screen items-center justify-center">
-      <ResizablePanelGroup
-        direction="horizontal"
-        className="min-h-[200px] rounded-lg border"
-      >
+      <div className="flex h-full w-full">
         {/* <ResizablePanel minSize={20} maxSize={50} defaultSize={20} collapsible>
           <div className="flex h-full flex-col items-center justify-center gap-6 p-6">
             <InputForm onSubmit={onSubmit} />
           </div>
         </ResizablePanel>
         <ResizableHandle withHandle /> */}
-        <ResizablePanel defaultSize={70}>
+        <div className="flex h-full w-3/5 flex-col items-center justify-center">
           <div className="flex h-full items-center justify-center p-6">
             {lda_isLoading ? (
               <div className="flex items-center justify-center">
@@ -147,10 +141,9 @@ export default function PaperSurf() {
               />
             )}
           </div>
-        </ResizablePanel>
-        <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={30} minSize={30} collapsible>
-          <div className="flex h-full flex-col">
+        </div>
+        <div className="flex h-full w-2/5 flex-col items-center justify-center gap-6 overflow-hidden border border-gray-300">
+          <div className="flex h-full w-full flex-col overflow-auto">
             <div className="flex h-full w-full flex-col gap-4 p-6">
               <Accordion type="single" defaultValue="search" collapsible>
                 <AccordionItem value="search">
@@ -173,11 +166,11 @@ export default function PaperSurf() {
                         <span>Select a paper to view info</span>
                       </div>
                     ) : (
-                      <>
+                      <div className="flex flex-col gap-4">
                         <h1 className="text-3xl font-extrabold tracking-tight">
                           <a
                             href={paper_data.url}
-                            className="underline"
+                            className="mr-2 text-wrap font-serif underline"
                             target="_blank"
                             rel="noopener noreferrer"
                           >
@@ -254,7 +247,7 @@ export default function PaperSurf() {
                             </TabsTrigger>
                           </TabsList>
                           <TabsContent value="reference">
-                            <ScrollArea className="h-[25rem] rounded-lg border px-4 py-2">
+                            <ScrollArea className="h-[35rem] rounded-lg border px-4 py-2">
                               <div className="flex h-full flex-col gap-4">
                                 {paper_data.references?.map((ref) => (
                                   <>
@@ -365,15 +358,15 @@ export default function PaperSurf() {
                             </ScrollArea>
                           </TabsContent>
                         </Tabs>
-                      </>
+                      </div>
                     )}
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
             </div>
           </div>
-        </ResizablePanel>
-      </ResizablePanelGroup>
+        </div>
+      </div>
     </main>
   );
 }
