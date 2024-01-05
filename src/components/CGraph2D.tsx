@@ -74,10 +74,10 @@ const CGraph2D: React.FC<{
       globalScale: number,
     ) => {
       //random
-      node.fx = node.myX * width;
-      node.fy = node.myY * height;
-      node.x = node.myX * width;
-      node.y = node.myY * height;
+      node.fx = node.myX * width * 2.5;
+      node.fy = node.myY * height * 2;
+      node.x = node.myX * width * 2.5;
+      node.y = node.myY * height * 2;
 
       const x = node.x ?? 0;
       const y = node.y ?? 0;
@@ -130,7 +130,7 @@ const CGraph2D: React.FC<{
       } else if (node.drawType == "circle") {
         if (hoverNodeId === node.id) {
           node.__hType = "circle";
-          node.__hDim = [x, y, node.size * 1.2 + 2, 0];
+          node.__hDim = [x, y, node.size * 2 + 2, 0];
           ctx.beginPath();
           ctx.arc(
             node.__hDim[0],
@@ -154,7 +154,7 @@ const CGraph2D: React.FC<{
           ctx.fillText(label, x, y - fontSize * 1.2);
         } else if (highlightNodeIds?.has(node.id)) {
           node.__hType = "circle";
-          node.__hDim = [x, y, node.size * 1.2 + 2, 0];
+          node.__hDim = [x, y, node.size * 2 + 2, 0];
 
           ctx.beginPath();
           ctx.arc(
@@ -179,7 +179,7 @@ const CGraph2D: React.FC<{
           ctx.fillText(label, x, y - fontSize * 1.2);
         } else {
           node.__hType = "circle";
-          node.__hDim = [x, y, node.size, 0];
+          node.__hDim = [x, y, node.size * 1.5, 0];
 
           ctx.beginPath();
           ctx.arc(
@@ -211,7 +211,7 @@ const CGraph2D: React.FC<{
           ctx.font = `${fontSize}px Sans-Serif`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+          ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
           ctx.fillText(`${year}`, x, y - fontSize * 1.2);
         }
       }
@@ -266,25 +266,25 @@ const CGraph2D: React.FC<{
       }}
       linkDirectionalParticles={4}
       linkDirectionalParticleWidth={(link) =>
-        highlightLinkIds?.has(link.id) ? 8 : 0
+        highlightLinkIds?.has(link.id) ? 5 : 0
       }
       linkDirectionalParticleSpeed={0.005}
       linkCanvasObject={(link, ctx) => {
         const start = link.source;
         const end = link.target;
-        if (link.type == "topic-paper") {
+        if (link.type == "Topic-Paper" && !highlightLinkIds?.has(link.id)) {
           ctx.strokeStyle = convertHexToRGBA("#000000", 0);
         } else {
-          ctx.strokeStyle = convertHexToRGBA("#000000", 0.6);
+          ctx.strokeStyle = convertHexToRGBA("#000000", 0.8);
         }
         ctx.beginPath();
-        ctx.lineWidth = highlightLinkIds?.has(link.id) ? 5 : 0.1;
+        ctx.lineWidth = highlightLinkIds?.has(link.id) ? 5 : 1;
         ctx.moveTo(start.x, start.y);
         ctx.lineTo(end.x, end.y);
         ctx.stroke();
       }}
       onNodeHover={handleNodeHover}
-      onLinkHover={handleLinkHover}
+      // onLinkHover={handleLinkHover}
       onNodeClick={handleClickNode}
       linkOpacity={0.3}
     />
