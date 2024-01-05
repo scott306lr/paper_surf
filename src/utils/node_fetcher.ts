@@ -74,6 +74,7 @@ export interface PaperInformation {
             // },
             'url': string,
             'name': string,
+            'authorId': string,
             'aliases': string[],
             'affiliations': {
                 'name': string,
@@ -112,6 +113,7 @@ export interface PaperInformation {
             // },
             'url': string,
             'name': string,
+            'authorId': string,
             'aliases': string[],
             'affiliations': {
                 'name': string,
