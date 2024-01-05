@@ -60,13 +60,12 @@ export const scholarRouter = createTRPCRouter({
           size: data[i].citationCount
         })
 
-
       const current_node = new Set<string>()
       search_data?.map((d: PaperBrief) => {
         if (id_map.has(d.paperId)) {
           const node_link = [] as string[]
           const node_neighbors = [] as string[]
-          d.citations.map((c) => c.paperId).filter((c) => id_map.has(c)).map((c) => {
+          d.citations.map((c) => c.paperId).filter((c) => id_map.has(c)).forEach((c) => {
             links.push({
               id: `${d.paperId}-${c}`,
               source: d.paperId,
@@ -93,42 +92,48 @@ export const scholarRouter = createTRPCRouter({
                 links: [`${d.paperId}-${c}`],
                 opacity: 1,
               })
+              current_node.add(c)
             }
             node_link.push(`${d.paperId}-${c}`);
             node_neighbors.push(c);
           })
-          d.references.map((c) => c.paperId).filter((c) => id_map.has(c)).map((c) => {
+          // references node
+          d.references.map((c) => c.paperId).filter((c) => id_map.has(c)).forEach((r) => {
             links.push({
-              id: `${c}-${d.paperId}`,
-              source: c,
+              id: `${r}-${d.paperId}`,
+              source: r,
               target: d.paperId,
               opacity: 1,
               strength: 0
             });
-            if (current_node.has(c)) {
-              nodes.find((n) => n.id == c)?.neighbors.push(d.paperId)
-              nodes.find((n) => n.id == c)?.links.push(`${c}-${d.paperId}`)
+            if (current_node.has(r)) {
+              nodes.find((n) => n.id == r)?.neighbors.push(d.paperId)
+              nodes.find((n) => n.id == r)?.links.push(`${r}-${d.paperId}`)
             }
             else {
               nodes.push({
-                id: c,
-                label: id_map.get(c)?.title ?? "",
-                size: Math.sqrt(id_map.get(c)?.size ?? 0) / 2 + 10,
+                id: r,
+                label: id_map.get(r)?.title ?? "",
+                size: Math.sqrt(id_map.get(r)?.size ?? 0) / 2 + 10,
                 level: 0,
                 color: "red",
                 drawType: "circle",
-                myX: id_map.get(c)?.embedding[0] ?? 0,
-                myY: id_map.get(c)?.embedding[1] ?? 0,
+                myX: id_map.get(r)?.embedding[0] ?? 0,
+                myY: id_map.get(r)?.embedding[1] ?? 0,
                 neighbors: [d.paperId],
-                links: [`${c}-${d.paperId}`],
+                links: [`${r}-${d.paperId}`],
                 opacity: 1,
               })
+              current_node.add(r)
             }
-            node_link.push(`${c}-${d.paperId}`);
-            node_neighbors.push(c);
+            node_link.push(`${r}-${d.paperId}`);
+            node_neighbors.push(r);
           })
-          if (!current_node.has(d.paperId)) {
-            current_node.add(d.paperId)
+          if (current_node.has(d.paperId)) {
+            nodes.find((n) => n.id == d.paperId)?.neighbors.push(...node_neighbors)
+            nodes.find((n) => n.id == d.paperId)?.links.push(...node_link)
+          }
+          else {
             nodes.push({
               id: d.paperId,
               label: id_map.get(d.paperId)?.title ?? "",
@@ -142,10 +147,7 @@ export const scholarRouter = createTRPCRouter({
               links: node_link,
               opacity: 1,
             })
-          }
-          else {
-            nodes.find((n) => n.id == d.paperId)?.neighbors.push(...node_neighbors)
-            nodes.find((n) => n.id == d.paperId)?.links.push(...node_link)
+            current_node.add(d.paperId)
           }
         }
       })
@@ -164,8 +166,26 @@ export const scholarRouter = createTRPCRouter({
           y_score += c.score ?? 0;
           node_neighbors.push(c.id);
           node_link.push(`${d.topic}-${c.id}`);
-          nodes.find((n) => n.id == c.id)?.neighbors.push(`${d.topic}`)
-          nodes.find((n) => n.id == c.id)?.links.push(`${c.id}-${d.topic}`)
+          if (current_node.has(c.id)) {
+            nodes.find((n) => n.id == c.id)?.neighbors.push(`${d.topic}`)
+            nodes.find((n) => n.id == c.id)?.links.push(`${d.topic}-${c.id}`)
+          }
+          else {
+            nodes.push({
+              id: c.id,
+              label: id_map.get(c.id)?.title ?? "",
+              size: Math.sqrt(id_map.get(c.id)?.size ?? 0) / 2 + 10,
+              level: 0,
+              color: "red",
+              drawType: "circle",
+              myX: id_map.get(c.id)?.embedding[0] ?? 0,
+              myY: id_map.get(c.id)?.embedding[1] ?? 0,
+              neighbors: [`${d.topic}`],
+              links: [`${d.topic}-${c.id}`],
+              opacity: 1,
+            })
+            current_node.add(c.id)
+          }
           links.push({
             id: `${d.topic}-${c.id}`,
             source: `${d.topic}`,

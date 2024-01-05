@@ -188,8 +188,6 @@ export default function PaperSurf() {
             filter_input: values.negative.split(", "),
         });
 
-
-
         if (search_result != null) {
             lda_mutate({
                 input: values.positive.split(", "),
