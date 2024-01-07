@@ -32,7 +32,7 @@ const MyColorBar = dynamic(() => import("~/components/MyColorBar"), {
 const RenderGraph: React.FC<{
   graphData: CGraphData;
   clickNodeId: string | null;
-  setClickNodeId: (nodeId: string) => void;
+  setClickNodeId: (nodeId: string | null) => void;
 }> = ({ graphData, clickNodeId, setClickNodeId }) => {
   const [highlightNodeIds, setHighlightNodeIds] = useState(new Set<string>());
   const [highlightLinkIds, setHighlightLinkIds] = useState(new Set<string>());
@@ -80,7 +80,9 @@ const RenderGraph: React.FC<{
       highlightLinkIds={highlightLinkIds}
       handleNodeHover={handleNodeHover}
       handleLinkHover={handleLinkHover}
-      handleClickNode={(node) => setClickNodeId(node.id)}
+      handleClickNode={(node) =>
+        node ? setClickNodeId(node.id) : setClickNodeId(null)
+      }
     />
   );
 };
