@@ -7,7 +7,15 @@ import { lda_abstract } from "~/server/server_utils/lda-topic-model";
 import { type Paper, type PaperBrief } from "~/server/server_utils/fetchHandler";
 import { type CGraphData } from "~/components/CGraph2D";
 import { to_lda } from "~/utils/graph_utils";
+import hash from "object-hash";
 import TSNE from 'tsne-js';
+
+
+// replace with redis later
+const search_data_cache = new Map<string, PaperBrief[] | void>();
+const post_data_cache = new Map<string, Paper[] | void>();
+const tsne_cache = new Map<string, number[][]>();
+const lda_cache = new Map<string, TopicInfo[]>();
 
 export const scholarRouter = createTRPCRouter({
   searchByInput: publicProcedure
@@ -22,46 +30,95 @@ export const scholarRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       const nodes: CGraphData["nodes"] = []
       const links: CGraphData["links"] = []
+      
 
       let start_time = new Date().getTime();
-      const search_data = await fetchPaperByInput(input.input, input.filter_input);
-      
+      let search_data: PaperBrief[] | void;
+      const search_data_cache_key = hash([input.input, input.filter_input])
+      if (!search_data_cache.has(search_data_cache_key)) {
+        search_data = await fetchPaperByInput(input.input, input.filter_input);
+        search_data_cache.set(search_data_cache_key, search_data)
+
+        //pop search_data_cache
+        if (search_data_cache.size > 100) {
+          search_data_cache.delete(search_data_cache.keys().next().value as string)
+        }
+        if (search_data == undefined) return { nodes, links };
+      } else {
+        search_data = search_data_cache.get(search_data_cache_key)!
+      }
       console.log("fetch search_data time", new Date().getTime() - start_time);
-      if (search_data == undefined) return { nodes, links };
+      
       
       start_time = new Date().getTime();
-      const paperID_array = to_lda(search_data)
-      const post_data = await postPaperById(paperID_array);
+      let post_data: Paper[] | void;
+      if (!post_data_cache.has(search_data_cache_key)){
+        const paperID_array = to_lda(search_data)
+        post_data = await postPaperById(paperID_array);
+        post_data_cache.set(search_data_cache_key, post_data)
+
+        //pop search_data_cache
+        if (post_data_cache.size > 100) {
+          post_data_cache.delete(search_data_cache.keys().next().value as string)
+        }
+        if (post_data == undefined) return { nodes, links };
+      } else {
+        post_data = post_data_cache.get(search_data_cache_key)!
+      }
       console.log("fetch post_data time", new Date().getTime() - start_time);
-      if (post_data == undefined) return { nodes, links };
+      
       //sort post_data by citationCount
       // post_data.sort((a, b) => a.citationCount - b.citationCount)
       
       start_time = new Date().getTime();
-      const opt = {
-        dim: 2,
-        perplexity: 50.0,
-        earlyExaggeration: 4.0,
-        learningRate: 1000.0,
-        nIter: 1000,
-        metric: 'euclidean'
+      let tsne_result: number[][] = [[]];
+      if (!tsne_cache.has(search_data_cache_key)){
+        const opt = {
+          dim: 2,
+          perplexity: 50.0,
+          earlyExaggeration: 4.0,
+          learningRate: 1000.0,
+          nIter: 1000,
+          metric: 'euclidean'
+        }
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+        const model = new TSNE(opt);
+        const embeddings = post_data.map((d: Paper) => d.embedding.vector);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+        model.init({
+          data: embeddings,
+          type: 'dense'
+        });
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+        model.run();
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+        tsne_result = model.getOutputScaled() as number[][];
+        tsne_cache.set(search_data_cache_key, tsne_result)
+
+        //pop search_data_cache
+        if (tsne_cache.size > 100) {
+          tsne_cache.delete(search_data_cache.keys().next().value as string)
+        }
+      } else {
+        tsne_result = tsne_cache.get(search_data_cache_key)!
       }
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-      const model = new TSNE(opt);
-      const embeddings = post_data.map((d: Paper) => d.embedding.vector);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-      model.init({
-        data: embeddings,
-        type: 'dense'
-      });
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-      model.run();
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-      const output = model.getOutputScaled() as number[][];
       console.log("tsne time", new Date().getTime() - start_time);
 
+
       start_time = new Date().getTime();
-      const result = lda_abstract(post_data, input.sweeps, input.stopwords) as TopicInfo[];
+      const lda_cache_key = hash([input.input, input.filter_input, input.sweeps, input.stopwords])
+      let lda_result: TopicInfo[] | void;
+      if (!lda_cache.has(lda_cache_key)){
+        lda_result = lda_abstract(post_data, input.sweeps, input.stopwords) as TopicInfo[];
+        lda_cache.set(lda_cache_key, lda_result)
+
+        //pop search_data_cache
+        if (lda_cache.size > 100) {
+          lda_cache.delete(search_data_cache.keys().next().value as string)
+        }
+      } else {
+        lda_result = lda_cache.get(lda_cache_key)!
+      }
       console.log("lda time", new Date().getTime() - start_time);
 
 
@@ -79,7 +136,7 @@ export const scholarRouter = createTRPCRouter({
           id: d.paperId,
           title: `${d.authors[0]?.name ?? "Unknown author"}, ${d.year}`,
           year: d.year ?? -1,
-          embedding: output[index]!,
+          embedding: tsne_result[index]!,
           size: d.citationCount
         })
       })
@@ -186,7 +243,7 @@ export const scholarRouter = createTRPCRouter({
         }
       })
 
-      result.forEach((d) => {
+      lda_result.forEach((d) => {
         let x = 0, y = 0;
         let x_score = 0, y_score = 0;
         const node_link: string[] = []

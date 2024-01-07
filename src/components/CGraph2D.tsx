@@ -249,18 +249,18 @@ const CGraph2D: React.FC<{
     [hoverNodeId],
   );
 
-  useEffect(() => {
-    const graph = graphRef.current;
-    // add collision force
-    if (graph) {
-      graph.d3Force("collide", forceCollide(NODE_R * 1.5));
-    }
+  // useEffect(() => {
+  //   const graph = graphRef.current;
+  //   // add collision force
+  //   if (graph) {
+  //     graph.d3Force("collide", forceCollide(NODE_R * 1.5));
+  //   }
 
-    if (graph) {
-      graph.zoomToFit(400);
-      // graph?.d3Force("link").distance(400);
-    }
-  }, []);
+  //   if (graph) {
+  //     graph.zoomToFit(400);
+  //     // graph?.d3Force("link").distance(400);
+  //   }
+  // }, []);
 
   return (
     <ForceGraph2D
