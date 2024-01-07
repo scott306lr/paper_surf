@@ -1,4 +1,5 @@
 import chroma from 'chroma-js';
+// import { cache } from 'react'
 
 interface RawPaper {
   paperId?: string;
@@ -46,7 +47,7 @@ export const getColor = (year: number, min_year: number, max_year: number) => {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
   const f = chroma.scale(['#ffffd9', '#41b6c4', '#081d58']).domain([min_year, max_year]);
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-  return f(year).hex().toString() as string;
+  return f(year).hex().toString();
 }
 
 const getSearchURL = (input: string[], filter_input: string[]) => {
@@ -76,7 +77,7 @@ const processPaper = (papers: RawPaper[]) => {
   return filteredPaper;
 }
 
-export const fetchPaperbyInput = async (input_arr: string[], filter_arr: string[]) => {
+export const fetchPaperByInput = async (input_arr: string[], filter_arr: string[]) => {
   const response = await fetch(getSearchURL(input_arr, filter_arr), {
     method: "GET",
     headers: {
@@ -99,7 +100,7 @@ export const fetchPaperbyInput = async (input_arr: string[], filter_arr: string[
 };
 
 
-export const PostPaper = async (data: string[]) => {
+export const postPaperById = async (data: string[]) => {
   if (data.length == 0) {
     return []
   }
@@ -117,7 +118,7 @@ export const PostPaper = async (data: string[]) => {
     .then((data: Paper[]) => processPaper(data))
     .catch((error) => { console.log(error) });
   return response;
-}
+};
 
 export const PostRecommendation = async (data: string[]) => {
   if (data.length == 0) {

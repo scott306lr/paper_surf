@@ -80,7 +80,7 @@ const RenderGraph: React.FC<{
       highlightLinkIds={highlightLinkIds}
       handleNodeHover={handleNodeHover}
       handleLinkHover={handleLinkHover}
-      handleClickNode={(node) => setClickNodeId(node?.id)}
+      handleClickNode={(node) => setClickNodeId(node.id)}
     />
   );
 };

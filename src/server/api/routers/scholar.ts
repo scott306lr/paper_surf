@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { fetchPaperbyInput, PostPaper, getColor } from "~/server/server_utils/fetchHandler";
+import { fetchPaperByInput, postPaperById, getColor } from "~/server/server_utils/fetchHandler";
 import { type TopicInfo } from "~/utils/graph_utils";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
@@ -13,7 +13,7 @@ export const scholarRouter = createTRPCRouter({
   searchByInput: publicProcedure
     .input(z.object({ input: z.array(z.string()), filter_input: z.array(z.string()) }))
     .mutation(async ({ input }) => {
-      const search_data = await fetchPaperbyInput(input.input, input.filter_input);
+      const search_data = await fetchPaperByInput(input.input, input.filter_input);
       return search_data;
     }),
 
@@ -24,13 +24,14 @@ export const scholarRouter = createTRPCRouter({
       const links: CGraphData["links"] = []
 
       let start_time = new Date().getTime();
-      const search_data = await fetchPaperbyInput(input.input, input.filter_input);
+      const search_data = await fetchPaperByInput(input.input, input.filter_input);
+      
       console.log("fetch search_data time", new Date().getTime() - start_time);
       if (search_data == undefined) return { nodes, links };
       
       start_time = new Date().getTime();
       const paperID_array = to_lda(search_data)
-      const post_data = await PostPaper(paperID_array);
+      const post_data = await postPaperById(paperID_array);
       console.log("fetch post_data time", new Date().getTime() - start_time);
       if (post_data == undefined) return { nodes, links };
       //sort post_data by citationCount
@@ -64,6 +65,7 @@ export const scholarRouter = createTRPCRouter({
       console.log("lda time", new Date().getTime() - start_time);
 
 
+      start_time = new Date().getTime();
       const id_map = new Map<string, {
         id: string,
         title: string,
@@ -183,9 +185,7 @@ export const scholarRouter = createTRPCRouter({
           }
         }
       })
-      nodes.sort((a, b) => b.size - a.size)
 
-      // LDA node
       result.forEach((d) => {
         let x = 0, y = 0;
         let x_score = 0, y_score = 0;
@@ -233,6 +233,9 @@ export const scholarRouter = createTRPCRouter({
         x /= x_score;
         y /= y_score;
 
+        nodes.sort((a, b) => b.size - a.size)
+
+        // LDA node
         nodes.push({
           id: `${d.topic}`,
           label: `${d.documentVocab[0]?.word}, ${d.documentVocab[1]?.word}`,
@@ -248,6 +251,7 @@ export const scholarRouter = createTRPCRouter({
           year: -1,
         })
       })
+      console.log("graph time", new Date().getTime() - start_time);
 
       return { nodes, links };
     }),

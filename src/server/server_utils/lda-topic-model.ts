@@ -12,7 +12,7 @@ export const lda_abstract = (data: { paperId: string, abstract: string }[], prec
     const options = {
         displayingStopwords: false,
         language: 'en',
-        numberTopics: 50,//100,
+        numberTopics: 20,//100,
         sweeps: sweeps,
         stem: false,
     };
@@ -51,13 +51,13 @@ class topicModelling {
             this.numTopics = 10;
         }
 
-        this.documentTopicSmoothing = 0.1;
-        this.topicWordSmoothing = 0.01;
-        this.docSortSmoothing = 10.0;
+        this.documentTopicSmoothing = 0.01;//0.1;
+        this.topicWordSmoothing = 0.1;//0.01;
+        this.docSortSmoothing = 0.01;//10.0;
         this.sumDocSortSmoothing = this.docSortSmoothing * this.numTopics;
 
         this.completeSweeps = 0;
-        this.reqiestedSweeps = 0;
+        this.requestedSweeps = 0;
 
         // vocabulary
         this.vocabularySize = 0;
