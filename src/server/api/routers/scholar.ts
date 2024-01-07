@@ -183,7 +183,9 @@ export const scholarRouter = createTRPCRouter({
           }
         }
       })
+      nodes.sort((a, b) => b.size - a.size)
 
+      // LDA node
       result.forEach((d) => {
         let x = 0, y = 0;
         let x_score = 0, y_score = 0;
@@ -247,7 +249,6 @@ export const scholarRouter = createTRPCRouter({
         })
       })
 
-      nodes.sort((a, b) => b.size - a.size)
       return { nodes, links };
     }),
 });
