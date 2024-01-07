@@ -1,5 +1,4 @@
 import chroma from 'chroma-js';
-// import { cache } from 'react'
 
 interface RawPaper {
   paperId?: string;
@@ -26,10 +25,8 @@ export interface Paper {
 
 export interface PaperBrief {
   paperId: string;
-  year: number;
-  authors: { authorId: string; name: string }[];
-  citations: { paperId: string; year: number; authors: { authorId: string; name: string }[] }[];
-  references: { paperId: string; year: number; authors: { authorId: string; name: string }[] }[];
+  citations: { paperId: string;  }[];
+  references: { paperId: string; }[];
 }
 
 const search_url =
@@ -54,7 +51,7 @@ const getSearchURL = (input: string[], filter_input: string[]) => {
   const input_str = input.join("+");
   const prepend = [input_str].concat(filter_input).join("-");
   // return search_url + prepend + "&limit=10&fields=paperId,title,authors,year,embedding,abstract,tldr,citations,citations.paperId,citations.title,citations.authors,citations.year,references,references.paperId,references.authors,references.title,references.year";
-  return search_url + prepend + "&limit=20&fields=paperId,year,authors,citations,citations.paperId,citations.year,citations.authors,references,references.paperId,references.year,references.authors";
+  return search_url + prepend + "&limit=20&fields=paperId,citations,citations.paperId,references,references.paperId";
   // return search_url + prepend + "&limit=100&fields=paperId,year,authors";
 };
 
