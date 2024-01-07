@@ -1,4 +1,3 @@
-import { type Paper } from "~/server/server_utils/fetchHandler"
 import { useQuery } from "@tanstack/react-query"
 
 const url = 'https://api.semanticscholar.org/graph/v1/paper/'
@@ -7,12 +6,6 @@ export interface PaperInformation {
     'title': string,
     'url': string,
     'publicationVenue': string,
-    // 'externalIds': {
-    //     'doi': string,
-    //     'arxiv': string,
-    //     'pii': string,
-    //     's2Id': string
-    // },
     'year': number,
     'abstract': string,
     'tldr': {
@@ -31,19 +24,11 @@ export interface PaperInformation {
     'citationStyles': string[],
     'embedding': number[],
     'authors': {
-        // 'externalIds': {
-        //     'ids': string[],
-        //     'sources': string[]
-        // },
         'url': string,
         'name': string,
         'aliases': string[],
         'affiliations': {
             'name': string,
-            // 'externalIds': {
-            //     'ids': string[],
-            //     'sources': string[]
-            // },
             'url': string
         }[],
         'homepage': string,
@@ -58,30 +43,16 @@ export interface PaperInformation {
         'publicationVenue': string,
         'fieldsOfStudy': string[],
         'year': number,
-        // 'externalIds': {
-        //     'doi': string,
-        //     'arxiv': string,
-        //     'pii': string,
-        //     's2Id': string
-        // },
         'publicationTypes': string[],
         'publicationDate': string,
         'journal': string,
         'authors': {
-            // 'externalIds': {
-            //     'ids': string[],
-            //     'sources': string[]
-            // },
             'url': string,
             'name': string,
             'authorId': string,
             'aliases': string[],
             'affiliations': {
                 'name': string,
-                // 'externalIds': {
-                //     'ids': string[],
-                //     'sources': string[]
-                // },
                 'url': string
             }[],
             'homepage': string,
@@ -97,30 +68,16 @@ export interface PaperInformation {
         'publicationVenue': string,
         'fieldsOfStudy': string[],
         'year': number,
-        // 'externalIds': {
-        //     'doi': string,
-        //     'arxiv': string,
-        //     'pii': string,
-        //     's2Id': string
-        // },
         'publicationTypes': string[],
         'publicationDate': string,
         'journal': string,
         'authors': {
-            // 'externalIds': {
-            //     'ids': string[],
-            //     'sources': string[]
-            // },
             'url': string,
             'name': string,
             'authorId': string,
             'aliases': string[],
             'affiliations': {
                 'name': string,
-                // 'externalIds': {
-                //     'ids': string[],
-                //     'sources': string[]
-                // },
                 'url': string
             }[],
             'homepage': string,
@@ -146,11 +103,6 @@ export const FetchPaper = async (paperId: string) => {
     })
         .then((response) => response.json())
         .then((data: unknown) => { return data as PaperInformation })
-        // .then((data) => data.map((d) => {
-        //     d.citations = d.citations.filter((c) => c.authors != null);
-        //     d.references = d.references.filter((c) => c.authors != null);
-        //     return d;
-        // }))
         .catch((error) => { console.log(error) });
     return response;
 }

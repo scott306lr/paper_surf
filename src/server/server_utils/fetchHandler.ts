@@ -1,4 +1,4 @@
-import chroma from "chroma-js";
+import chroma from 'chroma-js';
 
 interface RawPaper {
   paperId?: string;
@@ -42,7 +42,9 @@ const recommend_url =
 
 export const getColor = (year: number, min_year: number, max_year: number) => {
   if (year == -1) return "#000000";
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
   const f = chroma.scale(['#ffffd9', '#41b6c4', '#081d58']).domain([min_year, max_year]);
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
   return f(year).hex().toString();
 }
 
@@ -94,19 +96,6 @@ export const fetchPaperbyInput = async (input_arr: string[], filter_arr: string[
   return response;
 };
 
-// export const getPaperIDs = async (key: string) => {
-//   const response = await fetch(search_url + key + "&limit=2", {
-//       method: "GET",
-//       headers: {
-//           "x-api-key": "ftAySEDKEx5x1V5WQ4XCt1iDvrbDJ0zuaNAkeUeH",
-//       }
-//   })
-//       .then((response) => response.json())
-//       .then((data) => data.data as Paper[])
-//       .then((data) => data.map((d: any) => d.paperId))
-//       .catch((error) => { console.log(error) });
-//   return response;
-// };
 
 export const PostPaper = async (data: string[]) => {
   if (data.length == 0) {

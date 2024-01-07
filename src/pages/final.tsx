@@ -5,11 +5,6 @@ import { api } from "~/utils/api";
 import CitationGraph from "~/components/CGWrapper2D";
 import { type CGraphData } from "~/components/CGraph2D";
 
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "~/components/ui/resizable";
 import { useState } from "react";
 import InputForm, { type inputFormSchema } from "~/components/InputForm";
 import { type z } from "zod";
@@ -24,19 +19,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
-
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "~/components/ui/drawer";
 import dynamic from "next/dynamic";
-// import MyBoxPlot from "~/components/MyBoxPlot";
 
 const MyBoxPlot = dynamic(() => import("~/components/MyBoxPlot"), {
   ssr: false,

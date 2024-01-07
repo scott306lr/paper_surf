@@ -1,4 +1,3 @@
-import { postRouter } from "~/server/api/routers/post";
 import { createTRPCRouter } from "~/server/api/trpc";
 import { scholarRouter } from "~/server/api/routers/scholar";
 
@@ -8,7 +7,6 @@ import { scholarRouter } from "~/server/api/routers/scholar";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-  post: postRouter,
   scholar: scholarRouter,
 });
 
