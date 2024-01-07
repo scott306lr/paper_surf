@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { fetchPaperbyInput, PostPaper, getColor } from "~/server/server_utils/fetchHandler";
+import { type TopicInfo } from "~/utils/graph_utils";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { lda_abstract } from "~/server/server_utils/lda-topic-model";
@@ -13,10 +14,6 @@ export const scholarRouter = createTRPCRouter({
     .input(z.object({ input: z.array(z.string()), filter_input: z.array(z.string()) }))
     .mutation(async ({ input }) => {
       const search_data = await fetchPaperbyInput(input.input, input.filter_input);
-      // const search_id = search_data.map((d: any) => d.paperId)
-      // const Recommend_data = await PostRecommendation(search_id);
-      // //return search_data concat with recommendation data
-      // return search_data.concat(Recommend_data ?? []);
       return search_data;
     }),
 
@@ -25,26 +22,47 @@ export const scholarRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       const nodes: CGraphData["nodes"] = []
       const links: CGraphData["links"] = []
-      const search_data = await fetchPaperbyInput(input.input, input.filter_input);
-      const paperID_array = to_lda(search_data ?? [])
-      const data = await PostPaper(paperID_array);
 
-      let model = new TSNE({
+      let start_time = new Date().getTime();
+      const search_data = await fetchPaperbyInput(input.input, input.filter_input);
+      console.log("fetch search_data time", new Date().getTime() - start_time);
+      if (search_data == undefined) return { nodes, links };
+      
+      start_time = new Date().getTime();
+      const paperID_array = to_lda(search_data)
+      const post_data = await PostPaper(paperID_array);
+      console.log("fetch post_data time", new Date().getTime() - start_time);
+      if (post_data == undefined) return { nodes, links };
+      //sort post_data by citationCount
+      // post_data.sort((a, b) => a.citationCount - b.citationCount)
+      
+      start_time = new Date().getTime();
+      const opt = {
         dim: 2,
-        perplexity: 30.0,
+        perplexity: 50.0,
         earlyExaggeration: 4.0,
-        learningRate: 100.0,
+        learningRate: 1000.0,
         nIter: 1000,
         metric: 'euclidean'
-      });
-
-      const embeddings = data?.map((d: Paper) => d.embedding?.vector);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+      const model = new TSNE(opt);
+      const embeddings = post_data.map((d: Paper) => d.embedding.vector);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       model.init({
         data: embeddings,
         type: 'dense'
       });
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       model.run();
-      const output = model.getOutputScaled();
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      const output = model.getOutputScaled() as number[][];
+      console.log("tsne time", new Date().getTime() - start_time);
+
+      start_time = new Date().getTime();
+      const result = lda_abstract(post_data, input.sweeps, input.stopwords) as TopicInfo[];
+      console.log("lda time", new Date().getTime() - start_time);
+
 
       const id_map = new Map<string, {
         id: string,
@@ -52,27 +70,25 @@ export const scholarRouter = createTRPCRouter({
         year: number,
         embedding: number[],
         size: number
-      }>()
-
-      let min_year = 2024, max_year = 1980;
-      for (let i = 0; i < (data == undefined ? 0 : data?.length); i++) {
-        id_map.set(data[i].paperId, {
-          id: data[i].paperId,
-          title: `${data[i].authors[0]?.name ?? "Unknown"}, ${data[i].year}`,
-          year: data[i].year ?? -1,
-          embedding: output[i],
-          size: data[i].citationCount
-        })
-        if (data[i].year == undefined) continue;
-        if (data[i].year < min_year) min_year = data[i].year;
-        if (data[i].year > max_year) max_year = data[i].year;
       }
+      >()
+      post_data.forEach((d: Paper, index) => {
+        id_map.set(d.paperId, {
+          id: d.paperId,
+          title: `${d.authors[0]?.name ?? "Unknown author"}, ${d.year}`,
+          year: d.year ?? -1,
+          embedding: output[index]!,
+          size: d.citationCount
+        })
+      })
+      const min_year = Math.min(...post_data.map((d: Paper) => d.year ?? 2024))
+      const max_year = Math.max(...post_data.map((d: Paper) => d.year ?? 1980))
 
       const current_node = new Set<string>()
-      search_data?.map((d: PaperBrief) => {
+      search_data.map((d: PaperBrief) => {
         if (id_map.has(d.paperId)) {
-          const node_link = [] as string[]
-          const node_neighbors = [] as string[]
+          const node_link: string[] = [] 
+          const node_neighbors: string[] = []
           d.citations.map((c) => c.paperId).filter((c) => id_map.has(c)).forEach((c) => {
             links.push({
               id: `${d.paperId}-${c}`,
@@ -88,19 +104,20 @@ export const scholarRouter = createTRPCRouter({
               nodes.find((n) => n.id == c)?.links.push(`${d.paperId}-${c}`)
             }
             else {
+              const new_node = id_map.get(c)!;
               nodes.push({
                 id: c,
-                label: id_map.get(c)?.title ?? "",
-                size: Math.sqrt(id_map.get(c)?.size ?? 0) / 2 + 10,
+                label: new_node.title,
+                size: Math.sqrt(new_node.size) / 2 + 10,
                 level: 0,
-                color: getColor(id_map.get(c)?.year ?? -1, min_year, max_year),
+                color: getColor(new_node.year, min_year, max_year),
                 drawType: "circle",
-                myX: id_map.get(c)?.embedding[0] ?? 0,
-                myY: id_map.get(c)?.embedding[1] ?? 0,
+                myX: new_node.embedding[0]!,
+                myY: new_node.embedding[1]!,
                 neighbors: [d.paperId],
                 links: [`${d.paperId}-${c}`],
                 opacity: 1,
-                year: id_map.get(c)?.year ?? -1,
+                year: new_node.year,
               })
               current_node.add(c)
             }
@@ -122,19 +139,20 @@ export const scholarRouter = createTRPCRouter({
               nodes.find((n) => n.id == r)?.links.push(`${r}-${d.paperId}`)
             }
             else {
+              const new_node = id_map.get(r)!;
               nodes.push({
                 id: r,
-                label: id_map.get(r)?.title ?? "",
-                size: Math.sqrt(id_map.get(r)?.size ?? 0) / 2 + 10,
+                label: new_node.title,
+                size: Math.sqrt(new_node.size) / 2 + 10,
                 level: 0,
-                color: getColor(id_map.get(r)?.year ?? -1, min_year, max_year),
+                color: getColor(new_node.year, min_year, max_year),
                 drawType: "circle",
-                myX: id_map.get(r)?.embedding[0] ?? 0,
-                myY: id_map.get(r)?.embedding[1] ?? 0,
+                myX: new_node.embedding[0]!,
+                myY: new_node.embedding[1]!,
                 neighbors: [d.paperId],
                 links: [`${r}-${d.paperId}`],
                 opacity: 1,
-                year: id_map.get(r)?.year ?? -1,
+                year: new_node.year,
               })
               current_node.add(r)
             }
@@ -146,36 +164,36 @@ export const scholarRouter = createTRPCRouter({
             nodes.find((n) => n.id == d.paperId)?.links.push(...node_link)
           }
           else {
+            const new_node = id_map.get(d.paperId)!;
             nodes.push({
               id: d.paperId,
-              label: id_map.get(d.paperId)?.title ?? "",
-              size: Math.sqrt(id_map.get(d.paperId)?.size ?? 0) / 2 + 10,
+              label: new_node.title,
+              size: Math.sqrt(new_node.size) / 2 + 10,
               level: 0,
-              color: getColor(id_map.get(d.paperId)?.year ?? -1, min_year, max_year),
+              color: getColor(new_node.year, min_year, max_year),
               drawType: "circle",
-              myX: id_map.get(d.paperId)?.embedding[0] ?? 0,
-              myY: id_map.get(d.paperId)?.embedding[1] ?? 0,
+              myX: new_node.embedding[0]!,
+              myY: new_node.embedding[1]!,
               neighbors: node_neighbors,
               links: node_link,
               opacity: 1,
-              year: id_map.get(d.paperId)?.year ?? -1,
+              year: new_node.year,
             })
             current_node.add(d.paperId)
           }
         }
       })
 
-      const result = data && lda_abstract(data, input.sweeps, input.stopwords);
-
-      result?.forEach((d) => {
+      result.forEach((d) => {
         let x = 0, y = 0;
         let x_score = 0, y_score = 0;
-        const node_link = [] as string[]
-        const node_neighbors = [] as string[]
+        const node_link: string[] = []
+        const node_neighbors: string[] = []
         d.documents.forEach((c) => {
-          const score = c.score * (Math.sqrt(id_map.get(c.id)?.size) / 2 + 1);
-          x += id_map.get(c.id)?.embedding[0] * score ?? 0;
-          y += id_map.get(c.id)?.embedding[1] * score ?? 0;
+          const new_node = id_map.get(c.id)!;
+          const score = c.score * Math.max(Math.sqrt(new_node.size), 1);
+          x += new_node.embedding[0]! * score ?? 0;
+          y += new_node.embedding[1]! * score ?? 0;
           x_score += score;
           y_score += score;
           node_neighbors.push(c.id);
@@ -187,17 +205,17 @@ export const scholarRouter = createTRPCRouter({
           else {
             nodes.push({
               id: c.id,
-              label: id_map.get(c.id)?.title ?? "",
-              size: Math.sqrt(id_map.get(c.id)?.size ?? 0) / 2 + 10,
+              label: new_node.title,
+              size: Math.sqrt(new_node.size) / 2 + 10,
               level: 0,
-              color: getColor(id_map.get(c.id)?.year ?? -1, min_year, max_year),
+              color: getColor(new_node.year, min_year, max_year),
               drawType: "circle",
-              myX: id_map.get(c.id)?.embedding[0] ?? 0,
-              myY: id_map.get(c.id)?.embedding[1] ?? 0,
+              myX: new_node.embedding[0]!,
+              myY: new_node.embedding[1]!,
               neighbors: [`${d.topic}`],
               links: [`${d.topic}-${c.id}`],
               opacity: 1,
-              year: id_map.get(c.id)?.year ?? -1,
+              year: new_node.year,
             })
             current_node.add(c.id)
           }
@@ -212,9 +230,10 @@ export const scholarRouter = createTRPCRouter({
         })
         x /= x_score;
         y /= y_score;
+
         nodes.push({
           id: `${d.topic}`,
-          label: `${d.documentVocab[0].word}, ${d.documentVocab[1].word}`,
+          label: `${d.documentVocab[0]?.word}, ${d.documentVocab[1]?.word}`,
           size: 24,//0,
           level: 0,
           color: ['#e63946', '#ee6558', '#f3886e', '#f1ab8c', '#b5d5ef', '#e1c1e9', '#c2abd3', '#a496c0', '#0088f1'][+d.topic % 9]!,
@@ -228,6 +247,7 @@ export const scholarRouter = createTRPCRouter({
         })
       })
 
+      nodes.sort((a, b) => b.size - a.size)
       return { nodes, links };
     }),
 });

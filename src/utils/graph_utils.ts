@@ -1,6 +1,6 @@
 import { type PaperBrief } from "~/server/server_utils/fetchHandler";
 
-export interface document {
+export interface Document {
     score: number;
     id: string;
     text: string;
@@ -13,9 +13,9 @@ export interface Vocab {
     specificity: number;
 }
 
-export interface topicInfo {
+export interface TopicInfo {
     topic: number;
-    documents: document[];
+    documents: Document[];
     documentVocab: Vocab[];
 }
 

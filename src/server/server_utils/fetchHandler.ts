@@ -14,6 +14,7 @@ interface RawPaper {
 export interface Paper {
   paperId: string;
   title: string;
+  year: number;
   embedding: { model: string; vector: number[] };
   abstract: string;
   citationCount: number;
@@ -45,7 +46,7 @@ export const getColor = (year: number, min_year: number, max_year: number) => {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
   const f = chroma.scale(['#ffffd9', '#41b6c4', '#081d58']).domain([min_year, max_year]);
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-  return f(year).hex().toString();
+  return f(year).hex().toString() as string;
 }
 
 const getSearchURL = (input: string[], filter_input: string[]) => {
@@ -120,7 +121,7 @@ export const PostPaper = async (data: string[]) => {
 
 export const PostRecommendation = async (data: string[]) => {
   if (data.length == 0) {
-    return []
+    return [] as Paper[]
   }
 
   const fieldsString = ["paperId", "title", "years", "authors", "abstract"].join();

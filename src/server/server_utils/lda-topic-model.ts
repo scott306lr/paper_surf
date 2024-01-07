@@ -24,9 +24,9 @@ export const lda_abstract = (data: { paperId: string, abstract: string }[], prec
         }
     });
 
-    const start_time = Date.now();
+    // const start_time = Date.now();
     const lda = new topicModelling(options, document, dictionary);
-    console.log("lda time:", Date.now() - start_time);
+    // console.log("lda time:", Date.now() - start_time);
 
     return lda.getDocuments()
 }

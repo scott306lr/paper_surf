@@ -48,7 +48,7 @@ const InputForm: React.FC<{
           name="positive"
           render={({ field }) => (
             <FormItem>
-              <FormLabel> Positive </FormLabel>
+              <FormLabel> Positive Keywords </FormLabel>
               <FormControl>
                 <Input placeholder="eat apple, read book, cat" {...field} />
               </FormControl>
@@ -64,7 +64,7 @@ const InputForm: React.FC<{
           name="negative"
           render={({ field }) => (
             <FormItem>
-              <FormLabel> Negative </FormLabel>
+              <FormLabel> Negative Keywords </FormLabel>
               <FormControl>
                 <Input placeholder="do homework, play computer" {...field} />
               </FormControl>
@@ -80,7 +80,7 @@ const InputForm: React.FC<{
           name="stopwords"
           render={({ field }) => (
             <FormItem>
-              <FormLabel> Stopwords </FormLabel>
+              <FormLabel> LDA Stopwords </FormLabel>
               <FormControl>
                 <Input placeholder="am, are, is" {...field} />
               </FormControl>
