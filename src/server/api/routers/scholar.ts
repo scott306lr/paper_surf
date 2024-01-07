@@ -27,6 +27,7 @@ export const scholarRouter = createTRPCRouter({
       const links: CGraphData["links"] = []
       const search_data = await fetchPaperbyInput(input.input, input.filter_input);
       const paperID_array = to_lda(search_data ?? [])
+      const data = await PostPaper(paperID_array);
 
       let model = new TSNE({
         dim: 2,
@@ -36,7 +37,7 @@ export const scholarRouter = createTRPCRouter({
         nIter: 1000,
         metric: 'euclidean'
       });
-      const data = await PostPaper(paperID_array);
+
       const embeddings = data?.map((d: Paper) => d.embedding?.vector);
       model.init({
         data: embeddings,

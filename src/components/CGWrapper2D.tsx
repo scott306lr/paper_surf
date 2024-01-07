@@ -12,6 +12,7 @@ const CGraph = dynamic(() => import("~/components/CGraph2D"), {
 const CitationGraph: React.FC<{
   graphData: CGraphData;
   hoverNodeId: string | null;
+  clickNodeId: string | null;
   highlightNodeIds: Set<string>;
   highlightLinkIds: Set<string>;
   handleNodeHover: (
@@ -24,6 +25,7 @@ const CitationGraph: React.FC<{
 }> = ({
   graphData,
   hoverNodeId,
+  clickNodeId,
   highlightNodeIds,
   highlightLinkIds,
   handleNodeHover,
@@ -34,6 +36,7 @@ const CitationGraph: React.FC<{
     <CGraph
       graphData={graphData}
       hoverNodeId={hoverNodeId}
+      clickNodeId={clickNodeId}
       highlightNodeIds={highlightNodeIds}
       highlightLinkIds={highlightLinkIds}
       handleNodeHover={handleNodeHover}
