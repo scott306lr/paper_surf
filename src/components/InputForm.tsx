@@ -18,9 +18,9 @@ import { Input } from "~/components/ui/input";
 import { Slider } from "~/components/ui/slider";
 
 export const inputFormSchema = z.object({
-  positive: z.string().min(1),
-  negative: z.string(),
-  stopwords: z.string(),
+  positive: z.string().min(2).max(128),
+  negative: z.string().max(128),
+  stopwords: z.string().max(128),
   precision: z.number().min(1).max(100),
 });
 
@@ -33,7 +33,7 @@ const InputForm: React.FC<{
       positive: "",
       negative: "",
       stopwords: "",
-      precision: 1,
+      precision: 20,
     },
   });
 
@@ -96,7 +96,7 @@ const InputForm: React.FC<{
           name="precision"
           render={({ field: { value, onChange } }) => (
             <FormItem>
-              <FormLabel> Precision </FormLabel>
+              <FormLabel> LDA Precision </FormLabel>
               <FormControl>
                 <Slider
                   min={1}

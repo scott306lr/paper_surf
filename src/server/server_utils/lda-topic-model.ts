@@ -8,7 +8,7 @@ import { stemmer } from 'stemmer';
 
 export const lda_abstract = (data: { paperId: string, abstract: string }[], precision: number, dict?: string[]) => {
     const dictionary = dict ?? []
-    const sweeps = precision * 100; // precision 1~100
+    const sweeps = precision * 200; // precision 1~100
     const options = {
         displayingStopwords: false,
         language: 'en',

@@ -28,7 +28,8 @@ export const scholarRouter = createTRPCRouter({
   lda: publicProcedure
     .input(z.object({ sweeps: z.number(), stopwords: z.array(z.string()), input: z.array(z.string()), filter_input: z.array(z.string()) }))
     .mutation(async ({ input }) => {
-      const nodes: CGraphData["nodes"] = []
+      const topic_nodes: CGraphData["nodes"] = []
+      const paper_nodes: CGraphData["nodes"] = []
       const links: CGraphData["links"] = []
       
 
@@ -43,7 +44,7 @@ export const scholarRouter = createTRPCRouter({
         if (search_data_cache.size > 100) {
           search_data_cache.delete(search_data_cache.keys().next().value as string)
         }
-        if (search_data == undefined) return { nodes, links };
+        if (search_data == undefined) return { paper_nodes, links };
       } else {
         search_data = search_data_cache.get(search_data_cache_key)!
       }
@@ -61,7 +62,7 @@ export const scholarRouter = createTRPCRouter({
         if (post_data_cache.size > 100) {
           post_data_cache.delete(search_data_cache.keys().next().value as string)
         }
-        if (post_data == undefined) return { nodes, links };
+        if (post_data == undefined) return { paper_nodes, links };
       } else {
         post_data = post_data_cache.get(search_data_cache_key)!
       }
@@ -159,12 +160,12 @@ export const scholarRouter = createTRPCRouter({
             });
             // citations node
             if (current_node.has(c)) {
-              nodes.find((n) => n.id == c)?.neighbors.push(d.paperId)
-              nodes.find((n) => n.id == c)?.links.push(`${d.paperId}-${c}`)
+              paper_nodes.find((n) => n.id == c)?.neighbors.push(d.paperId)
+              paper_nodes.find((n) => n.id == c)?.links.push(`${d.paperId}-${c}`)
             }
             else {
               const new_node = id_map.get(c)!;
-              nodes.push({
+              paper_nodes.push({
                 id: c,
                 label: new_node.title,
                 size: Math.sqrt(new_node.size) / 2 + 10,
@@ -194,12 +195,12 @@ export const scholarRouter = createTRPCRouter({
               type: "Paper-Paper"
             });
             if (current_node.has(r)) {
-              nodes.find((n) => n.id == r)?.neighbors.push(d.paperId)
-              nodes.find((n) => n.id == r)?.links.push(`${r}-${d.paperId}`)
+              paper_nodes.find((n) => n.id == r)?.neighbors.push(d.paperId)
+              paper_nodes.find((n) => n.id == r)?.links.push(`${r}-${d.paperId}`)
             }
             else {
               const new_node = id_map.get(r)!;
-              nodes.push({
+              paper_nodes.push({
                 id: r,
                 label: new_node.title,
                 size: Math.sqrt(new_node.size) / 2 + 10,
@@ -219,12 +220,12 @@ export const scholarRouter = createTRPCRouter({
             node_neighbors.push(r);
           })
           if (current_node.has(d.paperId)) {
-            nodes.find((n) => n.id == d.paperId)?.neighbors.push(...node_neighbors)
-            nodes.find((n) => n.id == d.paperId)?.links.push(...node_link)
+            paper_nodes.find((n) => n.id == d.paperId)?.neighbors.push(...node_neighbors)
+            paper_nodes.find((n) => n.id == d.paperId)?.links.push(...node_link)
           }
           else {
             const new_node = id_map.get(d.paperId)!;
-            nodes.push({
+            paper_nodes.push({
               id: d.paperId,
               label: new_node.title,
               size: Math.sqrt(new_node.size) / 2 + 10,
@@ -258,11 +259,11 @@ export const scholarRouter = createTRPCRouter({
           node_neighbors.push(c.id);
           node_link.push(`${d.topic}-${c.id}`);
           if (current_node.has(c.id)) {
-            nodes.find((n) => n.id == c.id)?.neighbors.push(`${d.topic}`)
-            nodes.find((n) => n.id == c.id)?.links.push(`${d.topic}-${c.id}`)
+            paper_nodes.find((n) => n.id == c.id)?.neighbors.push(`${d.topic}`)
+            paper_nodes.find((n) => n.id == c.id)?.links.push(`${d.topic}-${c.id}`)
           }
           else {
-            nodes.push({
+            paper_nodes.push({
               id: c.id,
               label: new_node.title,
               size: Math.sqrt(new_node.size) / 2 + 10,
@@ -290,13 +291,17 @@ export const scholarRouter = createTRPCRouter({
         x /= x_score;
         y /= y_score;
 
-        nodes.sort((a, b) => b.size - a.size)
+        // nodes.sort((a, b) => b.size - a.size)
+
+        const words = d.documentVocab;
+        words.sort((a, b) => b.specificity - a.specificity)
 
         // LDA node
-        nodes.push({
+        topic_nodes.push({
           id: `${d.topic}`,
-          label: `${d.documentVocab[0]?.word}, ${d.documentVocab[1]?.word}`,
-          size: 24,//0,
+          label: words.filter((d) => d.word != null && d.specificity > 0.9).map((d) => d.word).slice(0,3).join(", "),
+          // label: `${d.documentVocab[0]?.word}, ${d.documentVocab[1]?.word}`,
+          size: 32,//0,
           level: 0,
           color: ['#e63946', '#ee6558', '#f3886e', '#f1ab8c', '#b5d5ef', '#e1c1e9', '#c2abd3', '#a496c0', '#0088f1'][+d.topic % 9]!,
           drawType: "text",
@@ -310,6 +315,10 @@ export const scholarRouter = createTRPCRouter({
       })
       console.log("graph time", new Date().getTime() - start_time);
 
-      return { nodes, links };
+      return { 
+        // paper_nodes, concat paper_nodes and topic_nodes
+        nodes: paper_nodes.concat(topic_nodes),
+        links: links
+      };
     }),
 });

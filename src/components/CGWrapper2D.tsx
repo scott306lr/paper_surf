@@ -22,6 +22,9 @@ const CitationGraph: React.FC<{
   handleClickNode: (
     node: NodeObject<NodeObject<CGraphData["nodes"][0]>>,
   ) => void;
+  showTopic: boolean;
+  showPaper: boolean;
+  showAuthor: boolean;
 }> = ({
   graphData,
   hoverNodeId,
@@ -31,6 +34,9 @@ const CitationGraph: React.FC<{
   handleNodeHover,
   handleLinkHover,
   handleClickNode,
+  showTopic,
+  showPaper,
+  showAuthor,
 }) => {
   return (
     <CGraph
@@ -42,6 +48,9 @@ const CitationGraph: React.FC<{
       handleNodeHover={handleNodeHover}
       handleLinkHover={handleLinkHover}
       handleClickNode={handleClickNode}
+      showTopic={showTopic}
+      showPaper={showPaper}
+      showAuthor={showAuthor}
     />
   );
 };

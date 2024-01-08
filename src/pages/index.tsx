@@ -20,6 +20,7 @@ import {
   AccordionTrigger,
 } from "~/components/ui/accordion";
 import dynamic from "next/dynamic";
+import MySwitch from "~/components/MySwitch";
 
 const MyBoxPlot = dynamic(() => import("~/components/MyBoxPlot"), {
   ssr: false,
@@ -71,19 +72,70 @@ const RenderGraph: React.FC<{
     updateHighlight();
   };
 
+  const [showTopic, setShowTopic] = useState("checked");
+  const [showPaper, setShowPaper] = useState("checked");
+  const [showAuthor, setShowAuthor] = useState("checked");
+  console.log(showTopic, showPaper, showAuthor);
+
+  const years =
+    graphData?.nodes
+      ?.filter((node) => node.year > 0)
+      .map((node) => ({
+        value: node.year,
+      })) ?? [];
+  const minYear = Math.min(...years.map((year) => year.value));
+  const maxYear = Math.max(...years.map((year) => year.value));
+  console.log(years, minYear, maxYear);
+
   return (
-    <CitationGraph
-      graphData={graphData}
-      hoverNodeId={hoverNodeId}
-      clickNodeId={clickNodeId}
-      highlightNodeIds={highlightNodeIds}
-      highlightLinkIds={highlightLinkIds}
-      handleNodeHover={handleNodeHover}
-      handleLinkHover={handleLinkHover}
-      handleClickNode={(node) =>
-        node ? setClickNodeId(node.id) : setClickNodeId(null)
-      }
-    />
+    <div className="relative h-full w-full">
+      <CitationGraph
+        graphData={graphData}
+        hoverNodeId={hoverNodeId}
+        clickNodeId={clickNodeId}
+        highlightNodeIds={highlightNodeIds}
+        highlightLinkIds={highlightLinkIds}
+        handleNodeHover={handleNodeHover}
+        handleLinkHover={handleLinkHover}
+        handleClickNode={(node) =>
+          node ? setClickNodeId(node.id) : setClickNodeId(null)
+        }
+        showTopic={showTopic === "checked"}
+        showPaper={showPaper === "checked"}
+        showAuthor={showAuthor === "checked"}
+      />
+      <div className="absolute bottom-2 right-2 flex flex-col items-end justify-center gap-4">
+        <div className="h-[4rem] w-[20rem]">
+          <MyBoxPlot
+            data={years}
+            min={minYear}
+            max={maxYear}
+            colors={["#AAD7D9"]}
+          />
+        </div>
+        <div className="h-[4rem] w-[30rem]">
+          <MyColorBar min={minYear} max={maxYear} />
+        </div>
+      </div>
+
+      <div className="absolute bottom-5 left-5 flex flex-col gap-4">
+        <MySwitch
+          text="Show Topic"
+          checked={showTopic}
+          setChecked={setShowTopic}
+        />
+        <MySwitch
+          text="Show Paper"
+          checked={showPaper}
+          setChecked={setShowPaper}
+        />
+        <MySwitch
+          text="Show Author"
+          checked={showAuthor}
+          setChecked={setShowAuthor}
+        />
+      </div>
+    </div>
   );
 };
 
@@ -292,38 +344,27 @@ export default function PaperSurf() {
   } = api.scholar.lda.useMutation();
 
   const [clickNodeId, setClickNodeId] = useState<string | null>(null);
-  const onSubmit = async (values: z.infer<typeof inputFormSchema>) =>
+  const onSubmit = async (values: z.infer<typeof inputFormSchema>) => {
+    console.log("gi");
     lda_mutate({
       input: values.positive.split(", "),
       filter_input: values.negative.split(", "),
       stopwords: values.stopwords.split(", "),
       sweeps: values.precision,
     });
-
-  const years =
-    lda_data?.nodes
-      .filter((node) => node.year > 0)
-      .map((node) => ({
-        value: node.year,
-      })) ?? [];
-  const minYear = Math.min(...years.map((year) => year.value));
-  const maxYear = Math.max(...years.map((year) => year.value));
-  console.log(years, minYear, maxYear);
+  };
 
   return (
     <main className="relative h-screen w-screen items-center justify-center">
       <div className="flex h-full w-full">
-        {/* <ResizablePanel minSize={20} maxSize={50} defaultSize={20} collapsible>
-          <div className="flex h-full flex-col items-center justify-center gap-6 p-6">
-            <InputForm onSubmit={onSubmit} />
-          </div>
-        </ResizablePanel>
-        <ResizableHandle withHandle /> */}
         <div className="flex h-full w-3/5 flex-col items-center justify-center">
-          <div className="flex h-full items-center justify-center p-6">
+          <div className="flex h-full items-center justify-center">
             {lda_isLoading ? (
-              <div className="flex items-center justify-center">
+              <div className="flex flex-col items-center justify-center">
                 <div className="h-32 w-32 animate-spin rounded-full border-b-2 border-t-2 border-black"></div>
+                <span className="mt-4">
+                  Fetching may take a long time on the first try...
+                </span>
               </div>
             ) : !lda_data ? (
               <div className="flex items-center justify-center">
@@ -337,40 +378,29 @@ export default function PaperSurf() {
               />
             )}
           </div>
-          {lda_data && (
-            <>
-              <div className="absolute bottom-16 h-[4rem] w-[20rem]">
-                <MyBoxPlot
-                  data={years}
-                  min={minYear}
-                  max={maxYear}
-                  colors={["#AAD7D9"]}
-                />
-              </div>
-
-              <div className="absolute bottom-2 h-[4rem] w-[30rem]">
-                <MyColorBar min={minYear} max={maxYear} />
-              </div>
-            </>
-          )}
         </div>
 
         <div className="flex h-full w-2/5 flex-col items-center justify-center gap-6 overflow-hidden border border-gray-300">
           <div className="flex h-full w-full flex-col overflow-auto">
             <div className="flex h-full w-full flex-col gap-4 p-6">
-              <Accordion type="single" defaultValue="search" collapsible>
-                <AccordionItem value="search">
-                  <AccordionTrigger>Paper Graph Search</AccordionTrigger>
+              <Accordion type="single" defaultValue="paperinfo" collapsible>
+                <AccordionItem value="paperinfo">
+                  <AccordionTrigger className="text-xl font-bold">
+                    Paper Info
+                  </AccordionTrigger>
                   <AccordionContent>
-                    <InputForm onSubmit={onSubmit} />
+                    {clickNodeId != null && <PaperInfo paperId={clickNodeId} />}
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
-              <Accordion type="single" defaultValue="paperinfo" collapsible>
-                <AccordionItem value="paperinfo">
-                  <AccordionTrigger>Paper Info</AccordionTrigger>
+              {/* line sep */}
+              <Accordion type="single" defaultValue="search" collapsible>
+                <AccordionItem value="search">
+                  <AccordionTrigger className="text-xl font-bold">
+                    Paper Graph Search
+                  </AccordionTrigger>
                   <AccordionContent>
-                    {clickNodeId != null && <PaperInfo paperId={clickNodeId} />}
+                    <InputForm onSubmit={onSubmit} />
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
