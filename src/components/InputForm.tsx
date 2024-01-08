@@ -21,7 +21,7 @@ export const inputFormSchema = z.object({
   positive: z.string().min(2).max(128),
   negative: z.string().max(128),
   stopwords: z.string().max(128),
-  precision: z.number().min(1).max(100),
+  precision: z.number().min(5).max(100),
 });
 
 const InputForm: React.FC<{

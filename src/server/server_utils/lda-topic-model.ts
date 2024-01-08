@@ -51,8 +51,8 @@ class topicModelling {
             this.numTopics = 10;
         }
 
-        this.documentTopicSmoothing = 1 / settings.numberTopics;  //alpha 
-        this.topicWordSmoothing = 1 / settings.numberTopics;  //beta
+        this.documentTopicSmoothing = 0.1;  //alpha 
+        this.topicWordSmoothing = 0.1;  //beta
         this.docSortSmoothing = 0.01;//10.0;
         this.sumDocSortSmoothing = this.docSortSmoothing * this.numTopics;
 
