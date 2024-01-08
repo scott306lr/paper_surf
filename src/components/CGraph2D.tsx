@@ -314,7 +314,7 @@ const CGraph2D: React.FC<{
       }}
       linkDirectionalParticles={4}
       linkDirectionalParticleWidth={(link) =>
-        highlightLinkIds?.has(link.id) ? 5 : 0
+        highlightLinkIds?.has(link.id) && showPaper ? 5 : 0
       }
       linkDirectionalParticleSpeed={0.005}
       linkCanvasObject={(link, ctx) => {
