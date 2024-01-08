@@ -313,9 +313,15 @@ const CGraph2D: React.FC<{
         }
       }}
       linkDirectionalParticles={4}
-      linkDirectionalParticleWidth={(link) =>
-        highlightLinkIds?.has(link.id) && showPaper ? 5 : 0
-      }
+      linkDirectionalParticleWidth={(link) => {
+        if (link.type == "Topic-Paper") {
+          return highlightLinkIds?.has(link.id) && showPaper && showTopic
+            ? 5
+            : 0;
+        } else {
+          return highlightLinkIds?.has(link.id) && showPaper ? 5 : 0;
+        }
+      }}
       linkDirectionalParticleSpeed={0.005}
       linkCanvasObject={(link, ctx) => {
         if (!showPaper) return;
@@ -332,7 +338,11 @@ const CGraph2D: React.FC<{
 
         if (highlightLinkIds?.has(link.id)) {
           if (link.type == "Topic-Paper") {
-            ctx.strokeStyle = convertHexToRGBA("#C6A969", 1);
+            if (showTopic) {
+              ctx.strokeStyle = convertHexToRGBA("#C6A969", 1);
+            } else {
+              ctx.strokeStyle = convertHexToRGBA("#C6A969", 0);
+            }
           } else {
             ctx.strokeStyle = convertHexToRGBA("#000000", 0.9);
           }
