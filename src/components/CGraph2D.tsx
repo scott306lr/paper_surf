@@ -339,7 +339,7 @@ const CGraph2D: React.FC<{
           if (highlightLinkIds?.has(link.id)) {
             ctx.strokeStyle = convertHexToRGBA(
               link.color,
-              !showPaper ? 0 : no_focus ? 1 : 0.6,
+              !showPaper || !showTopic ? 0 : no_focus ? 1 : 0.6,
             );
           } else {
             ctx.strokeStyle = convertHexToRGBA(link.color, 0);
