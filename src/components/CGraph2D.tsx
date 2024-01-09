@@ -360,7 +360,7 @@ const CGraph2D: React.FC<{
         }
 
         ctx.beginPath();
-        ctx.lineWidth = highlightLinkIds?.has(link.id) ? 3 : 0.5;
+        ctx.lineWidth = highlightLinkIds?.has(link.id) ? 4 : 0.5;
         ctx.moveTo(start.x, start.y);
         ctx.lineTo(end.x, end.y);
         ctx.stroke();
