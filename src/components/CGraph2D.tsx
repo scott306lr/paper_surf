@@ -33,6 +33,7 @@ export interface CGraphData {
     opacity: number;
     strength: number;
     type: string;
+    color: string;
   }[];
 }
 
@@ -334,29 +335,27 @@ const CGraph2D: React.FC<{
 
         const start = link.source;
         const end = link.target;
-        ctx.strokeStyle = convertHexToRGBA("#000000", 0.1);
 
-        if (link.type === "Topic-Paper" && !highlightLinkIds?.has(link.id)) {
-          ctx.strokeStyle = convertHexToRGBA("#000000", 0);
-        } else {
-          ctx.strokeStyle = convertHexToRGBA("#000000", 0.8);
-        }
-
-        if (highlightLinkIds?.has(link.id)) {
-          if (link.type === "Topic-Paper") {
-            if (showTopic) {
-              ctx.strokeStyle = convertHexToRGBA("#C6A969", 1);
-            } else {
-              ctx.strokeStyle = convertHexToRGBA("#C6A969", 0);
-            }
+        if (link.type === "Topic-Paper") {
+          if (highlightLinkIds?.has(link.id)) {
+            ctx.strokeStyle = convertHexToRGBA(
+              link.color,
+              !showPaper ? 0 : no_focus ? 1 : 0.6,
+            );
           } else {
-            ctx.strokeStyle = convertHexToRGBA("#38419D", 0.6);
+            ctx.strokeStyle = convertHexToRGBA(link.color, 0);
           }
         } else {
-          if (link.type === "Topic-Paper") {
-            ctx.strokeStyle = convertHexToRGBA("#000000", 0);
+          if (highlightLinkIds?.has(link.id)) {
+            ctx.strokeStyle = convertHexToRGBA(
+              link.color,
+              !showPaper ? 0 : no_focus ? 1 : 0.6,
+            );
           } else {
-            ctx.strokeStyle = convertHexToRGBA("#000000", no_focus ? 0.5 : 0.2);
+            ctx.strokeStyle = convertHexToRGBA(
+              link.color,
+              !showPaper ? 0 : no_focus ? 1 : 0.6,
+            );
           }
         }
 

@@ -9,6 +9,7 @@ import { type CGraphData } from "~/components/CGraph2D";
 import { to_lda } from "~/utils/graph_utils";
 import hash from "object-hash";
 import TSNE from 'tsne-js';
+import { convertHexToRGBA } from "~/lib/utils";
 
 
 // replace with redis later
@@ -162,7 +163,8 @@ const exec_lda = async (input : { sweeps: number, stopwords: string[], input: st
               target: c,
               opacity: 1,
               strength: 0,
-              type: "Paper-Paper"
+              type: "Paper-Paper",
+              color: "#000000",
             });
             // citations node
             if (current_node.has(c)) {
@@ -198,7 +200,8 @@ const exec_lda = async (input : { sweeps: number, stopwords: string[], input: st
               target: d.paperId,
               opacity: 1,
               strength: 0,
-              type: "Paper-Paper"
+              type: "Paper-Paper",
+              color: "#000000",
             });
             if (current_node.has(r)) {
               paper_nodes.find((n) => n.id == r)?.neighbors.push(d.paperId)
@@ -291,7 +294,8 @@ const exec_lda = async (input : { sweeps: number, stopwords: string[], input: st
             target: `${d.topic}`,
             opacity: 1,
             strength: 0,
-            type: "Topic-Paper"
+            type: "Topic-Paper",
+            color: "#000000",
           });
         })
         x /= x_score;
@@ -310,8 +314,6 @@ const exec_lda = async (input : { sweeps: number, stopwords: string[], input: st
           label: words.filter((d) => d.word != null && d.specificity > 0.9).map((d) => d.word).slice(0,3).join(", "),
           size: fontSize,
           level: level,
-          // color: ['#540d6e', '#ee4266', '#ffd23f', '#3bceac', '#0ead69'][+d.topic % 5]!,
-          // color: ['#540d6e', '#8367c7', '#087e8b', '#ffd23f', '#ff9914', '#ff5a5f', '#c81d25', '#0ead69'][+d.topic % 8]!,
           color: "",
           drawType: "text",
           myX: x,
@@ -328,10 +330,16 @@ const exec_lda = async (input : { sweeps: number, stopwords: string[], input: st
       topic_nodes.forEach((d) => {
         d.color = getTopicColor(d.level, minLevelSize, maxLevelSize)
       })
-      console.log("graph time", new Date().getTime() - start_time);
+      // set link color to topic color if it is a topic link
+      links.forEach((d) => {
+        if (d.type == "Topic-Paper") {
+          d.color = topic_nodes.find((n) => n.id == d.target)!.color
+        }
+      })
 
       paper_nodes.sort((a, b) => b.size - a.size)
       topic_nodes.sort((a, b) => b.size - a.size)
+      console.log("graph time", new Date().getTime() - start_time);
 
       return { 
         // paper_nodes, concat paper_nodes and topic_nodes
