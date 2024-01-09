@@ -168,7 +168,7 @@ const CGraph2D: React.FC<{
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
 
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 2;
             ctx.strokeStyle = convertHexToRGBA("#FFFFFF", 1);
             ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
             ctx.lineJoin = "round";
@@ -200,7 +200,7 @@ const CGraph2D: React.FC<{
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
 
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 2;
             ctx.strokeStyle = convertHexToRGBA("#FFFFFF", 1);
             ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
             ctx.lineJoin = "round";
@@ -241,7 +241,7 @@ const CGraph2D: React.FC<{
             ctx.shadowBlur = 5;
             ctx.shadowOffsetX = 0;
             ctx.shadowOffsetY = 0;
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 2;
             ctx.strokeStyle = convertHexToRGBA("#FFFFFF", no_focus ? 1 : 0.2);
             ctx.fillStyle = convertHexToRGBA("#000000", no_focus ? 0.8 : 0.2);
             ctx.lineJoin = "round";
@@ -266,15 +266,14 @@ const CGraph2D: React.FC<{
   // useEffect(() => {
   //   const graph = graphRef.current;
   //   // add collision force
-  //   if (graph) {
-  //     graph.d3Force("collide", forceCollide(NODE_R * 1.5));
-  //   }
+  //   // if (graph) {
+  //   //   graph.d3Force("collide", forceCollide(NODE_R * 1.5));
+  //   // }
 
   //   if (graph) {
   //     graph.zoomToFit(400);
-  //     // graph?.d3Force("link").distance(400);
   //   }
-  // }, []);
+  // }, [graphRef, graphData]);
 
   return (
     <ForceGraph2D
@@ -350,12 +349,12 @@ const CGraph2D: React.FC<{
           if (link.type == "Topic-Paper") {
             ctx.strokeStyle = convertHexToRGBA("#000000", 0);
           } else {
-            ctx.strokeStyle = convertHexToRGBA("#000000", no_focus ? 0.8 : 0.2);
+            ctx.strokeStyle = convertHexToRGBA("#000000", no_focus ? 0.5 : 0.2);
           }
         }
 
         ctx.beginPath();
-        ctx.lineWidth = highlightLinkIds?.has(link.id) ? 4 : 1;
+        ctx.lineWidth = highlightLinkIds?.has(link.id) ? 3 : 0.5;
         ctx.moveTo(start.x, start.y);
         ctx.lineTo(end.x, end.y);
         ctx.stroke();

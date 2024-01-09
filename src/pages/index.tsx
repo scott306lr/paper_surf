@@ -347,6 +347,7 @@ export default function PaperSurf() {
 
   const [clickNodeId, setClickNodeId] = useState<string | null>(null);
   const onSubmit = async (values: z.infer<typeof inputFormSchema>) => {
+    setClickNodeId(null);
     console.log("gi");
     lda_mutate({
       input: values.positive.split(", "),

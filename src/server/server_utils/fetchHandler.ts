@@ -47,6 +47,16 @@ export const getColor = (year: number, min_year: number, max_year: number) => {
   return f(year).hex().toString();
 }
 
+export const getTopicColor = (totalCount: number, min_count: number, max_count: number) => {
+  if (totalCount == -1) return "#000000";
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+  const f = chroma.scale(['#ffbe0b', '#fb8500', '#ef233c']).domain([min_count, max_count]);
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+  return f(totalCount).hex().toString();
+}
+
+
+
 const getSearchURL = (input: string[], filter_input: string[]) => {
   const input_str = input.join("+");
   const prepend = [input_str].concat(filter_input).join("-");

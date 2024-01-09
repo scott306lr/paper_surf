@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { fetchPaperByInput, postPaperById, getColor } from "~/server/server_utils/fetchHandler";
+import { fetchPaperByInput, postPaperById, getColor, getTopicColor } from "~/server/server_utils/fetchHandler";
 import { type TopicInfo } from "~/utils/graph_utils";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
@@ -301,14 +301,17 @@ const exec_lda = async (input : { sweeps: number, stopwords: string[], input: st
         words.sort((a, b) => b.specificity - a.specificity)
 
         // LDA node
+        const total_count = d.documents.map((c) => id_map.get(c.id)!.size).reduce((a, b) => a + b, 0);
+        const fontSize = Math.max(Math.round(Math.sqrt(total_count)/5), 20);
+        
         topic_nodes.push({
           id: `${d.topic}`,
           label: words.filter((d) => d.word != null && d.specificity > 0.9).map((d) => d.word).slice(0,3).join(", "),
-          // label: `${d.documentVocab[0]?.word}, ${d.documentVocab[1]?.word}`,
-          // size: 32,//0,
-          size: Math.round(Math.sqrt(d.documents.map((c) => id_map.get(c.id)!.size).reduce((a, b) => a + b, 0))/5),
+          size: fontSize,
           level: 0,
-          color: ['#e63946', '#ee6558', '#f3886e', '#f1ab8c', '#b5d5ef', '#e1c1e9', '#c2abd3', '#a496c0', '#0088f1'][+d.topic % 9]!,
+          // color: ['#540d6e', '#ee4266', '#ffd23f', '#3bceac', '#0ead69'][+d.topic % 5]!,
+          // color: ['#540d6e', '#8367c7', '#087e8b', '#ffd23f', '#ff9914', '#ff5a5f', '#c81d25', '#0ead69'][+d.topic % 8]!,
+          color: getTopicColor(fontSize, 20, 40),
           drawType: "text",
           myX: x,
           myY: y,
