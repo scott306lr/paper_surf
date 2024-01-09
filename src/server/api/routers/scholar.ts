@@ -302,16 +302,17 @@ const exec_lda = async (input : { sweeps: number, stopwords: string[], input: st
 
         // LDA node
         const total_count = d.documents.map((c) => id_map.get(c.id)!.size).reduce((a, b) => a + b, 0);
+        const level = Math.min(Math.round(Math.sqrt(total_count)/5), 50)
         const fontSize = Math.max(Math.round(Math.sqrt(total_count)/5), 20);
         
         topic_nodes.push({
           id: `${d.topic}`,
           label: words.filter((d) => d.word != null && d.specificity > 0.9).map((d) => d.word).slice(0,3).join(", "),
           size: fontSize,
-          level: 0,
+          level: level,
           // color: ['#540d6e', '#ee4266', '#ffd23f', '#3bceac', '#0ead69'][+d.topic % 5]!,
           // color: ['#540d6e', '#8367c7', '#087e8b', '#ffd23f', '#ff9914', '#ff5a5f', '#c81d25', '#0ead69'][+d.topic % 8]!,
-          color: getTopicColor(fontSize, 20, 40),
+          color: "",
           drawType: "text",
           myX: x,
           myY: y,
@@ -320,6 +321,12 @@ const exec_lda = async (input : { sweeps: number, stopwords: string[], input: st
           opacity: 1,
           year: -1,
         })
+      })
+
+      const minLevelSize = Math.min(...topic_nodes.map((d) => d.level))
+      const maxLevelSize = Math.max(...topic_nodes.map((d) => d.level))
+      topic_nodes.forEach((d) => {
+        d.color = getTopicColor(d.level, minLevelSize, maxLevelSize)
       })
       console.log("graph time", new Date().getTime() - start_time);
 
