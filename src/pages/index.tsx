@@ -336,6 +336,8 @@ const PaperInfo: React.FC<{
   );
 };
 
+const strIsNum = (str: string) => /^\d+$/.test(str);
+
 export default function PaperSurf() {
   const {
     mutate: lda_mutate,
@@ -353,6 +355,8 @@ export default function PaperSurf() {
       sweeps: values.precision,
     });
   };
+
+  console.log("lda_data", lda_data);
 
   return (
     <main className="relative h-screen w-screen items-center justify-center">
@@ -383,16 +387,42 @@ export default function PaperSurf() {
         <div className="flex h-full w-2/5 flex-col items-center justify-center gap-6 overflow-hidden border border-gray-300">
           <div className="flex h-full w-full flex-col overflow-auto">
             <div className="flex h-full w-full flex-col gap-4 p-6">
-              <Accordion type="single" defaultValue="paperinfo" collapsible>
-                <AccordionItem value="paperinfo">
-                  <AccordionTrigger className="text-xl font-bold">
-                    Paper Info
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    {clickNodeId != null && <PaperInfo paperId={clickNodeId} />}
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
+              {clickNodeId == null ? (
+                <div className="flex items-center justify-center">
+                  <span>Select a paper to view info</span>
+                </div>
+              ) : strIsNum(clickNodeId) ? (
+                <Accordion type="single" defaultValue="paperinfo" collapsible>
+                  <AccordionItem value="paperinfo">
+                    <AccordionTrigger className="text-xl font-bold">
+                      Topic Info
+                    </AccordionTrigger>
+
+                    <AccordionContent>
+                      <h1 className="text-3xl tracking-tight">
+                        {
+                          lda_data?.nodes?.find(
+                            (node) => node.id === clickNodeId,
+                          )?.label
+                        }
+                      </h1>
+                      <span> </span>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              ) : (
+                <Accordion type="single" defaultValue="paperinfo" collapsible>
+                  <AccordionItem value="paperinfo">
+                    <AccordionTrigger className="text-xl font-bold">
+                      Paper Info
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <PaperInfo paperId={clickNodeId} />
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              )}
+
               {/* line sep */}
               <Accordion type="single" defaultValue="search" collapsible>
                 <AccordionItem value="search">

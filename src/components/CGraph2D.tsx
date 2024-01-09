@@ -292,7 +292,7 @@ const CGraph2D: React.FC<{
       nodePointerAreaPaint={(node, color, ctx) => {
         ctx.fillStyle = color;
 
-        if (node.__hType == "circle") {
+        if (node.__hType == "circle" && showPaper) {
           ctx.beginPath();
           ctx.arc(
             node.__hDim[0],
@@ -303,7 +303,7 @@ const CGraph2D: React.FC<{
             false,
           );
           ctx.fill();
-        } else if (node.__hType == "square") {
+        } else if (node.__hType == "square" && showTopic) {
           ctx.fillRect(
             node.__hDim[0],
             node.__hDim[1],
@@ -312,17 +312,17 @@ const CGraph2D: React.FC<{
           );
         }
       }}
-      linkDirectionalParticles={4}
+      linkDirectionalParticles={5}
       linkDirectionalParticleWidth={(link) => {
         if (link.type == "Topic-Paper") {
           return highlightLinkIds?.has(link.id) && showPaper && showTopic
-            ? 5
+            ? 8
             : 0;
         } else {
-          return highlightLinkIds?.has(link.id) && showPaper ? 5 : 0;
+          return highlightLinkIds?.has(link.id) && showPaper ? 8 : 0;
         }
       }}
-      linkDirectionalParticleSpeed={0.005}
+      linkDirectionalParticleSpeed={0.002}
       linkCanvasObject={(link, ctx) => {
         if (!showPaper) return;
 
@@ -344,7 +344,7 @@ const CGraph2D: React.FC<{
               ctx.strokeStyle = convertHexToRGBA("#C6A969", 0);
             }
           } else {
-            ctx.strokeStyle = convertHexToRGBA("#000000", 0.9);
+            ctx.strokeStyle = convertHexToRGBA("#38419D", 0.6);
           }
         } else {
           if (link.type == "Topic-Paper") {

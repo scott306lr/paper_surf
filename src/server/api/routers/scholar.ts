@@ -28,7 +28,13 @@ export const scholarRouter = createTRPCRouter({
   lda: publicProcedure
     .input(z.object({ sweeps: z.number(), stopwords: z.array(z.string()), input: z.array(z.string()), filter_input: z.array(z.string()) }))
     .mutation(async ({ input }) => {
-      const topic_nodes: CGraphData["nodes"] = []
+      return exec_lda(input)
+    }),
+      
+});
+
+const exec_lda = async (input : { sweeps: number, stopwords: string[], input: string[], filter_input: string[] }) => {
+  const topic_nodes: CGraphData["nodes"] = []
       const paper_nodes: CGraphData["nodes"] = []
       const links: CGraphData["links"] = []
       
@@ -44,7 +50,7 @@ export const scholarRouter = createTRPCRouter({
         if (search_data_cache.size > 100) {
           search_data_cache.delete(search_data_cache.keys().next().value as string)
         }
-        if (search_data == undefined) return { paper_nodes, links };
+        if (search_data == undefined) return { nodes: paper_nodes, links };
       } else {
         search_data = search_data_cache.get(search_data_cache_key)!
       }
@@ -62,7 +68,7 @@ export const scholarRouter = createTRPCRouter({
         if (post_data_cache.size > 100) {
           post_data_cache.delete(search_data_cache.keys().next().value as string)
         }
-        if (post_data == undefined) return { paper_nodes, links };
+        if (post_data == undefined) return { nodes: paper_nodes, links };
       } else {
         post_data = post_data_cache.get(search_data_cache_key)!
       }
@@ -281,8 +287,8 @@ export const scholarRouter = createTRPCRouter({
           }
           links.push({
             id: `${d.topic}-${c.id}`,
-            source: `${d.topic}`,
-            target: c.id,
+            source: c.id,
+            target: `${d.topic}`,
             opacity: 1,
             strength: 0,
             type: "Topic-Paper"
@@ -290,8 +296,6 @@ export const scholarRouter = createTRPCRouter({
         })
         x /= x_score;
         y /= y_score;
-
-        // nodes.sort((a, b) => b.size - a.size)
 
         const words = d.documentVocab;
         words.sort((a, b) => b.specificity - a.specificity)
@@ -301,7 +305,8 @@ export const scholarRouter = createTRPCRouter({
           id: `${d.topic}`,
           label: words.filter((d) => d.word != null && d.specificity > 0.9).map((d) => d.word).slice(0,3).join(", "),
           // label: `${d.documentVocab[0]?.word}, ${d.documentVocab[1]?.word}`,
-          size: 32,//0,
+          // size: 32,//0,
+          size: Math.round(Math.sqrt(d.documents.map((c) => id_map.get(c.id)!.size).reduce((a, b) => a + b, 0))/5),
           level: 0,
           color: ['#e63946', '#ee6558', '#f3886e', '#f1ab8c', '#b5d5ef', '#e1c1e9', '#c2abd3', '#a496c0', '#0088f1'][+d.topic % 9]!,
           drawType: "text",
@@ -315,10 +320,12 @@ export const scholarRouter = createTRPCRouter({
       })
       console.log("graph time", new Date().getTime() - start_time);
 
+      paper_nodes.sort((a, b) => b.size - a.size)
+      topic_nodes.sort((a, b) => b.size - a.size)
+
       return { 
         // paper_nodes, concat paper_nodes and topic_nodes
         nodes: paper_nodes.concat(topic_nodes),
         links: links
       };
-    }),
-});
+}
