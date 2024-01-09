@@ -9,7 +9,6 @@ import { type CGraphData } from "~/components/CGraph2D";
 import { to_lda } from "~/utils/graph_utils";
 import hash from "object-hash";
 import TSNE from 'tsne-js';
-import { convertHexToRGBA } from "~/lib/utils";
 
 
 // replace with redis later

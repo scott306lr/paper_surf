@@ -7,8 +7,7 @@ import ForceGraph2D, {
   type ForceGraphMethods,
   type LinkObject,
 } from "react-force-graph-2d";
-import React, { useCallback, useEffect } from "react";
-import { forceCollide } from "d3-force";
+import React, { useCallback } from "react";
 import { convertHexToRGBA } from "~/lib/utils";
 
 export interface CGraphData {
