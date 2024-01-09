@@ -314,11 +314,18 @@ const CGraph2D: React.FC<{
       linkDirectionalParticles={5}
       linkDirectionalParticleWidth={(link) => {
         if (link.type == "Topic-Paper") {
-          return highlightLinkIds?.has(link.id) && showPaper && showTopic
+          return link.type !== "Topic-Paper" &&
+            highlightLinkIds?.has(link.id) &&
+            showPaper &&
+            showTopic
             ? 8
             : 0;
         } else {
-          return highlightLinkIds?.has(link.id) && showPaper ? 8 : 0;
+          return link.type !== "Topic-Paper" &&
+            highlightLinkIds?.has(link.id) &&
+            showPaper
+            ? 8
+            : 0;
         }
       }}
       linkDirectionalParticleSpeed={0.002}
@@ -329,14 +336,14 @@ const CGraph2D: React.FC<{
         const end = link.target;
         ctx.strokeStyle = convertHexToRGBA("#000000", 0.1);
 
-        if (link.type == "Topic-Paper" && !highlightLinkIds?.has(link.id)) {
+        if (link.type === "Topic-Paper" && !highlightLinkIds?.has(link.id)) {
           ctx.strokeStyle = convertHexToRGBA("#000000", 0);
         } else {
           ctx.strokeStyle = convertHexToRGBA("#000000", 0.8);
         }
 
         if (highlightLinkIds?.has(link.id)) {
-          if (link.type == "Topic-Paper") {
+          if (link.type === "Topic-Paper") {
             if (showTopic) {
               ctx.strokeStyle = convertHexToRGBA("#C6A969", 1);
             } else {
@@ -346,7 +353,7 @@ const CGraph2D: React.FC<{
             ctx.strokeStyle = convertHexToRGBA("#38419D", 0.6);
           }
         } else {
-          if (link.type == "Topic-Paper") {
+          if (link.type === "Topic-Paper") {
             ctx.strokeStyle = convertHexToRGBA("#000000", 0);
           } else {
             ctx.strokeStyle = convertHexToRGBA("#000000", no_focus ? 0.5 : 0.2);
