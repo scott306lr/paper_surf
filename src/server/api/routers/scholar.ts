@@ -149,7 +149,7 @@ export const scholarRouter = createTRPCRouter({
         if (id_map.has(d.paperId)) {
           const node_link: string[] = [] 
           const node_neighbors: string[] = []
-          d.citations.map((c) => c.paperId).filter((c) => id_map.has(c)).forEach((c) => {
+          d.citations.map((c) => c.paperId)?.filter((c) => id_map.has(c)).forEach((c) => {
             links.push({
               id: `${d.paperId}-${c}`,
               source: d.paperId,
@@ -185,7 +185,7 @@ export const scholarRouter = createTRPCRouter({
             node_neighbors.push(c);
           })
           // references node
-          d.references.map((c) => c.paperId).filter((c) => id_map.has(c)).forEach((r) => {
+          d.references.map((c) => c.paperId)?.filter((c) => id_map.has(c)).forEach((r) => {
             links.push({
               id: `${r}-${d.paperId}`,
               source: r,
