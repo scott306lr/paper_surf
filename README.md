@@ -1,4 +1,4 @@
-# To Start the System
+# To run the program ...
 
 ```bash
 # clone and enter project directory
